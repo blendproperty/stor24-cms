@@ -7,18 +7,42 @@ import { fileURLToPath } from "url";
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
 
+const secret = process.env.PAYLOAD_SECRET;
+if (!secret) throw new Error("PAYLOAD_SECRET environment variable is required");
+
+const dbUri = process.env.DATABASE_URI;
+if (!dbUri) throw new Error("DATABASE_URI environment variable is required");
+
+const publicRead = () => true;
+const adminOnly = ({ req: { user } }: any) => !!user;
+
 export default buildConfig({
   admin: {
     user: "users",
   },
+  rateLimit: {
+    max: 100,
+    window: 15 * 60 * 1000,
+  },
   collections: [
     {
       slug: "users",
-      auth: true,
+      auth: {
+        maxLoginAttempts: 5,
+        lockTime: 10 * 60 * 1000,
+        tokenExpiration: 7200,
+      },
+      access: {
+        read: adminOnly,
+        create: adminOnly,
+        update: adminOnly,
+        delete: adminOnly,
+      },
       fields: [],
     },
     {
       slug: "storage-units",
+      access: { read: publicRead, create: adminOnly, update: adminOnly, delete: adminOnly },
       admin: { useAsTitle: "name" },
       fields: [
         { name: "name", type: "text", required: true },
@@ -35,11 +59,15 @@ export default buildConfig({
     },
     {
       slug: "media",
-      upload: true,
+      access: { read: publicRead, create: adminOnly, update: adminOnly, delete: adminOnly },
+      upload: {
+        mimeTypes: ["image/jpeg", "image/png", "image/webp", "image/gif"],
+      },
       fields: [{ name: "alt", type: "text" }],
     },
     {
       slug: "posts",
+      access: { read: publicRead, create: adminOnly, update: adminOnly, delete: adminOnly },
       admin: { useAsTitle: "title" },
       fields: [
         { name: "title", type: "text", required: true },
@@ -47,13 +75,14 @@ export default buildConfig({
         { name: "status", type: "select", options: ["draft", "published"], defaultValue: "draft", required: true },
         { name: "publishedAt", type: "date" },
         { name: "excerpt", type: "textarea" },
-        { name: "content", type: "richText" },
+        { name: "content", type: "richText", editor: lexicalEditor({}) },
         { name: "featuredImage", type: "upload", relationTo: "media" },
         { name: "tags", type: "array", fields: [{ name: "tag", type: "text" }] },
       ],
     },
     {
       slug: "faqs",
+      access: { read: publicRead, create: adminOnly, update: adminOnly, delete: adminOnly },
       admin: { useAsTitle: "question" },
       fields: [
         { name: "question", type: "text", required: true },
@@ -63,6 +92,7 @@ export default buildConfig({
     },
     {
       slug: "pricing",
+      access: { read: publicRead, create: adminOnly, update: adminOnly, delete: adminOnly },
       admin: { useAsTitle: "name" },
       fields: [
         { name: "name", type: "text", required: true },
@@ -74,6 +104,7 @@ export default buildConfig({
     },
     {
       slug: "areas",
+      access: { read: publicRead, create: adminOnly, update: adminOnly, delete: adminOnly },
       admin: { useAsTitle: "name" },
       fields: [
         { name: "name", type: "text", required: true },
@@ -85,14 +116,8 @@ export default buildConfig({
       ],
     },
   ],
-  db: postgresAdapter({
-    pool: {
-      connectionString: process.env.DATABASE_URI || "postgresql://stor4_user:stor4_pass@localhost:5432/stor4_db",
-    },
-  }),
+  db: postgresAdapter({ pool: { connectionString: dbUri } }),
   editor: lexicalEditor({}),
-  secret: process.env.PAYLOAD_SECRET || "fallback-secret-key-32-chars-ok!",
-  typescript: {
-    outputFile: path.resolve(dirname, "payload-types.ts"),
-  },
+  secret,
+  typescript: { outputFile: path.resolve(dirname, "payload-types.ts") },
 });
