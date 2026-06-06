@@ -19,7 +19,14 @@ const adminOnly = ({ req: { user } }: any) => !!user;
 export default buildConfig({
   admin: {
     user: "users",
-  },
+    meta: { titleSuffix: "— Stor24 CMS" },
+    components: {
+      graphics: {
+        Logo: { path: "@/components/Logo#Logo" },
+        Icon: { path: "@/components/Icon#Icon" },
+      },
+    },
+ },
   rateLimit: {
     max: 100,
     window: 15 * 60 * 1000,
@@ -88,18 +95,6 @@ export default buildConfig({
         { name: "question", type: "text", required: true },
         { name: "answer", type: "textarea", required: true },
         { name: "order", type: "number" },
-      ],
-    },
-    {
-      slug: "pricing",
-      access: { read: publicRead, create: adminOnly, update: adminOnly, delete: adminOnly },
-      admin: { useAsTitle: "name" },
-      fields: [
-        { name: "name", type: "text", required: true },
-        { name: "dimensions", type: "text" },
-        { name: "price", type: "text", required: true },
-        { name: "goodFor", type: "textarea" },
-        { name: "popular", type: "checkbox" },
       ],
     },
     {

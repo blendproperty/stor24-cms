@@ -72,7 +72,6 @@ export interface Config {
     media: Media;
     posts: Post;
     faqs: Faq;
-    pricing: Pricing;
     areas: Area;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -85,7 +84,6 @@ export interface Config {
     media: MediaSelect<false> | MediaSelect<true>;
     posts: PostsSelect<false> | PostsSelect<true>;
     faqs: FaqsSelect<false> | FaqsSelect<true>;
-    pricing: PricingSelect<false> | PricingSelect<true>;
     areas: AreasSelect<false> | AreasSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -233,20 +231,6 @@ export interface Faq {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "pricing".
- */
-export interface Pricing {
-  id: number;
-  name: string;
-  dimensions?: string | null;
-  price: string;
-  goodFor?: string | null;
-  popular?: boolean | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "areas".
  */
 export interface Area {
@@ -291,10 +275,6 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'faqs';
         value: number | Faq;
-      } | null)
-    | ({
-        relationTo: 'pricing';
-        value: number | Pricing;
       } | null)
     | ({
         relationTo: 'areas';
@@ -427,19 +407,6 @@ export interface FaqsSelect<T extends boolean = true> {
   question?: T;
   answer?: T;
   order?: T;
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "pricing_select".
- */
-export interface PricingSelect<T extends boolean = true> {
-  name?: T;
-  dimensions?: T;
-  price?: T;
-  goodFor?: T;
-  popular?: T;
   updatedAt?: T;
   createdAt?: T;
 }
