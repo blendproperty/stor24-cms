@@ -1,43 +1,21 @@
-version: '3'
-
 services:
-  payload:
-    image: node:18-alpine
-    ports:
-      - '3000:3000'
-    volumes:
-      - .:/home/node/app
-      - node_modules:/home/node/app/node_modules
-    working_dir: /home/node/app/
-    command: sh -c "corepack enable && corepack prepare pnpm@latest --activate && pnpm install && pnpm dev"
-    depends_on:
-      - mongo
-      # - postgres
-    env_file:
-      - .env
-
-  # Ensure your DATABASE_URI uses 'mongo' as the hostname ie. mongodb://mongo/my-db-name
-  mongo:
-    image: mongo:latest
-    ports:
-      - '27017:27017'
-    command:
-      - --storageEngine=wiredTiger
-    volumes:
-      - data:/data/db
-    logging:
-      driver: none
-
-  # Uncomment the following to use postgres
-  # postgres:
-  #   restart: always
-  #   image: postgres:latest
-  #   volumes:
-  #     - pgdata:/var/lib/postgresql/data
-  #   ports:
-  #     - "5432:5432"
-
-volumes:
-  data:
-  # pgdata:
-  node_modules:
+  stor24-cms:
+    build: .
+    container_name: stor24-cms
+    restart: unless-stopped
+    environment:
+      - PAYLOAD_SECRET=440723c7a04f856ccc2f807f7db249208cbaf3bd963b180a9d081bb50c819e14
+      - DATABASE_URI=postgresql://stor4_user:stor4_pass@stor4_db:5432/stor4_db
+    networks:
+      - root_default
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.stor24-cms.rule=Host(`cms.stor4.srv938083.hstgr.cloud`)"
+      - "traefik.http.routers.stor24-cms.entrypoints=websecure"
+      - "traefik.http.routers.stor24-cms.tls=true"
+      - "traefik.http.routers.stor24-cms.tls.certresolver=mytlschallenge"
+      - "traefik.http.services.stor24-cms.loadbalancer.server.port=3000"
+      - "traefik.docker.network=root_default"
+networks:
+  root_default:
+    external: true
