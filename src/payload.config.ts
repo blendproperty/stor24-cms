@@ -1,6 +1,7 @@
 import { buildConfig } from "payload";
 import { postgresAdapter } from "@payloadcms/db-postgres";
 import { lexicalEditor } from "@payloadcms/richtext-lexical";
+import { seoPlugin } from "@payloadcms/plugin-seo";
 import path from "path";
 import { fileURLToPath } from "url";
 
@@ -27,6 +28,14 @@ export default buildConfig({
       },
     },
   },
+  plugins: [
+    seoPlugin({
+      collections: ["posts", "areas", "storage-units"],
+      uploadsCollection: "media",
+      generateTitle: ({ doc }: any) => `${doc?.title || doc?.name || ""} | Stor24`,
+      generateDescription: ({ doc }: any) => doc?.excerpt || doc?.intro || doc?.description || "",
+    }),
+  ],
   collections: [
     {
       slug: "users",

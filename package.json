@@ -15,8 +15,10 @@
     "start": "cross-env NODE_OPTIONS=--no-deprecation next start"
   },
   "dependencies": {
+    "@payloadcms/db-postgres": "3.31.0",
     "@payloadcms/next": "3.31.0",
     "@payloadcms/payload-cloud": "3.31.0",
+    "@payloadcms/plugin-seo": "^3.85.0",
     "@payloadcms/richtext-lexical": "3.31.0",
     "cross-env": "^7.0.3",
     "graphql": "^16.8.1",
@@ -24,8 +26,7 @@
     "payload": "3.31.0",
     "react": "19.0.0",
     "react-dom": "19.0.0",
-    "sharp": "0.32.6",
-    "@payloadcms/db-postgres": "3.31.0"
+    "sharp": "0.32.6"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.2.0",
