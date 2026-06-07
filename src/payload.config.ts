@@ -16,21 +16,6 @@ if (!dbUri) throw new Error("DATABASE_URI environment variable is required");
 const publicRead = () => true;
 const adminOnly = ({ req: { user } }: any) => !!user;
 
-const seoFields = {
-  name: "seo",
-  type: "group" as const,
-  label: "SEO",
-  fields: [
-    { name: "metaTitle", type: "text" as const, label: "Meta Title (50-60 chars)" },
-    { name: "metaDescription", type: "textarea" as const, label: "Meta Description (150-160 chars)" },
-    { name: "ogTitle", type: "text" as const, label: "OG Title" },
-    { name: "ogDescription", type: "textarea" as const, label: "OG Description" },
-    { name: "ogImage", type: "upload" as const, relationTo: "media" as const, label: "OG Image" },
-    { name: "canonicalUrl", type: "text" as const, label: "Canonical URL" },
-    { name: "noIndex", type: "checkbox" as const, label: "No Index (hide from Google)", defaultValue: false },
-  ],
-};
-
 export default buildConfig({
   admin: {
     user: "users",
@@ -73,7 +58,6 @@ export default buildConfig({
         { name: "popular", type: "checkbox", defaultValue: false },
         { name: "description", type: "textarea" },
         { name: "image", type: "upload", relationTo: "media" },
-        seoFields,
       ],
     },
     {
@@ -82,9 +66,7 @@ export default buildConfig({
       upload: {
         mimeTypes: ["image/jpeg", "image/png", "image/webp", "image/gif"],
       },
-      fields: [
-        { name: "alt", type: "text" },
-      ],
+      fields: [{ name: "alt", type: "text" }],
     },
     {
       slug: "posts",
@@ -99,7 +81,6 @@ export default buildConfig({
         { name: "content", type: "richText", editor: lexicalEditor({}) },
         { name: "featuredImage", type: "upload", relationTo: "media" },
         { name: "tags", type: "array", fields: [{ name: "tag", type: "text" }] },
-        seoFields,
       ],
     },
     {
@@ -123,17 +104,6 @@ export default buildConfig({
         { name: "personalCopy", type: "textarea" },
         { name: "businessCopy", type: "textarea" },
         { name: "nearby", type: "array", fields: [{ name: "area", type: "text" }] },
-        seoFields,
-      ],
-    },
-    {
-      slug: "pages",
-      access: { read: publicRead, create: adminOnly, update: adminOnly, delete: adminOnly },
-      admin: { useAsTitle: "title" },
-      fields: [
-        { name: "title", type: "text", required: true },
-        { name: "slug", type: "text", required: true, unique: true },
-        seoFields,
       ],
     },
   ],
