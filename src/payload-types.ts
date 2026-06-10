@@ -73,6 +73,9 @@ export interface Config {
     posts: Post;
     faqs: Faq;
     areas: Area;
+    contacts: Contact;
+    deals: Deal;
+    activities: Activity;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
     'payload-migrations': PayloadMigration;
@@ -85,6 +88,9 @@ export interface Config {
     posts: PostsSelect<false> | PostsSelect<true>;
     faqs: FaqsSelect<false> | FaqsSelect<true>;
     areas: AreasSelect<false> | AreasSelect<true>;
+    contacts: ContactsSelect<false> | ContactsSelect<true>;
+    deals: DealsSelect<false> | DealsSelect<true>;
+    activities: ActivitiesSelect<false> | ActivitiesSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
     'payload-migrations': PayloadMigrationsSelect<false> | PayloadMigrationsSelect<true>;
@@ -159,6 +165,14 @@ export interface StorageUnit {
   popular?: boolean | null;
   description?: string | null;
   image?: (number | null) | Media;
+  meta?: {
+    title?: string | null;
+    description?: string | null;
+    /**
+     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
+     */
+    image?: (number | null) | Media;
+  };
   updatedAt: string;
   createdAt: string;
 }
@@ -214,6 +228,14 @@ export interface Post {
         id?: string | null;
       }[]
     | null;
+  meta?: {
+    title?: string | null;
+    description?: string | null;
+    /**
+     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
+     */
+    image?: (number | null) | Media;
+  };
   updatedAt: string;
   createdAt: string;
 }
@@ -246,6 +268,60 @@ export interface Area {
         id?: string | null;
       }[]
     | null;
+  meta?: {
+    title?: string | null;
+    description?: string | null;
+    /**
+     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
+     */
+    image?: (number | null) | Media;
+  };
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "contacts".
+ */
+export interface Contact {
+  id: number;
+  firstName: string;
+  lastName?: string | null;
+  email: string;
+  phone?: string | null;
+  source?: ('web_form' | 'whatsapp' | 'email' | 'walk_in' | 'referral') | null;
+  unitSize?: ('small' | 'medium' | 'large' | 'extra_large') | null;
+  moveInDate?: string | null;
+  score?: number | null;
+  status?: ('new' | 'quoted' | 'viewing' | 'converted' | 'lost') | null;
+  notes?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "deals".
+ */
+export interface Deal {
+  id: number;
+  contact: number | Contact;
+  stage: 'new_lead' | 'quoted' | 'viewing_scheduled' | 'converted' | 'active' | 'churned' | 'lost';
+  unitSize?: ('small' | 'medium' | 'large' | 'extra_large') | null;
+  monthlyRate?: number | null;
+  startDate?: string | null;
+  endDate?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "activities".
+ */
+export interface Activity {
+  id: number;
+  contact: number | Contact;
+  type: 'note' | 'email' | 'call' | 'whatsapp' | 'viewing' | 'status_change';
+  body?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -279,6 +355,18 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'areas';
         value: number | Area;
+      } | null)
+    | ({
+        relationTo: 'contacts';
+        value: number | Contact;
+      } | null)
+    | ({
+        relationTo: 'deals';
+        value: number | Deal;
+      } | null)
+    | ({
+        relationTo: 'activities';
+        value: number | Activity;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -357,6 +445,13 @@ export interface StorageUnitsSelect<T extends boolean = true> {
   popular?: T;
   description?: T;
   image?: T;
+  meta?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        image?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
 }
@@ -396,6 +491,13 @@ export interface PostsSelect<T extends boolean = true> {
         tag?: T;
         id?: T;
       };
+  meta?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        image?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
 }
@@ -426,6 +528,56 @@ export interface AreasSelect<T extends boolean = true> {
         area?: T;
         id?: T;
       };
+  meta?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        image?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "contacts_select".
+ */
+export interface ContactsSelect<T extends boolean = true> {
+  firstName?: T;
+  lastName?: T;
+  email?: T;
+  phone?: T;
+  source?: T;
+  unitSize?: T;
+  moveInDate?: T;
+  score?: T;
+  status?: T;
+  notes?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "deals_select".
+ */
+export interface DealsSelect<T extends boolean = true> {
+  contact?: T;
+  stage?: T;
+  unitSize?: T;
+  monthlyRate?: T;
+  startDate?: T;
+  endDate?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "activities_select".
+ */
+export interface ActivitiesSelect<T extends boolean = true> {
+  contact?: T;
+  type?: T;
+  body?: T;
   updatedAt?: T;
   createdAt?: T;
 }
