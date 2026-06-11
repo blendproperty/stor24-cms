@@ -52,6 +52,7 @@ export default buildConfig({
         maxLoginAttempts: 5,
         lockTime: 10 * 60 * 1000,
         tokenExpiration: 7200,
+        useAPIKey: true,
       },
       access: {
         read: adminOnly,
