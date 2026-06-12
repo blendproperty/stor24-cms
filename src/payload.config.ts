@@ -127,7 +127,7 @@ export default buildConfig({
     },
     {
       slug: "contacts",
-      access: { read: adminOnly, create: adminOnly, update: adminOnly, delete: adminOnly },
+      access: { read: adminOnly, create: () => true, update: adminOnly, delete: adminOnly },
       admin: {
         useAsTitle: "email",
         defaultColumns: ["firstName", "lastName", "email", "phone", "status", "source", "score", "updatedAt"],
@@ -180,7 +180,7 @@ export default buildConfig({
     },
     {
       slug: "deals",
-      access: { read: adminOnly, create: adminOnly, update: adminOnly, delete: adminOnly },
+      access: { read: adminOnly, create: () => true, update: adminOnly, delete: adminOnly },
       admin: {
         useAsTitle: "stage",
         defaultColumns: ["contact", "stage", "unitSize", "monthlyRate", "startDate", "endDate", "updatedAt"],
@@ -199,7 +199,6 @@ export default buildConfig({
             { label: "New Lead", value: "new_lead" },
             { label: "Quoted", value: "quoted" },
             { label: "Viewing Scheduled", value: "viewing_scheduled" },
-            { label: "Converted", value: "converted" },
             { label: "Active", value: "active" },
             { label: "Churned", value: "churned" },
             { label: "Lost", value: "lost" },

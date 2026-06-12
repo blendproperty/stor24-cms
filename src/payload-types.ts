@@ -135,6 +135,9 @@ export interface User {
   id: number;
   updatedAt: string;
   createdAt: string;
+  enableAPIKey?: boolean | null;
+  apiKey?: string | null;
+  apiKeyIndex?: string | null;
   email: string;
   resetPasswordToken?: string | null;
   resetPasswordExpiration?: string | null;
@@ -305,7 +308,7 @@ export interface Contact {
 export interface Deal {
   id: number;
   contact: number | Contact;
-  stage: 'new_lead' | 'quoted' | 'viewing_scheduled' | 'converted' | 'active' | 'churned' | 'lost';
+  stage: 'new_lead' | 'quoted' | 'viewing_scheduled' | 'active' | 'churned' | 'lost';
   unitSize?: ('small' | 'medium' | 'large' | 'extra_large') | null;
   monthlyRate?: number | null;
   startDate?: string | null;
@@ -417,6 +420,9 @@ export interface PayloadMigration {
 export interface UsersSelect<T extends boolean = true> {
   updatedAt?: T;
   createdAt?: T;
+  enableAPIKey?: T;
+  apiKey?: T;
+  apiKeyIndex?: T;
   email?: T;
   resetPasswordToken?: T;
   resetPasswordExpiration?: T;
