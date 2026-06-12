@@ -34,6 +34,10 @@ export default buildConfig({
           Component: { path: "@/components/Dashboard#Dashboard" },
           path: "/crm-dashboard",
         },
+        ContactDetail: {
+          Component: { path: "@/components/Dashboard/ContactDetail#ContactDetail" },
+          path: "/crm-dashboard/contact/:id",
+        },
       },
     },
   },

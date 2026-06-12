@@ -29,6 +29,7 @@ import { Icon as Icon_fe9ca0c9b67829fe284b73bb77968447 } from '@/components/Icon
 import { Logo as Logo_2b7e2e151f989fb419ce3009e56b903e } from '@/components/Logo'
 import { DashboardNav as DashboardNav_b025e457a2b6dfb7400fffebd34c2479 } from '@/components/Dashboard/Nav'
 import { Dashboard as Dashboard_b39f2d96c5778d5698b3c9e7777aa63a } from '@/components/Dashboard'
+import { ContactDetail as ContactDetail_f3ea9396c940e9af1e3e797b6a45b1e6 } from '@/components/Dashboard/ContactDetail'
 
 export const importMap = {
   "@payloadcms/plugin-seo/client#OverviewComponent": OverviewComponent_a8a977ebc872c5d5ea7ee689724c0860,
@@ -61,5 +62,6 @@ export const importMap = {
   "@/components/Icon#Icon": Icon_fe9ca0c9b67829fe284b73bb77968447,
   "@/components/Logo#Logo": Logo_2b7e2e151f989fb419ce3009e56b903e,
   "@/components/Dashboard/Nav#DashboardNav": DashboardNav_b025e457a2b6dfb7400fffebd34c2479,
-  "@/components/Dashboard#Dashboard": Dashboard_b39f2d96c5778d5698b3c9e7777aa63a
+  "@/components/Dashboard#Dashboard": Dashboard_b39f2d96c5778d5698b3c9e7777aa63a,
+  "@/components/Dashboard/ContactDetail#ContactDetail": ContactDetail_f3ea9396c940e9af1e3e797b6a45b1e6
 }

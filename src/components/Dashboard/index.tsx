@@ -307,7 +307,7 @@ export const Dashboard = () => {
 
                   <div style={{ flex: 1, minWidth: 0 }}>
                     {contact ? (
-                      <Link href={`/admin/collections/contacts/${contact.id}`} style={{ textDecoration: 'none' }}>
+                      <Link href={`/admin/crm-dashboard/contact/${contact.id}`} style={{ textDecoration: 'none' }}>
                         <p style={{ margin: 0, fontSize: '14px', fontWeight: 600, color: '#2c2c2a' }}>
                           {contact.firstName} {contact.lastName}
                         </p>
@@ -380,7 +380,7 @@ export const Dashboard = () => {
             {recentContacts.map((c, i) => {
               const sc = statusColor[c.status] || { bg: '#f1efe8', text: '#5f5e5a' }
               return (
-                <Link key={c.id} href={`/admin/collections/contacts/${c.id}`} style={{ textDecoration: 'none' }}>
+                <Link key={c.id} href={`/admin/crm-dashboard/contact/${c.id}`} style={{ textDecoration: 'none' }}>
                   <div style={{
                     display: 'flex', alignItems: 'center', gap: '14px',
                     padding: '0.9rem 0.5rem',
