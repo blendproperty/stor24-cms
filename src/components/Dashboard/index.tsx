@@ -266,10 +266,10 @@ export const Dashboard = () => {
         ))}
       </div>
 
-      {/* Leads pipeline */}
+      {/* Deals pipeline */}
       <div style={{ ...cardStyle, padding: '1.5rem', marginBottom: '1.5rem' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
-          <h2 style={{ fontSize: '1.05rem', fontWeight: 700, margin: 0, color: '#2c2c2a' }}>Leads pipeline</h2>
+          <h2 style={{ fontSize: '1.05rem', fontWeight: 700, margin: 0, color: '#2c2c2a' }}>Deals pipeline</h2>
           <Link href='/admin/collections/deals' style={{ fontSize: '13px', color: '#534AB7', textDecoration: 'none', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '4px' }}>
             View all
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
