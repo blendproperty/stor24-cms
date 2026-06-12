@@ -1,7 +1,7 @@
 'use client'
 import React, { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { useParams } from 'next/navigation'
+import { useSearchParams } from 'next/navigation'
 
 type Contact = {
   id: string
@@ -97,8 +97,8 @@ const cardStyle: React.CSSProperties = {
 }
 
 export const ContactDetail = () => {
-  const params = useParams()
-  const id = params?.id as string
+  const searchParams = useSearchParams()
+  const id = searchParams?.get('id') || ''
 
   const [contact, setContact] = useState<Contact | null>(null)
   const [deal, setDeal] = useState<Deal | null>(null)
