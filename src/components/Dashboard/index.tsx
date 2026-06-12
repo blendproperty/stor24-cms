@@ -209,6 +209,9 @@ export const Dashboard = () => {
   const [loading, setLoading] = useState(true)
   const [updatingId, setUpdatingId] = useState<string | null>(null)
   const [mounted, setMounted] = useState(false)
+  const [dealSearch, setDealSearch] = useState('')
+  const [dealStageFilter, setDealStageFilter] = useState('all')
+  const [contactsPage, setContactsPage] = useState(1)
 
   const load = async () => {
     const [contactsRes, allContactsRes, dealsRes] = await Promise.all([
@@ -274,6 +277,19 @@ export const Dashboard = () => {
   const leadsThisWeek = allContacts.filter((c) => new Date(c.createdAt) >= sevenDaysAgo).length
   const activeThisWeek = deals.filter((d) => d.stage === 'active' && new Date(d.updatedAt) >= sevenDaysAgo).length
   const lostThisWeek = deals.filter((d) => d.stage === 'lost' && new Date(d.updatedAt) >= sevenDaysAgo).length
+
+  const filteredDeals = deals.filter((d) => {
+    const contact = typeof d.contact === 'object' ? d.contact : null
+    const matchesStage = dealStageFilter === 'all' || d.stage === dealStageFilter
+    const search = dealSearch.toLowerCase().trim()
+    const matchesSearch = !search || (contact && (
+      contact.firstName?.toLowerCase().includes(search) ||
+      contact.lastName?.toLowerCase().includes(search) ||
+      contact.email?.toLowerCase().includes(search) ||
+      contact.phone?.toLowerCase().includes(search)
+    ))
+    return matchesStage && matchesSearch
+  })
 
   const fadeStyle = (delay: number): React.CSSProperties => ({
     opacity: mounted ? 1 : 0,
@@ -443,6 +459,47 @@ export const Dashboard = () => {
             </Link>
           </div>
 
+          {!loading && deals.length > 0 && (
+            <div style={{ display: 'flex', gap: '8px', marginBottom: '1rem' }}>
+              <input
+                type="text"
+                placeholder="Search by name, email, or phone..."
+                value={dealSearch}
+                onChange={(e) => setDealSearch(e.target.value)}
+                style={{
+                  flex: 1,
+                  border: '1px solid #ece8e0',
+                  borderRadius: '8px',
+                  padding: '8px 12px',
+                  fontSize: '13px',
+                  fontFamily: 'inherit',
+                  color: '#2c2c2a',
+                  outline: 'none',
+                }}
+              />
+              <select
+                value={dealStageFilter}
+                onChange={(e) => setDealStageFilter(e.target.value)}
+                style={{
+                  border: '1px solid #ece8e0',
+                  borderRadius: '8px',
+                  padding: '8px 12px',
+                  fontSize: '13px',
+                  fontFamily: 'inherit',
+                  color: '#2c2c2a',
+                  background: '#fff',
+                  outline: 'none',
+                  cursor: 'pointer',
+                }}
+              >
+                <option value="all">All stages</option>
+                {Object.entries(stageMeta).filter(([k]) => k !== 'churned' && k !== 'lost').map(([k, v]) => (
+                  <option key={k} value={k}>{v.label}</option>
+                ))}
+              </select>
+            </div>
+          )}
+
           {loading ? (
             <p style={{ color: '#a89f8f', fontSize: '14px', padding: '2rem 0', textAlign: 'center' }}>Loading…</p>
           ) : deals.length === 0 ? (
@@ -451,9 +508,13 @@ export const Dashboard = () => {
               <p style={{ margin: '0.75rem 0 0', fontSize: '14px', color: '#a89f8f' }}>No active deals in the pipeline.</p>
               <p style={{ margin: '4px 0 0', fontSize: '12.5px', color: '#cfc8b8' }}>New leads from your website will appear here automatically.</p>
             </div>
+          ) : filteredDeals.length === 0 ? (
+            <div style={{ textAlign: 'center', padding: '2.5rem 0', color: '#cfc8b8' }}>
+              <p style={{ margin: 0, fontSize: '14px', color: '#a89f8f' }}>No deals match your search or filter.</p>
+            </div>
           ) : (
             <div>
-              {deals.map((d, i) => {
+              {filteredDeals.map((d, i) => {
                 const contact = typeof d.contact === 'object' ? d.contact : null
                 const meta = stageMeta[d.stage] || { label: d.stage, bg: '#f1efe8', text: '#5f5e5a' }
                 const actions = transitions[d.stage] || []
@@ -463,7 +524,7 @@ export const Dashboard = () => {
                   <div key={d.id} style={{
                     display: 'flex', alignItems: 'center', gap: '14px',
                     padding: '0.9rem 0.5rem',
-                    borderBottom: i < deals.length - 1 ? '1px solid #f5f2ec' : 'none',
+                    borderBottom: i < filteredDeals.length - 1 ? '1px solid #f5f2ec' : 'none',
                     opacity: isUpdating ? 0.5 : 1,
                     transition: 'opacity 0.15s',
                   }}>

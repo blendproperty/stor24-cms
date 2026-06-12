@@ -1,0 +1,44 @@
+:root {
+  --theme-elevation-0: #ffffff;
+  --theme-elevation-50: #faf8f4;
+  --theme-elevation-100: #f1efe8;
+}
+
+[data-theme='light'] {
+  --theme-bg: #faf8f4;
+}
+
+.nav {
+  background: #1a1a2e !important;
+}
+
+.nav__wrap {
+  background: #1a1a2e !important;
+}
+
+.nav a,
+.nav .nav-group__label,
+.nav .nav__link-label {
+  color: #e8e6f0 !important;
+}
+
+.nav a:hover {
+  color: #ffffff !important;
+  background: rgba(255, 255, 255, 0.06) !important;
+}
+
+.nav__link--active {
+  background: rgba(216, 90, 48, 0.15) !important;
+}
+
+.nav__link--active .nav__link-label {
+  color: #ff8a5c !important;
+}
+
+.template-default .nav-toggler svg {
+  color: #e8e6f0 !important;
+}
+
+.app-header {
+  background: #1a1a2e !important;
+}
