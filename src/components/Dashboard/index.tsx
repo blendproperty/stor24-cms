@@ -14,9 +14,18 @@ type Contact = {
   firstName: string
   lastName: string
   email: string
+  phone?: string
   status: string
   source: string
   createdAt: string
+}
+
+type Deal = {
+  id: string
+  contact: Contact | string
+  stage: string
+  unitSize?: string
+  updatedAt: string
 }
 
 const statusColor: Record<string, { bg: string; text: string }> = {
@@ -33,6 +42,37 @@ const sourceLabel: Record<string, string> = {
   email: 'Email',
   walk_in: 'Walk in',
   referral: 'Referral',
+}
+
+const stageMeta: Record<string, { label: string; bg: string; text: string }> = {
+  new_lead: { label: 'New lead', bg: '#FAEEDA', text: '#633806' },
+  quoted: { label: 'Quoted', bg: '#E6F1FB', text: '#0C447C' },
+  viewing_scheduled: { label: 'Viewing scheduled', bg: '#EEEDFE', text: '#3C3489' },
+  active: { label: 'Active', bg: '#EAF3DE', text: '#27500A' },
+  churned: { label: 'Churned', bg: '#FAECE7', text: '#712B13' },
+  lost: { label: 'Lost', bg: '#FCEBEB', text: '#791F1F' },
+}
+
+// Defines the forward transition button(s) available for each stage
+const transitions: Record<string, { next: string; label: string; color: string }[]> = {
+  new_lead: [
+    { next: 'quoted', label: 'Mark as quoted', color: '#378ADD' },
+    { next: 'lost', label: 'Mark as lost', color: '#E24B4A' },
+  ],
+  quoted: [
+    { next: 'viewing_scheduled', label: 'Schedule viewing', color: '#7F77DD' },
+    { next: 'active', label: 'Mark active', color: '#639922' },
+    { next: 'lost', label: 'Mark as lost', color: '#E24B4A' },
+  ],
+  viewing_scheduled: [
+    { next: 'active', label: 'Mark active', color: '#639922' },
+    { next: 'lost', label: 'Mark as lost', color: '#E24B4A' },
+  ],
+  active: [
+    { next: 'churned', label: 'Mark churned', color: '#D85A30' },
+  ],
+  churned: [],
+  lost: [],
 }
 
 const icons: Record<string, React.ReactNode> = {
@@ -66,29 +106,48 @@ const icons: Record<string, React.ReactNode> = {
 export const Dashboard = () => {
   const [stats, setStats] = useState<Stats>({ totalContacts: 0, newLeads: 0, inProgress: 0, active: 0 })
   const [recentContacts, setRecentContacts] = useState<Contact[]>([])
+  const [deals, setDeals] = useState<Deal[]>([])
   const [loading, setLoading] = useState(true)
+  const [updatingId, setUpdatingId] = useState<string | null>(null)
+
+  const load = async () => {
+    const [contactsRes, dealsRes] = await Promise.all([
+      fetch('/api/contacts?limit=5&sort=-createdAt'),
+      fetch('/api/deals?limit=100&sort=-updatedAt&depth=1'),
+    ])
+    const contactsData = await contactsRes.json()
+    const dealsData = await dealsRes.json()
+
+    const dealDocs: Deal[] = dealsData.docs || []
+    setStats({
+      totalContacts: contactsData.totalDocs || 0,
+      newLeads: dealDocs.filter((d) => d.stage === 'new_lead').length,
+      inProgress: dealDocs.filter((d) => ['quoted', 'viewing_scheduled'].includes(d.stage)).length,
+      active: dealDocs.filter((d) => d.stage === 'active').length,
+    })
+    setRecentContacts(contactsData.docs || [])
+    setDeals(dealDocs.filter((d) => !['churned', 'lost'].includes(d.stage)))
+    setLoading(false)
+  }
 
   useEffect(() => {
-    const load = async () => {
-      const [contactsRes, dealsRes] = await Promise.all([
-        fetch('/api/contacts?limit=5&sort=-createdAt'),
-        fetch('/api/deals?limit=100'),
-      ])
-      const contactsData = await contactsRes.json()
-      const dealsData = await dealsRes.json()
-
-      const deals = dealsData.docs || []
-      setStats({
-        totalContacts: contactsData.totalDocs || 0,
-        newLeads: deals.filter((d: any) => d.stage === 'new_lead').length,
-        inProgress: deals.filter((d: any) => ['quoted', 'viewing_scheduled'].includes(d.stage)).length,
-        active: deals.filter((d: any) => d.stage === 'active').length,
-      })
-      setRecentContacts(contactsData.docs || [])
-      setLoading(false)
-    }
     load()
   }, [])
+
+  const updateStage = async (dealId: string, newStage: string) => {
+    setUpdatingId(dealId)
+    try {
+      await fetch(`/api/deals/${dealId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ stage: newStage }),
+      })
+      await load()
+    } finally {
+      setUpdatingId(null)
+    }
+  }
 
   const statCards = [
     { key: 'contacts', label: 'Total contacts', value: stats.totalContacts, color: '#378ADD', bg: '#E6F1FB', href: '/admin/collections/contacts' },
@@ -104,6 +163,13 @@ export const Dashboard = () => {
   ]
 
   const initials = (c: Contact) => `${c.firstName?.[0] || ''}${c.lastName?.[0] || ''}`.toUpperCase()
+
+  const cardStyle: React.CSSProperties = {
+    background: '#fff',
+    borderRadius: '16px',
+    boxShadow: '0 1px 2px rgba(40,30,10,0.04), 0 4px 16px rgba(40,30,10,0.04)',
+    border: '1px solid rgba(40,30,10,0.04)',
+  }
 
   return (
     <div style={{
@@ -138,11 +204,8 @@ export const Dashboard = () => {
         {statCards.map((s) => (
           <Link key={s.label} href={s.href} style={{ textDecoration: 'none' }}>
             <div style={{
-              background: '#fff',
-              borderRadius: '16px',
+              ...cardStyle,
               padding: '1.35rem',
-              boxShadow: '0 1px 2px rgba(40,30,10,0.04), 0 4px 16px rgba(40,30,10,0.04)',
-              border: '1px solid rgba(40,30,10,0.04)',
               transition: 'transform 0.15s, box-shadow 0.15s',
               cursor: 'pointer',
             }}
@@ -180,16 +243,14 @@ export const Dashboard = () => {
       }}>
         {quickLinks.map((l) => (
           <Link key={l.label} href={l.href} style={{
+            ...cardStyle,
             flex: 1,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             gap: '6px',
             padding: '0.85rem',
-            background: '#fff',
             borderRadius: '12px',
-            boxShadow: '0 1px 2px rgba(40,30,10,0.04), 0 4px 16px rgba(40,30,10,0.04)',
-            border: '1px solid rgba(40,30,10,0.04)',
             textDecoration: 'none',
             fontSize: '13.5px',
             color: '#534AB7',
@@ -205,14 +266,103 @@ export const Dashboard = () => {
         ))}
       </div>
 
+      {/* Leads pipeline */}
+      <div style={{ ...cardStyle, padding: '1.5rem', marginBottom: '1.5rem' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
+          <h2 style={{ fontSize: '1.05rem', fontWeight: 700, margin: 0, color: '#2c2c2a' }}>Leads pipeline</h2>
+          <Link href='/admin/collections/deals' style={{ fontSize: '13px', color: '#534AB7', textDecoration: 'none', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '4px' }}>
+            View all
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
+          </Link>
+        </div>
+
+        {loading ? (
+          <p style={{ color: '#a89f8f', fontSize: '14px', padding: '2rem 0', textAlign: 'center' }}>Loading…</p>
+        ) : deals.length === 0 ? (
+          <p style={{ color: '#a89f8f', fontSize: '14px', padding: '2rem 0', textAlign: 'center' }}>No active leads in the pipeline.</p>
+        ) : (
+          <div>
+            {deals.map((d, i) => {
+              const contact = typeof d.contact === 'object' ? d.contact : null
+              const meta = stageMeta[d.stage] || { label: d.stage, bg: '#f1efe8', text: '#5f5e5a' }
+              const actions = transitions[d.stage] || []
+              const isUpdating = updatingId === d.id
+
+              return (
+                <div key={d.id} style={{
+                  display: 'flex', alignItems: 'center', gap: '14px',
+                  padding: '0.9rem 0.5rem',
+                  borderBottom: i < deals.length - 1 ? '1px solid #f5f2ec' : 'none',
+                  opacity: isUpdating ? 0.5 : 1,
+                  transition: 'opacity 0.15s',
+                }}>
+                  <div style={{
+                    width: '38px', height: '38px', borderRadius: '50%',
+                    background: '#EEEDFE', color: '#534AB7',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontSize: '13px', fontWeight: 700, flexShrink: 0,
+                  }}>
+                    {contact ? `${contact.firstName?.[0] || ''}${contact.lastName?.[0] || ''}`.toUpperCase() : '?'}
+                  </div>
+
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    {contact ? (
+                      <Link href={`/admin/collections/contacts/${contact.id}`} style={{ textDecoration: 'none' }}>
+                        <p style={{ margin: 0, fontSize: '14px', fontWeight: 600, color: '#2c2c2a' }}>
+                          {contact.firstName} {contact.lastName}
+                        </p>
+                      </Link>
+                    ) : (
+                      <p style={{ margin: 0, fontSize: '14px', fontWeight: 600, color: '#2c2c2a' }}>Unknown contact</p>
+                    )}
+                    <p style={{ margin: '2px 0 0', fontSize: '12.5px', color: '#a89f8f' }}>
+                      {contact?.email}{contact?.phone ? ` · ${contact.phone}` : ''}{d.unitSize ? ` · ${d.unitSize}` : ''}
+                    </p>
+                  </div>
+
+                  <span style={{
+                    background: meta.bg, color: meta.text,
+                    padding: '4px 12px', borderRadius: '20px',
+                    fontSize: '12px', fontWeight: 600,
+                    minWidth: '120px', textAlign: 'center', flexShrink: 0,
+                  }}>
+                    {meta.label}
+                  </span>
+
+                  <div style={{ display: 'flex', gap: '6px', flexShrink: 0 }}>
+                    {actions.map((a) => (
+                      <button
+                        key={a.next}
+                        disabled={isUpdating}
+                        onClick={() => updateStage(d.id, a.next)}
+                        style={{
+                          border: `1px solid ${a.color}33`,
+                          background: `${a.color}14`,
+                          color: a.color,
+                          borderRadius: '8px',
+                          padding: '6px 12px',
+                          fontSize: '12px',
+                          fontWeight: 600,
+                          cursor: isUpdating ? 'default' : 'pointer',
+                          whiteSpace: 'nowrap',
+                          transition: 'background 0.1s',
+                        }}
+                        onMouseEnter={(e) => { if (!isUpdating) e.currentTarget.style.background = `${a.color}28` }}
+                        onMouseLeave={(e) => { e.currentTarget.style.background = `${a.color}14` }}
+                      >
+                        {a.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        )}
+      </div>
+
       {/* Recent Contacts */}
-      <div style={{
-        background: '#fff',
-        borderRadius: '16px',
-        boxShadow: '0 1px 2px rgba(40,30,10,0.04), 0 4px 16px rgba(40,30,10,0.04)',
-        border: '1px solid rgba(40,30,10,0.04)',
-        padding: '1.5rem',
-      }}>
+      <div style={{ ...cardStyle, padding: '1.5rem' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
           <h2 style={{ fontSize: '1.05rem', fontWeight: 700, margin: 0, color: '#2c2c2a' }}>Recent contacts</h2>
           <Link href='/admin/collections/contacts' style={{ fontSize: '13px', color: '#534AB7', textDecoration: 'none', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '4px' }}>
