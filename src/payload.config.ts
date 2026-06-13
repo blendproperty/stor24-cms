@@ -2,6 +2,7 @@ import { buildConfig } from "payload";
 import { postgresAdapter } from "@payloadcms/db-postgres";
 import { lexicalEditor } from "@payloadcms/richtext-lexical";
 import { seoPlugin } from "@payloadcms/plugin-seo";
+import { StorageInsights } from "./collections/StorageInsights";
 import path from "path";
 import { fileURLToPath } from "url";
 
@@ -50,6 +51,7 @@ export default buildConfig({
     }),
   ],
   collections: [
+    StorageInsights,
     {
       slug: "users",
       auth: {

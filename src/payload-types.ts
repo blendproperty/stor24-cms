@@ -67,6 +67,7 @@ export interface Config {
   };
   blocks: {};
   collections: {
+    'storage-insights': StorageInsight;
     users: User;
     'storage-units': StorageUnit;
     media: Media;
@@ -82,6 +83,7 @@ export interface Config {
   };
   collectionsJoins: {};
   collectionsSelect: {
+    'storage-insights': StorageInsightsSelect<false> | StorageInsightsSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
     'storage-units': StorageUnitsSelect<false> | StorageUnitsSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
@@ -126,6 +128,107 @@ export interface UserAuthOperations {
     email: string;
     password: string;
   };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "storage-insights".
+ */
+export interface StorageInsight {
+  id: number;
+  title: string;
+  /**
+   * e.g. self-storage-johannesburg-guide
+   */
+  slug: string;
+  /**
+   * Pillar Guides are the 8 main long-form guides. Cluster Pages are supporting articles.
+   */
+  pageType: 'pillar' | 'cluster';
+  /**
+   * For Cluster Pages: which Pillar Guide this supports.
+   */
+  relatedPillar?: (number | null) | StorageInsight;
+  status: 'draft' | 'published';
+  publishedDate?: string | null;
+  seoTitle: string;
+  metaDescription: string;
+  primaryKeyword: string;
+  secondaryKeywords?:
+    | {
+        keyword?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  searchIntent?: ('informational' | 'commercial' | 'transactional' | 'mixed') | null;
+  /**
+   * Short summary shown on the Storage Insights hub card (1-2 sentences).
+   */
+  excerpt: string;
+  heroImage?: (number | null) | Media;
+  content: {
+    root: {
+      type: string;
+      children: {
+        type: string;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
+  faqs?:
+    | {
+        question: string;
+        answer: string;
+        id?: string | null;
+      }[]
+    | null;
+  ctaHeading?: string | null;
+  ctaText?: string | null;
+  ctaButtonLabel?: string | null;
+  ctaButtonLink?: string | null;
+  /**
+   * For editorial/QA reference - documents which pages this content should link to.
+   */
+  internalLinks?:
+    | {
+        /**
+         * Page name or path, e.g. /storage-prices-johannesburg
+         */
+        targetPage?: string | null;
+        anchorText?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Which JSON-LD schema blocks to render for this page.
+   */
+  schemaTypes?: ('Article' | 'FAQPage' | 'BreadcrumbList' | 'LocalBusiness' | 'Service')[] | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "media".
+ */
+export interface Media {
+  id: number;
+  alt?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  url?: string | null;
+  thumbnailURL?: string | null;
+  filename?: string | null;
+  mimeType?: string | null;
+  filesize?: number | null;
+  width?: number | null;
+  height?: number | null;
+  focalX?: number | null;
+  focalY?: number | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -178,25 +281,6 @@ export interface StorageUnit {
   };
   updatedAt: string;
   createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "media".
- */
-export interface Media {
-  id: number;
-  alt?: string | null;
-  updatedAt: string;
-  createdAt: string;
-  url?: string | null;
-  thumbnailURL?: string | null;
-  filename?: string | null;
-  mimeType?: string | null;
-  filesize?: number | null;
-  width?: number | null;
-  height?: number | null;
-  focalX?: number | null;
-  focalY?: number | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -336,6 +420,10 @@ export interface PayloadLockedDocument {
   id: number;
   document?:
     | ({
+        relationTo: 'storage-insights';
+        value: number | StorageInsight;
+      } | null)
+    | ({
         relationTo: 'users';
         value: number | User;
       } | null)
@@ -412,6 +500,52 @@ export interface PayloadMigration {
   batch?: number | null;
   updatedAt: string;
   createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "storage-insights_select".
+ */
+export interface StorageInsightsSelect<T extends boolean = true> {
+  title?: T;
+  slug?: T;
+  pageType?: T;
+  relatedPillar?: T;
+  status?: T;
+  publishedDate?: T;
+  seoTitle?: T;
+  metaDescription?: T;
+  primaryKeyword?: T;
+  secondaryKeywords?:
+    | T
+    | {
+        keyword?: T;
+        id?: T;
+      };
+  searchIntent?: T;
+  excerpt?: T;
+  heroImage?: T;
+  content?: T;
+  faqs?:
+    | T
+    | {
+        question?: T;
+        answer?: T;
+        id?: T;
+      };
+  ctaHeading?: T;
+  ctaText?: T;
+  ctaButtonLabel?: T;
+  ctaButtonLink?: T;
+  internalLinks?:
+    | T
+    | {
+        targetPage?: T;
+        anchorText?: T;
+        id?: T;
+      };
+  schemaTypes?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
