@@ -7,7 +7,7 @@ services:
       - PAYLOAD_SECRET=440723c7a04f856ccc2f807f7db249208cbaf3bd963b180a9d081bb50c819e14
       - DATABASE_URI=postgresql://stor4_user:stor4_pass@stor4_db:5432/stor4_db
     volumes:
-      - stor24_media:/app/public/media
+      - stor24_media:/app/media
     networks:
       - root_default
     labels:
