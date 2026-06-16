@@ -32,7 +32,7 @@ export default buildConfig({
       ],
       views: {
         Dashboard: {
-          Component: { path: "@/components/Dashboard#Dashboard" },
+          Component: { path: "@/components/Dashboard/PowerDashboard#PowerDashboard" },
           path: "/crm-dashboard",
         },
         ContactDetail: {
