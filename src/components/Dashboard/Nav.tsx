@@ -7,8 +7,10 @@ export const DashboardNav = () => {
   const pathname = usePathname()
 
   const links = [
-    { href: '/admin/crm-dashboard',             label: '📊 CRM Dashboard' },
-    { href: '/admin/crm-dashboard/performance', label: '📈 Performance' },
+    { href: '/admin/crm-dashboard',                label: '📊 CRM Dashboard' },
+    { href: '/admin/crm-dashboard/performance',    label: '📈 Performance' },
+    { href: '/admin/crm-dashboard/inventory',      label: '🏭 Inventory Stats' },
+    { href: '/admin/crm-dashboard/inventory-ops',  label: '⚙️ Inventory Ops' },
   ]
 
   return (

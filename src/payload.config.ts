@@ -39,6 +39,14 @@ export default buildConfig({
           Component: { path: "@/components/Dashboard/PowerDashboard#PowerDashboard" },
           path: "/crm-dashboard/performance",
         },
+        Inventory: {
+          Component: { path: "@/components/Dashboard/InventoryDashboard#InventoryDashboard" },
+          path: "/crm-dashboard/inventory",
+        },
+        InventoryOps: {
+          Component: { path: "@/components/Dashboard/InventoryOps#InventoryOps" },
+          path: "/crm-dashboard/inventory-ops",
+        },
         ContactDetail: {
           Component: { path: "@/components/Dashboard/ContactDetail#ContactDetail" },
           path: "/crm-dashboard/contact",
@@ -56,6 +64,53 @@ export default buildConfig({
   ],
   collections: [
     StorageInsights,
+    {
+      slug: "units",
+      admin: { useAsTitle: "unitNumber", group: "Inventory" },
+      access: { read: adminOnly, create: adminOnly, update: adminOnly, delete: adminOnly },
+      fields: [
+        { name: "unitNumber",     type: "text",     required: true, unique: true },
+        { name: "location",       type: "select",   required: true,
+          options: [
+            { label: "Sandton",    value: "sandton" },
+            { label: "Randburg",   value: "randburg" },
+            { label: "Midrand",    value: "midrand" },
+            { label: "Centurion",  value: "centurion" },
+            { label: "Roodepoort", value: "roodepoort" },
+          ]
+        },
+        { name: "size",           type: "select",   required: true,
+          options: [
+            { label: "5 sqm",  value: "5sqm"  },
+            { label: "10 sqm", value: "10sqm" },
+            { label: "15 sqm", value: "15sqm" },
+            { label: "20 sqm", value: "20sqm" },
+            { label: "30 sqm", value: "30sqm" },
+          ]
+        },
+        { name: "floor",          type: "select",
+          options: [
+            { label: "Ground", value: "ground" },
+            { label: "First",  value: "first"  },
+            { label: "Second", value: "second" },
+          ]
+        },
+        { name: "status",         type: "select",   required: true, defaultValue: "available",
+          options: [
+            { label: "Available",    value: "available"    },
+            { label: "Occupied",     value: "occupied"     },
+            { label: "Reserved",     value: "reserved"     },
+            { label: "Maintenance",  value: "maintenance"  },
+          ]
+        },
+        { name: "monthlyRate",    type: "number" },
+        { name: "tenant",         type: "relationship", relationTo: "contacts", hasMany: false },
+        { name: "contractStart",  type: "date" },
+        { name: "contractEnd",    type: "date" },
+        { name: "notes",          type: "textarea" },
+      ],
+    },
+
     {
       slug: "users",
       auth: {
@@ -229,6 +284,14 @@ export default buildConfig({
         { name: "monthlyRate", type: "number" },
         { name: "startDate", type: "date" },
         { name: "endDate", type: "date" },
+        {
+          name: "unit",
+          type: "relationship",
+          relationTo: "units",
+          hasMany: false,
+          admin: { description: "Link this deal to a physical storage unit" },
+        },
+        { name: "notes", type: "textarea" },
       ],
       timestamps: true,
     },

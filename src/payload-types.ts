@@ -68,6 +68,7 @@ export interface Config {
   blocks: {};
   collections: {
     'storage-insights': StorageInsight;
+    units: Unit;
     users: User;
     'storage-units': StorageUnit;
     media: Media;
@@ -84,6 +85,7 @@ export interface Config {
   collectionsJoins: {};
   collectionsSelect: {
     'storage-insights': StorageInsightsSelect<false> | StorageInsightsSelect<true>;
+    units: UnitsSelect<false> | UnitsSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
     'storage-units': StorageUnitsSelect<false> | StorageUnitsSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
@@ -232,6 +234,44 @@ export interface Media {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "units".
+ */
+export interface Unit {
+  id: number;
+  unitNumber: string;
+  location: 'sandton' | 'randburg' | 'midrand' | 'centurion' | 'roodepoort';
+  size: '5sqm' | '10sqm' | '15sqm' | '20sqm' | '30sqm';
+  floor?: ('ground' | 'first' | 'second') | null;
+  status: 'available' | 'occupied' | 'reserved' | 'maintenance';
+  monthlyRate?: number | null;
+  tenant?: (number | null) | Contact;
+  contractStart?: string | null;
+  contractEnd?: string | null;
+  notes?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "contacts".
+ */
+export interface Contact {
+  id: number;
+  firstName: string;
+  lastName?: string | null;
+  email: string;
+  phone?: string | null;
+  source?: ('web_form' | 'whatsapp' | 'email' | 'walk_in' | 'referral') | null;
+  unitSize?: ('small' | 'medium' | 'large' | 'extra_large') | null;
+  moveInDate?: string | null;
+  score?: number | null;
+  status?: ('new' | 'quoted' | 'viewing' | 'converted' | 'lost') | null;
+  notes?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "users".
  */
 export interface User {
@@ -368,25 +408,6 @@ export interface Area {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "contacts".
- */
-export interface Contact {
-  id: number;
-  firstName: string;
-  lastName?: string | null;
-  email: string;
-  phone?: string | null;
-  source?: ('web_form' | 'whatsapp' | 'email' | 'walk_in' | 'referral') | null;
-  unitSize?: ('small' | 'medium' | 'large' | 'extra_large') | null;
-  moveInDate?: string | null;
-  score?: number | null;
-  status?: ('new' | 'quoted' | 'viewing' | 'converted' | 'lost') | null;
-  notes?: string | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "deals".
  */
 export interface Deal {
@@ -397,6 +418,11 @@ export interface Deal {
   monthlyRate?: number | null;
   startDate?: string | null;
   endDate?: string | null;
+  /**
+   * Link this deal to a physical storage unit
+   */
+  unit?: (number | null) | Unit;
+  notes?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -422,6 +448,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'storage-insights';
         value: number | StorageInsight;
+      } | null)
+    | ({
+        relationTo: 'units';
+        value: number | Unit;
       } | null)
     | ({
         relationTo: 'users';
@@ -544,6 +574,24 @@ export interface StorageInsightsSelect<T extends boolean = true> {
         id?: T;
       };
   schemaTypes?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "units_select".
+ */
+export interface UnitsSelect<T extends boolean = true> {
+  unitNumber?: T;
+  location?: T;
+  size?: T;
+  floor?: T;
+  status?: T;
+  monthlyRate?: T;
+  tenant?: T;
+  contractStart?: T;
+  contractEnd?: T;
+  notes?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -707,6 +755,8 @@ export interface DealsSelect<T extends boolean = true> {
   monthlyRate?: T;
   startDate?: T;
   endDate?: T;
+  unit?: T;
+  notes?: T;
   updatedAt?: T;
   createdAt?: T;
 }
