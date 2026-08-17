@@ -33,13 +33,15 @@ Branches exist only as short-lived rollback/review points before merging into `m
 
 ## Status warning
 
-This repository currently mixes CMS/editorial concerns with CRM-like contacts, deals, activities, units, inventory dashboards and a duplicated public frontend. That overlap is an architectural risk, not confirmation that the CMS owns those domains.
+This repository currently mixes CMS/editorial concerns with CRM-like contacts, deals, activities, units, inventory dashboards and a duplicated public frontend. That overlap is an architectural risk, not confirmation that the CMS owns those domains. The ownership decision below is now approved; the overlap itself is not yet resolved — see Priority next work.
 
 No production-readiness claim should be made from the presence of collections or dashboards alone. Authentication/roles, data ownership, publication workflow, portal consumption, migrations, backups, media strategy and deployed behaviour require current verification.
 
-## Required ownership decision
+## Ownership decision — APPROVED 17 August 2026
 
-The recommended boundary is:
+**Approved by:** Brett Dovey, Blend Property Group.
+
+The boundary below is the confirmed architecture decision across all three STOR 24 repositories, not a recommendation:
 
 ```text
 CMS owns
@@ -52,9 +54,14 @@ CRM owns
 
 Public portal owns
   customer presentation, browsing, quote and booking experience
+
+MRI Property Central (proposed system of record, approved boundary —
+detailed mapping still open, see stor24-portal PROJECT_CONTEXT.md)
+  debtor accounting, general ledger, VAT, financial controls,
+  statutory reporting
 ```
 
-Contacts, deals, activities, units and inventory should not remain authoritative CMS data without an explicit architecture decision. Prefer read-only projections or links to CRM identifiers where editorial context needs them.
+Approving this boundary does not by itself resolve the existing overlap: `contacts`, `deals`, `activities`, `units` and inventory dashboards remain live in this repository's schema today and must not be treated as authoritative CRM data. Bringing the codebase in line with the approved boundary (retire, convert to read-only CRM references, or migrate) is tracked as the next priority item below.
 
 ## Cross-repository contract
 
@@ -65,12 +72,11 @@ Contacts, deals, activities, units and inventory should not remain authoritative
 
 ## Priority next work
 
-1. Approve and document the CMS/CRM/public-portal ownership boundary.
+1. Bring the codebase in line with the approved boundary above: retire or convert `contacts`, `deals`, `activities`, `units` and inventory dashboards to read-only CRM references (or migrate them to `stor24-portal` outright).
 2. Decide the future of the duplicated `(frontend)` application.
-3. Reduce authoritative CMS collections to approved editorial domains or convert overlaps to read-only CRM references.
-4. Define draft, review, approval, publish, schedule, unpublish and rollback workflows with roles and audit evidence.
-5. Define the portal delivery mechanism: Payload REST/GraphQL, cache/revalidation strategy, preview and failure behaviour.
-6. Verify migrations, backups, media storage, access controls, validation, deployment and recovery before production use.
+3. Define draft, review, approval, publish, schedule, unpublish and rollback workflows with roles and audit evidence.
+4. Define the portal delivery mechanism: Payload REST/GraphQL, cache/revalidation strategy, preview and failure behaviour.
+5. Verify migrations, backups, media storage, access controls, validation, deployment and recovery before production use.
 
 ## Working rules for any AI assistant
 
