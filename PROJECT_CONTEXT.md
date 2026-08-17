@@ -16,6 +16,10 @@ The CMS owns editorial content and media that authorised users publish to STOR 2
 - Payload configuration: `src/payload.config.ts`
 - Generated types: `src/payload-types.ts`
 
+## Branching policy
+
+Branches exist only as short-lived rollback/review points before merging into `main`. Open a branch, get it reviewed and merged, then delete it immediately — do not let feature branches accumulate. This repository had only `main` as of the 17 August 2026 audit (no stale branches to clean up here), unlike `stor24` and `stor24-portal`; keep it that way.
+
 ## Current verified implementation
 
 - Payload admin and API routes are present.
@@ -25,12 +29,11 @@ The CMS owns editorial content and media that authorised users publish to STOR 2
 - Migration files exist for storage insights and inventory/deal changes.
 - Public frontend routes are also present under `src/app/(frontend)`.
 - Local repository was clean on `main` when this context was created; the latest visible commit was `0a81a1d` for the inventory operations dashboard, units collection and deal-to-unit link.
+- README.md corrected 17 August 2026 to reflect PostgreSQL (not MongoDB/localDisk) and document the real collection list.
 
 ## Status warning
 
 This repository currently mixes CMS/editorial concerns with CRM-like contacts, deals, activities, units, inventory dashboards and a duplicated public frontend. That overlap is an architectural risk, not confirmation that the CMS owns those domains.
-
-The repository README still describes a blank template and incorrectly says MongoDB/localDisk, while `package.json` and the Payload configuration indicate PostgreSQL. Treat the README as stale until corrected.
 
 No production-readiness claim should be made from the presence of collections or dashboards alone. Authentication/roles, data ownership, publication workflow, portal consumption, migrations, backups, media strategy and deployed behaviour require current verification.
 
@@ -67,8 +70,7 @@ Contacts, deals, activities, units and inventory should not remain authoritative
 3. Reduce authoritative CMS collections to approved editorial domains or convert overlaps to read-only CRM references.
 4. Define draft, review, approval, publish, schedule, unpublish and rollback workflows with roles and audit evidence.
 5. Define the portal delivery mechanism: Payload REST/GraphQL, cache/revalidation strategy, preview and failure behaviour.
-6. Correct the README and infrastructure documentation to match the real database and storage configuration.
-7. Verify migrations, backups, media storage, access controls, validation, deployment and recovery before production use.
+6. Verify migrations, backups, media storage, access controls, validation, deployment and recovery before production use.
 
 ## Working rules for any AI assistant
 
@@ -81,6 +83,7 @@ Contacts, deals, activities, units and inventory should not remain authoritative
 7. Run proportionate lint, type and build validation; distinguish baseline failures from introduced failures.
 8. Use the official STOR 24 CI and keep public-facing copy direct and non-technical.
 9. Update this file after a material decision or implementation change.
+10. Follow the branching policy above: short-lived branches only, deleted promptly after merge.
 
 ## Definition of done
 
