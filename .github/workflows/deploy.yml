@@ -22,4 +22,7 @@ jobs:
             cd /opt/stor24-cms
             git pull origin main
             docker compose up -d --build
-            echo "CMS deployed successfully"
+            echo "Waiting for container to be ready before migrating..."
+            sleep 10
+            docker compose exec -T stor24-cms npx payload migrate
+            echo "CMS deployed and migrated successfully"
