@@ -20,15 +20,38 @@ The CMS owns editorial content and media that authorised users publish to STOR 2
 
 Branches exist only as short-lived rollback/review points before merging into `main`. Open a branch, get it reviewed and merged, then delete it immediately — do not let feature branches accumulate. This repository had only `main` as of the 17 August 2026 audit (no stale branches to clean up here), unlike `stor24` and `stor24-portal`; keep it that way.
 
+## Sign-in security hardening — 19 August 2026
+
+Brett requested a security audit of sign-in/auth across all three repositories. This repository had the most serious finding of the three:
+
+**CRITICAL — fixed in code, needs manual action from Brett to fully close:** `docker-compose.yml` had the live production `PAYLOAD_SECRET` (signs CMS admin session/JWT tokens) and the production database password (`postgresql://stor4_user:stor4_pass@stor4_db:5432/stor4_db`) committed in plaintext to git — despite `.gitignore` listing this exact file, meaning it was force-added at some point (`git add -f`). Anyone with read access to this repository could have forged valid CMS admin sessions or connected directly to the production database.
+
+Fixed: `docker-compose.yml` now reads both values via `${PAYLOAD_SECRET}` / `${DATABASE_URI}` variable substitution from a `.env` file on the VPS (that `.env` file is separately, correctly gitignored and was never committed). The file itself no longer contains a secret to leak on future commits.
+
+**Still required, and only Brett can do this (no VPS/DB access from this environment):**
+1. Rotate `PAYLOAD_SECRET` on the VPS to a new random value (a fresh one was generated during this session — see chat) and set it in `/opt/stor24-cms/.env` (or wherever this repo's `.env` lives on the server) as `PAYLOAD_SECRET=<new value>`.
+2. Change the production Postgres password for `stor4_user` and update `DATABASE_URI` in the same `.env` file to match.
+3. Rotating `PAYLOAD_SECRET` invalidates all existing admin sessions and API keys — everyone will need to log in again, and any stored API key integrations will need regenerating.
+4. Ideally, purge the old secret/password from git history (not just the latest commit) since they were exposed for however long this file was public — a `git filter-repo` or BFG pass on this repository, done by Brett or someone with full git tooling access, since it requires a force-push and coordination with anyone else who has a local clone.
+
+**Also fixed — orphaned CRM collection files removed:** `src/collections/Contacts.ts`, `Deals.ts`, `Activities.ts` were still sitting in the repo (not imported into `payload.config.ts`, so inert today) with no `access` block defined at all — Payload defaults to fully public read/write when `access` is omitted. If anyone had re-imported one of these without adding explicit access rules, it would have silently recreated the exact public-write CRM hole that was closed on 18 August. Deleted outright rather than patched, since they served no purpose once the CRM collections were removed. `src/collections/Users.ts` (also unused — the live `users` config is inline in `payload.config.ts`, not this file) was deleted too, since it lacked the lockout/token-expiry settings the live config has and was a trap if ever swapped in.
+
+**Also fixed — security headers:** `next.config.mjs` now sets `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, `Referrer-Policy: strict-origin-when-cross-origin`, a restrictive `Permissions-Policy`, and HSTS. **CSP was deliberately not added here** (unlike `stor24-portal` and `stor24`) — Payload's admin UI relies on inline styles/scripts and dynamically injected chunks that a strict CSP would break without careful per-directive tuning specific to Payload's admin bundle. Tracked as a follow-up, not skipped permanently.
+
+**Not fixed — needs a dedicated follow-up:**
+- No 2FA/MFA on CMS admin login (or the CRM's staff login in `stor24-portal`) — password-only currently.
+- `useAPIKey: true` is set on the live `users` collection, giving a second credential path alongside password login — worth confirming any issued API keys are scoped appropriately and get rotated alongside the secret above.
+
 ## Current verified implementation
 
 - Payload admin and API routes are present.
 - PostgreSQL adapter, Lexical rich text, SEO plugin and local media storage are configured in the codebase.
-- **Collections are now editorial-only: `users`, `media`, `storage-insights`, `posts`, `faqs`, `areas`.** `contacts`, `deals`, `activities` and `units` were removed 18 August 2026 (see "CRM-collection removal" below); `storage-units` was removed 19 August 2026 (see "storage-units removal" below) after confirming the live marketing site never reads it.
+- **Collections are now editorial-only: `users`, `media`, `storage-insights`, `posts`, `faqs`, `areas`.** `contacts`, `deals`, `activities` and `units` were removed 18 August 2026 (see "CRM-collection removal" below); `storage-units` was removed 19 August 2026 (see "storage-units removal" below) after confirming the live marketing site never reads it. The dead `Contacts.ts`/`Deals.ts`/`Activities.ts`/`Users.ts` files (never imported, but present with no access control) were also deleted 19 August 2026 as part of the security hardening above.
 - Migration files exist for storage insights, the (now-retired) inventory/deal changes, the 18 August 2026 CRM-collection removal, and the 19 August 2026 storage-units removal.
 - Public frontend routes are also present under `src/app/(frontend)`.
 - README.md corrected 17 August 2026 to reflect PostgreSQL (not MongoDB/localDisk) and document the real collection list — **README's collection list is stale (still lists `contacts`/`deals`/`activities`/`units`/`storage-units`) and should be refreshed to match this file** (see Priority next work).
 - Admin panel now uses real STOR 24 CI (see "Admin CI theme fix" below), not the ad-hoc dark-navy placeholder theme it shipped with.
+- `docker-compose.yml` no longer contains a live secret or DB password — both now come from a gitignored `.env` on the VPS (see "Sign-in security hardening" above). **Rotation of the previously-exposed values is still outstanding and requires Brett's action on the VPS.**
 
 ## Deploy pipeline root cause fixed — 19 August 2026
 
@@ -76,12 +99,13 @@ This repository had accumulated a full parallel CRM: four Payload collections (`
 - Deleted six component files: `src/components/Dashboard/index.tsx`, `Nav.tsx`, `ContactDetail/index.tsx`, `InventoryDashboard/index.tsx`, `InventoryOps/index.tsx`, `PowerDashboard/index.tsx` — all of them called `/api/contacts`, `/api/deals` or rendered unit/inventory data with no remaining reason to exist once those collections were gone.
 - `src/migrations/20260818_120000_remove_crm_collections.ts` (registered in `src/migrations/index.ts`) — drops the `units`, `activities`, `deals` and `contacts` tables (`CASCADE`, so dependent foreign keys and the `payload_locked_documents_rels` join columns go with them), plus their associated Postgres enum types. The `down()` migration is deliberately a no-op with an explanatory comment: this is treated as an intentional, irreversible cleanup, not a reversible schema tweak — if it ever needs undoing, that should come from a pre-migration database backup, not a generated down-migration guessing at old data.
 - **Confirmed live 19 August 2026** — this migration ran successfully in production as part of the deploy-pipeline fix above (`Migrating: 20260818_120000_remove_crm_collections` → `Migrated ... (182ms)`), and the CMS admin was directly inspected (browser) showing `Deals`, `Units` and the CRM dashboard nav are gone.
+- **Follow-up 19 August 2026:** the four collection *files* themselves (`Contacts.ts`, `Deals.ts`, `Activities.ts`, plus unused `Users.ts`) were still present in `src/collections/` despite not being imported — deleted during the sign-in security hardening pass above, since they had no access control and were a landmine if ever re-imported.
 
 **Where the functionality now actually lives:** it doesn't need to be rebuilt — `stor24-portal` already has a materially more complete version of everything these collections were approximating (real `Customer`/`Lead`/`Deal`-equivalent records via `Tenancy`/`Occupancy`/`Reservation`, a public leads API, a full reservation-to-lease-to-billing lifecycle, staff dashboards). Nothing needs to be migrated across; this was pure duplication, not a feature gap.
 
 ## Status warning
 
-**Largely resolved.** The CRM/CMS overlap flagged below since 17 August 2026 has been removed from the codebase and confirmed live (see above), and the dead `storage-units` collection was also removed 19 August 2026 (pending redeploy confirmation). What's left: (1) confirm the storage-units removal migration has run in production after the next redeploy; (2) the duplicated public `(frontend)` application under `src/app/(frontend)` is a separate, still-open overlap risk (with the `stor24` repository) — not addressed by this change and still tracked in Priority next work.
+**Largely resolved.** The CRM/CMS overlap flagged below since 17 August 2026 has been removed from the codebase and confirmed live (see above), the dead `storage-units` collection was also removed 19 August 2026 (pending redeploy confirmation), and the orphaned collection files with no access control were deleted the same day. What's left: (1) confirm the storage-units removal migration has run in production after the next redeploy; (2) rotate the previously-leaked `PAYLOAD_SECRET`/DB password on the VPS (see "Sign-in security hardening" above) — this is outstanding and only Brett can do it; (3) the duplicated public `(frontend)` application under `src/app/(frontend)` is a separate, still-open overlap risk (with the `stor24` repository) — not addressed by this change and still tracked in Priority next work.
 
 No production-readiness claim should be made from the presence of collections or dashboards alone. Authentication/roles, data ownership, publication workflow, portal consumption, migrations, backups, media strategy and deployed behaviour require current verification.
 
@@ -121,12 +145,15 @@ detailed mapping still open, see stor24-portal PROJECT_CONTEXT.md)
 
 ## Priority next work
 
-1. Decide the future of the duplicated `(frontend)` application (separate overlap from the now-removed CRM collections, still open).
-2. Define draft, review, approval, publish, schedule, unpublish and rollback workflows with roles and audit evidence.
-3. Define the portal delivery mechanism: Payload REST/GraphQL, cache/revalidation strategy, preview and failure behaviour.
-4. Verify backups, media storage, access controls and validation before production use (migrations and the deploy pipeline are now verified working, see above).
-5. Confirm the 19 August 2026 storage-units-removal migration (`20260819_054800_remove_storage_units`) has run against production on the next redeploy, and visually confirm the admin CI theme fix (`custom.scss`) renders correctly live.
-6. Refresh `README.md`'s collection list, which still documents the pre-removal state (`contacts`/`deals`/`activities`/`units`/`storage-units` included) and needs to be brought back in line with the current, editorial-only collection list in this file.
+1. **Rotate the previously-leaked `PAYLOAD_SECRET` and database password on the VPS** — highest priority, only Brett can do this (see "Sign-in security hardening" above for exact steps).
+2. Decide the future of the duplicated `(frontend)` application (separate overlap from the now-removed CRM collections, still open).
+3. Define draft, review, approval, publish, schedule, unpublish and rollback workflows with roles and audit evidence.
+4. Define the portal delivery mechanism: Payload REST/GraphQL, cache/revalidation strategy, preview and failure behaviour.
+5. Verify backups, media storage, access controls and validation before production use (migrations and the deploy pipeline are now verified working, see above).
+6. Confirm the 19 August 2026 storage-units-removal migration (`20260819_054800_remove_storage_units`) has run against production on the next redeploy, and visually confirm the admin CI theme fix (`custom.scss`) renders correctly live.
+7. Refresh `README.md`'s collection list, which still documents the pre-removal state (`contacts`/`deals`/`activities`/`units`/`storage-units` included) and needs to be brought back in line with the current, editorial-only collection list in this file.
+8. Add a properly-tuned CSP for the Payload admin bundle (deliberately skipped in the 19 August 2026 headers pass — see "Sign-in security hardening").
+9. Consider 2FA/MFA for CMS admin accounts alongside the same work in `stor24-portal`.
 
 ## Working rules for any AI assistant
 
@@ -134,15 +161,16 @@ detailed mapping still open, see stor24-portal PROJECT_CONTEXT.md)
 2. Do not assume a collection is the authoritative business system merely because it exists.
 3. Never deploy, migrate production data, delete collections or move domain ownership without explicit approval. **(18–19 August 2026 removals were explicit, direct instructions from Brett — not inferences.)**
 4. Preserve published URLs, slugs and SEO metadata unless the requested change explicitly covers them.
-5. Keep secrets and customer information out of source control, logs, prompts and public API responses.
+5. Keep secrets and customer information out of source control, logs, prompts and public API responses. **This was violated once already (`docker-compose.yml`, fixed 19 August 2026) — before committing any file with `environment:`/`env:`/connection-string-shaped content, check whether it should instead reference a gitignored `.env` file.**
 6. Generate Payload types/import maps after schema changes and include the required migration. **`importMap.js` is committed but not auto-regenerated on component deletion — update it by hand in the same commit when a referenced component file is removed, or the Next.js build breaks (see "Deploy pipeline root cause fixed").**
 7. Run proportionate lint, type and build validation; distinguish baseline failures from introduced failures.
 8. Use the official STOR 24 CI and keep public-facing copy direct and non-technical. **Admin panel theming goes through `src/app/(payload)/custom.scss` (imported by the generated `layout.tsx`) — there is no `admin.css` config field in Payload 3.31.**
 9. Update this file after a material decision or implementation change.
 10. Follow the branching policy above: short-lived branches only, deleted promptly after merge.
-11. **When removing a collection, also remove everything built on top of it in the same pass — dashboards, admin views, nav links, importMap entries, seoPlugin references — not just the schema.**
+11. **When removing a collection, also remove everything built on top of it in the same pass — dashboards, admin views, nav links, importMap entries, seoPlugin references, and any dead collection-definition files left behind — not just the live schema reference.** On 18 August 2026 the schema was cleaned up but the orphaned `Contacts.ts`/`Deals.ts`/`Activities.ts` files were missed and had to be deleted separately on 19 August once flagged as a security risk.
 12. **Destructive schema migrations (dropping tables) should have an intentionally no-op, explained `down()` rather than a fabricated reversal.** A generated "undo" for a table drop can't actually restore the data that was in it; say so in the migration rather than writing misleading rollback code.
 13. **If deploys stop reflecting pushed changes, check the whole chain before assuming the workflow file is wrong:** GitHub Actions enabled at the repo-settings level, the VPS's git remote actually pointing at this repository, and only then the build/workflow logic itself.
+14. **A Payload collection with no `access` block defined defaults to public read/write.** Any collection file in this repo — even one not currently imported into `payload.config.ts` — should either have an explicit `access` block or not exist at all. Don't leave "just in case" collection files around.
 
 ## Definition of done
 
