@@ -1,6 +1,6 @@
 # STOR 24 CMS — Project Context
 
-> Last reviewed: 18 August 2026. Read this file before planning or changing the repository. Update it whenever a material capability, decision, deployment state, or cross-repository contract changes.
+> Last reviewed: 19 August 2026. Read this file before planning or changing the repository. Update it whenever a material capability, decision, deployment state, or cross-repository contract changes.
 
 ## Product identity and boundary
 
@@ -24,10 +24,45 @@ Branches exist only as short-lived rollback/review points before merging into `m
 
 - Payload admin and API routes are present.
 - PostgreSQL adapter, Lexical rich text, SEO plugin and local media storage are configured in the codebase.
-- **Collections are now editorial-only: `users`, `media`, `storage-insights`, `storage-units`, `posts`, `faqs`, `areas`.** `contacts`, `deals`, `activities` and `units` were removed 18 August 2026 — see "CRM-collection removal" below.
-- Migration files exist for storage insights, the (now-retired) inventory/deal changes, and the 18 August 2026 removal migration.
+- **Collections are now editorial-only: `users`, `media`, `storage-insights`, `posts`, `faqs`, `areas`.** `contacts`, `deals`, `activities` and `units` were removed 18 August 2026 (see "CRM-collection removal" below); `storage-units` was removed 19 August 2026 (see "storage-units removal" below) after confirming the live marketing site never reads it.
+- Migration files exist for storage insights, the (now-retired) inventory/deal changes, the 18 August 2026 CRM-collection removal, and the 19 August 2026 storage-units removal.
 - Public frontend routes are also present under `src/app/(frontend)`.
-- README.md corrected 17 August 2026 to reflect PostgreSQL (not MongoDB/localDisk) and document the real collection list — **README's collection list is now stale again post-removal and should be refreshed to match this file** (see Priority next work).
+- README.md corrected 17 August 2026 to reflect PostgreSQL (not MongoDB/localDisk) and document the real collection list — **README's collection list is stale (still lists `contacts`/`deals`/`activities`/`units`/`storage-units`) and should be refreshed to match this file** (see Priority next work).
+- Admin panel now uses real STOR 24 CI (see "Admin CI theme fix" below), not the ad-hoc dark-navy placeholder theme it shipped with.
+
+## Deploy pipeline root cause fixed — 19 August 2026
+
+Brett reported that changes pushed to `main` were not appearing on the live CMS. Diagnosis (via direct GitHub Actions log inspection and VPS terminal output Brett ran) found three stacked issues, all now fixed:
+
+1. **GitHub Actions was disabled at the repository-settings level.** No API/MCP tool can toggle this — Brett enabled it himself in the GitHub UI. `workflow_dispatch: {}` was also added to `.github/workflows/deploy.yml` as a manual-trigger fallback alongside the existing `push: branches: [main]` trigger.
+2. **The VPS's git remote was wrong.** `/opt/stor24-cms`'s `origin` pointed at `https://github.com/doveydragon/stor24-cms.git` — an unrelated account/repo — instead of `https://github.com/blendproperty/stor24-cms.git`. Every deploy was pulling from (and reporting "Already up to date" against) the wrong repository. Brett fixed this manually on the VPS (`git remote set-url origin https://github.com/blendproperty/stor24-cms.git`, `git fetch`, `git reset --hard origin/main`) and confirmed the correct commit then deployed.
+3. **`src/app/(payload)/admin/importMap.js` (generated-but-committed) still referenced the deleted Dashboard components** from the 18 August CRM removal, breaking the Docker build with `Module not found` errors. Fixed by hand-editing the file to remove the six stale import/export entries while preserving the legitimate Payload/plugin ones.
+
+`.github/workflows/deploy.yml` was also fixed to actually run migrations on deploy — previously the pipeline built and restarted the container but never ran `payload migrate`; it now runs `docker compose exec -T stor24-cms npx payload migrate` after `docker compose up -d --build`.
+
+A full rebuild/redeploy after these fixes completed successfully and the 18 August CRM-removal migration ran live against production (`Migrating: 20260818_120000_remove_crm_collections` → `Migrated ... (182ms)`), confirming this pipeline now works end-to-end.
+
+**Working rule going forward:** whenever a component file referenced by `importMap.js` is deleted, update `importMap.js` in the same commit — Payload does not regenerate it automatically on file deletion, only via `payload generate:importmap`, which nothing in this repo's pipeline runs.
+
+## Admin CI theme fix — 19 August 2026
+
+Brett flagged (with screenshots) that the CMS admin panel was hard to read — a dark-navy (`#1a1a2e`) sidebar/header theme with low-contrast text, unrelated to STOR 24's actual brand.
+
+**Root cause of one wasted attempt:** initially tried wiring a stylesheet via `admin: { css: ... }` in `payload.config.ts` — this is not a real Payload 3.31 `AdminConfig` field and broke the TypeScript build (`Object literal may only specify known properties, and 'css' does not exist in type...`). Reverted. The correct, Payload-native mechanism is `src/app/(payload)/custom.scss`, which the auto-generated `layout.tsx` already imports — this also explains why the admin had *some* custom theme (the old dark-navy one) before this session.
+
+**Fix, applied in `custom.scss`:** real Stor24 CI mapped onto Payload's theme custom properties — `--theme-bg: #f5f3ea` (cream), `--theme-text: #071411` (ink), a full `--theme-elevation-0` through `-1000` ramp from white/cream to ink, `--theme-success-500: #079447`, `--theme-warning-500: #ff7a00`, `--theme-error-500: #d1352b`; body font set to Satoshi with system fallbacks; sidebar (`.nav`, `.nav__wrap`, `.app-header`) now ink (`#071411`) instead of navy; active nav link uses translucent orange (`rgba(255,90,10,0.18)`) background with `#ff7a00` label; primary buttons use `#ff5a0a`.
+
+Also replaced `src/components/Logo.tsx` and `src/components/Icon.tsx`, which were placeholder Tailwind-orange (`#f97316`) text — now use the real orange (`#ff5a0a`) badge + ink wordmark.
+
+**Not yet visually confirmed live** — pushed but Brett has not yet redeployed/screenshotted the result since this fix went in. Confirm on next deploy.
+
+## storage-units removal — 19 August 2026
+
+Brett questioned why "Storage Units" still appeared in the CMS admin, believing pricing/unit data belonged in the CRM. Checked directly (code search across the live `stor24` marketing-site repository): zero references to `storage-units`/`storageUnits`/any CMS pricing endpoint exist there. The real, live data source for unit pricing, dimensions, features and availability is `stor24` → `app/lib/portal.ts` → `getPublicFacilities()` → `stor24-portal`'s public API (`/api/public/v1/facilities`), which already carries real per-unit data (`monthlyRateZar`, dimensions, features, availability). A code comment already present in `portal.ts` documents a prior, already-reverted mistake of writing this kind of data into the CMS instead of the CRM — the same anti-pattern flagged again here. Brett was right: `storage-units` was dead, duplicate data.
+
+**Removed:** the `storage-units` collection definition from `src/payload.config.ts` and its entry in `seoPlugin({ collections: [...] })`. New migration `src/migrations/20260819_054800_remove_storage_units.ts` (registered in `src/migrations/index.ts`) drops the `storage_units` and `storage_units_features` tables and the `payload_locked_documents_rels.storage_units_id` join column, `CASCADE`. `down()` is intentionally a no-op, following the same pattern and rationale as the 18 August CRM-collection-removal migration.
+
+**Not yet confirmed live** — pushed; needs a redeploy (which will also run this migration via the now-fixed deploy pipeline) before treating it as done in production.
 
 ## CRM-collection removal — 18 August 2026
 
@@ -39,18 +74,18 @@ This repository had accumulated a full parallel CRM: four Payload collections (`
 
 - `src/payload.config.ts` — deleted the `units`, `contacts`, `deals` and `activities` collection definitions; removed the `views` block (`Dashboard`, `Performance`, `Inventory`, `InventoryOps`, `ContactDetail`) and the `afterNavLinks` CRM nav from `admin.components`. Admin now only exposes the editorial collections plus the standard Payload UI — no custom CRM screens.
 - Deleted six component files: `src/components/Dashboard/index.tsx`, `Nav.tsx`, `ContactDetail/index.tsx`, `InventoryDashboard/index.tsx`, `InventoryOps/index.tsx`, `PowerDashboard/index.tsx` — all of them called `/api/contacts`, `/api/deals` or rendered unit/inventory data with no remaining reason to exist once those collections were gone.
-- `src/migrations/20260818_120000_remove_crm_collections.ts` (new, registered in `src/migrations/index.ts`) — drops the `units`, `activities`, `deals` and `contacts` tables (`CASCADE`, so dependent foreign keys and the `payload_locked_documents_rels` join columns go with them), plus their associated Postgres enum types. The `down()` migration is deliberately a no-op with an explanatory comment: this is treated as an intentional, irreversible cleanup, not a reversible schema tweak — if it ever needs undoing, that should come from a pre-migration database backup, not a generated down-migration guessing at old data.
-- **Not yet confirmed: whether this migration has actually run against production.** Per this repository's deploy process, migrations run via whatever CI/CD or manual `payload migrate` step this repo uses on deploy — that has not been checked yet for this repository specifically (unlike `stor24-portal`, which has a documented, verified-automatic `deploy-vps.yml`). Confirm the migration ran (and that the `units`/`contacts`/`deals`/`activities` tables are actually gone from the production database) before treating this as fully live.
+- `src/migrations/20260818_120000_remove_crm_collections.ts` (registered in `src/migrations/index.ts`) — drops the `units`, `activities`, `deals` and `contacts` tables (`CASCADE`, so dependent foreign keys and the `payload_locked_documents_rels` join columns go with them), plus their associated Postgres enum types. The `down()` migration is deliberately a no-op with an explanatory comment: this is treated as an intentional, irreversible cleanup, not a reversible schema tweak — if it ever needs undoing, that should come from a pre-migration database backup, not a generated down-migration guessing at old data.
+- **Confirmed live 19 August 2026** — this migration ran successfully in production as part of the deploy-pipeline fix above (`Migrating: 20260818_120000_remove_crm_collections` → `Migrated ... (182ms)`), and the CMS admin was directly inspected (browser) showing `Deals`, `Units` and the CRM dashboard nav are gone.
 
 **Where the functionality now actually lives:** it doesn't need to be rebuilt — `stor24-portal` already has a materially more complete version of everything these collections were approximating (real `Customer`/`Lead`/`Deal`-equivalent records via `Tenancy`/`Occupancy`/`Reservation`, a public leads API, a full reservation-to-lease-to-billing lifecycle, staff dashboards). Nothing needs to be migrated across; this was pure duplication, not a feature gap.
 
 ## Status warning
 
-**Largely resolved 18 August 2026.** The CRM/CMS overlap flagged below since 17 August 2026 has been removed from the codebase (see above). What's left of this warning: (1) confirm the removal migration has actually run in production, not just been pushed to `main`; (2) the duplicated public `(frontend)` application under `src/app/(frontend)` is a separate, still-open overlap risk (with the `stor24` repository) — not addressed by this change and still tracked in Priority next work.
+**Largely resolved.** The CRM/CMS overlap flagged below since 17 August 2026 has been removed from the codebase and confirmed live (see above), and the dead `storage-units` collection was also removed 19 August 2026 (pending redeploy confirmation). What's left: (1) confirm the storage-units removal migration has run in production after the next redeploy; (2) the duplicated public `(frontend)` application under `src/app/(frontend)` is a separate, still-open overlap risk (with the `stor24` repository) — not addressed by this change and still tracked in Priority next work.
 
 No production-readiness claim should be made from the presence of collections or dashboards alone. Authentication/roles, data ownership, publication workflow, portal consumption, migrations, backups, media strategy and deployed behaviour require current verification.
 
-## Ownership decision — APPROVED 17 August 2026, enforced in code 18 August 2026
+## Ownership decision — APPROVED 17 August 2026, enforced in code 18–19 August 2026
 
 **Approved by:** Brett Dovey, Blend Property Group.
 
@@ -74,7 +109,7 @@ detailed mapping still open, see stor24-portal PROJECT_CONTEXT.md)
   statutory reporting
 ```
 
-**This boundary is now enforced in this repository's schema, not just documented.** `contacts`, `deals`, `activities`, `units` and their dashboards were removed from `src/payload.config.ts` and the codebase on 18 August 2026 (see "CRM-collection removal" above). The one remaining overlap against this boundary is the duplicated `(frontend)` public-site tree, which is a separate decision (see Priority next work item 1).
+**This boundary is now enforced in this repository's schema, not just documented.** `contacts`, `deals`, `activities`, `units` and their dashboards were removed 18 August 2026; `storage-units` (per-unit pricing/size data, also CRM-shaped) was removed 19 August 2026 once confirmed unused by the live site. The one remaining overlap against this boundary is the duplicated `(frontend)` public-site tree, which is a separate decision (see Priority next work item 1).
 
 ## Cross-repository contract
 
@@ -82,31 +117,32 @@ detailed mapping still open, see stor24-portal PROJECT_CONTEXT.md)
 - Do not expose draft content, internal notes, customer data, provider credentials or operational audit records publicly.
 - Avoid duplicating the public portal application inside the CMS. Decide whether the existing `(frontend)` tree will be retired, used only for preview, or become the sole renderer before extending it.
 - Coordinate content schema changes with the portal and operational references with the CRM.
-- **Never add customer/lead/deal/contact-shaped collections back to this repository.** If a reporting need comes up that looks CRM-shaped, it belongs in `stor24-portal` (which already has the real data) — this repository should consume it via API/read-only reference if a display is ever needed here, never own it.
+- **Never add customer/lead/deal/contact/unit/pricing-shaped collections back to this repository.** If a reporting need comes up that looks CRM-shaped, it belongs in `stor24-portal` (which already has the real data) — this repository should consume it via API/read-only reference if a display is ever needed here, never own it.
 
 ## Priority next work
 
 1. Decide the future of the duplicated `(frontend)` application (separate overlap from the now-removed CRM collections, still open).
 2. Define draft, review, approval, publish, schedule, unpublish and rollback workflows with roles and audit evidence.
 3. Define the portal delivery mechanism: Payload REST/GraphQL, cache/revalidation strategy, preview and failure behaviour.
-4. Verify migrations, backups, media storage, access controls, validation, deployment and recovery before production use.
-5. Confirm the 18 August 2026 CRM-collection-removal migration (`20260818_120000_remove_crm_collections`) has actually run against the production database, not just been pushed to `main` — check this repository's deploy process (CI/CD or manual) the same way `stor24-portal`'s `deploy-vps.yml` was checked.
-6. Refresh `README.md`'s collection list, which now documents the pre-removal (`contacts`/`deals`/`activities`/`units` included) state and needs to be brought back in line with the current, editorial-only collection list in this file.
+4. Verify backups, media storage, access controls and validation before production use (migrations and the deploy pipeline are now verified working, see above).
+5. Confirm the 19 August 2026 storage-units-removal migration (`20260819_054800_remove_storage_units`) has run against production on the next redeploy, and visually confirm the admin CI theme fix (`custom.scss`) renders correctly live.
+6. Refresh `README.md`'s collection list, which still documents the pre-removal state (`contacts`/`deals`/`activities`/`units`/`storage-units` included) and needs to be brought back in line with the current, editorial-only collection list in this file.
 
 ## Working rules for any AI assistant
 
 1. Inspect branch, status, recent commits, Payload config, collections and migrations before changing or reporting status.
 2. Do not assume a collection is the authoritative business system merely because it exists.
-3. Never deploy, migrate production data, delete collections or move domain ownership without explicit approval. **(18 August 2026 removal was explicit, direct instruction from Brett — "any CRM type functionality should be removed from here... does not make sense to have this duplication" — not an inference.)**
+3. Never deploy, migrate production data, delete collections or move domain ownership without explicit approval. **(18–19 August 2026 removals were explicit, direct instructions from Brett — not inferences.)**
 4. Preserve published URLs, slugs and SEO metadata unless the requested change explicitly covers them.
 5. Keep secrets and customer information out of source control, logs, prompts and public API responses.
-6. Generate Payload types/import maps after schema changes and include the required migration.
+6. Generate Payload types/import maps after schema changes and include the required migration. **`importMap.js` is committed but not auto-regenerated on component deletion — update it by hand in the same commit when a referenced component file is removed, or the Next.js build breaks (see "Deploy pipeline root cause fixed").**
 7. Run proportionate lint, type and build validation; distinguish baseline failures from introduced failures.
-8. Use the official STOR 24 CI and keep public-facing copy direct and non-technical.
+8. Use the official STOR 24 CI and keep public-facing copy direct and non-technical. **Admin panel theming goes through `src/app/(payload)/custom.scss` (imported by the generated `layout.tsx`) — there is no `admin.css` config field in Payload 3.31.**
 9. Update this file after a material decision or implementation change.
 10. Follow the branching policy above: short-lived branches only, deleted promptly after merge.
-11. **When removing a collection, also remove everything built on top of it in the same pass — dashboards, admin views, nav links — not just the schema.** On 18 August 2026, removing `contacts`/`deals`/`activities`/`units` required also deleting six dependent component files (`Dashboard`, `Nav`, `ContactDetail`, `InventoryDashboard`, `InventoryOps`, `PowerDashboard`) that all called the now-gone collections' APIs; leaving them in place would have shipped broken admin screens.
+11. **When removing a collection, also remove everything built on top of it in the same pass — dashboards, admin views, nav links, importMap entries, seoPlugin references — not just the schema.**
 12. **Destructive schema migrations (dropping tables) should have an intentionally no-op, explained `down()` rather than a fabricated reversal.** A generated "undo" for a table drop can't actually restore the data that was in it; say so in the migration rather than writing misleading rollback code.
+13. **If deploys stop reflecting pushed changes, check the whole chain before assuming the workflow file is wrong:** GitHub Actions enabled at the repo-settings level, the VPS's git remote actually pointing at this repository, and only then the build/workflow logic itself.
 
 ## Definition of done
 
