@@ -31,7 +31,7 @@ export default buildConfig({
   },
   plugins: [
     seoPlugin({
-      collections: ["posts", "areas", "storage-units"],
+      collections: ["posts", "areas"],
       uploadsCollection: "media",
       generateTitle: ({ doc }: any) => `${doc?.title || doc?.name || ""} | Stor24`,
       generateDescription: ({ doc }: any) => doc?.excerpt || doc?.intro || doc?.description || "",
@@ -54,23 +54,6 @@ export default buildConfig({
         delete: adminOnly,
       },
       fields: [],
-    },
-    {
-      slug: "storage-units",
-      access: { read: publicRead, create: adminOnly, update: adminOnly, delete: adminOnly },
-      admin: { useAsTitle: "name" },
-      fields: [
-        { name: "name", type: "text", required: true },
-        { name: "slug", type: "text", required: true, unique: true },
-        { name: "size", type: "text", required: true },
-        { name: "dimensions", type: "text" },
-        { name: "pricePerMonth", type: "number", required: true },
-        { name: "features", type: "array", fields: [{ name: "feature", type: "text" }] },
-        { name: "available", type: "checkbox", defaultValue: true },
-        { name: "popular", type: "checkbox", defaultValue: false },
-        { name: "description", type: "textarea" },
-        { name: "image", type: "upload", relationTo: "media" },
-      ],
     },
     {
       slug: "media",
