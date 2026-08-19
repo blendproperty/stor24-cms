@@ -27,12 +27,6 @@ import { MetaImageComponent as MetaImageComponent_a8a977ebc872c5d5ea7ee689724c08
 import { PreviewComponent as PreviewComponent_a8a977ebc872c5d5ea7ee689724c0860 } from '@payloadcms/plugin-seo/client'
 import { Icon as Icon_fe9ca0c9b67829fe284b73bb77968447 } from '@/components/Icon'
 import { Logo as Logo_2b7e2e151f989fb419ce3009e56b903e } from '@/components/Logo'
-import { DashboardNav as DashboardNav_b025e457a2b6dfb7400fffebd34c2479 } from '@/components/Dashboard/Nav'
-import { Dashboard as Dashboard_b39f2d96c5778d5698b3c9e7777aa63a } from '@/components/Dashboard'
-import { PowerDashboard as PowerDashboard_888fc72df657e462c36388f8e7ae2248 } from '@/components/Dashboard/PowerDashboard'
-import { InventoryDashboard as InventoryDashboard_0fc68b1dd33591c2141f981a07536449 } from '@/components/Dashboard/InventoryDashboard'
-import { InventoryOps as InventoryOps_a96ce58d01cb1652a782e67e2629750a } from '@/components/Dashboard/InventoryOps'
-import { ContactDetail as ContactDetail_f3ea9396c940e9af1e3e797b6a45b1e6 } from '@/components/Dashboard/ContactDetail'
 
 export const importMap = {
   "@payloadcms/richtext-lexical/rsc#RscEntryLexicalCell": RscEntryLexicalCell_44fe37237e0ebf4470c9990d8cb7b07e,
@@ -63,11 +57,5 @@ export const importMap = {
   "@payloadcms/plugin-seo/client#MetaImageComponent": MetaImageComponent_a8a977ebc872c5d5ea7ee689724c0860,
   "@payloadcms/plugin-seo/client#PreviewComponent": PreviewComponent_a8a977ebc872c5d5ea7ee689724c0860,
   "@/components/Icon#Icon": Icon_fe9ca0c9b67829fe284b73bb77968447,
-  "@/components/Logo#Logo": Logo_2b7e2e151f989fb419ce3009e56b903e,
-  "@/components/Dashboard/Nav#DashboardNav": DashboardNav_b025e457a2b6dfb7400fffebd34c2479,
-  "@/components/Dashboard#Dashboard": Dashboard_b39f2d96c5778d5698b3c9e7777aa63a,
-  "@/components/Dashboard/PowerDashboard#PowerDashboard": PowerDashboard_888fc72df657e462c36388f8e7ae2248,
-  "@/components/Dashboard/InventoryDashboard#InventoryDashboard": InventoryDashboard_0fc68b1dd33591c2141f981a07536449,
-  "@/components/Dashboard/InventoryOps#InventoryOps": InventoryOps_a96ce58d01cb1652a782e67e2629750a,
-  "@/components/Dashboard/ContactDetail#ContactDetail": ContactDetail_f3ea9396c940e9af1e3e797b6a45b1e6
+  "@/components/Logo#Logo": Logo_2b7e2e151f989fb419ce3009e56b903e
 }
