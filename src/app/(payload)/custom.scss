@@ -1,25 +1,48 @@
-:root {
-  --theme-elevation-0: #ffffff;
-  --theme-elevation-50: #faf8f4;
-  --theme-elevation-100: #f1efe8;
-}
+// Stor24 admin theme — brand source of truth: stor24-portal/docs/STOR24_BRAND_CI.md
+// Ink #071411, ink soft #0b1d19, cream #f5f3ea, orange #ff5a0a, orange bright #ff7a00.
 
+:root,
 [data-theme='light'] {
-  --theme-bg: #faf8f4;
+  --theme-bg: #f5f3ea;
+  --theme-input-bg: #ffffff;
+  --theme-text: #071411;
+
+  --theme-elevation-0: #ffffff;
+  --theme-elevation-50: #f5f3ea;
+  --theme-elevation-100: #ece7d9;
+  --theme-elevation-150: #e2dcc9;
+  --theme-elevation-200: #d8d1b8;
+  --theme-elevation-250: #cec5a7;
+  --theme-elevation-300: #bab093;
+  --theme-elevation-400: #948a73;
+  --theme-elevation-500: #6f6554;
+  --theme-elevation-600: #4a4235;
+  --theme-elevation-700: #241f1a;
+  --theme-elevation-800: #0b1d19;
+  --theme-elevation-900: #071411;
+  --theme-elevation-1000: #071411;
+
+  --theme-success-500: #079447;
+  --theme-warning-500: #ff7a00;
+  --theme-error-500: #d1352b;
 }
 
-.nav {
-  background: #1a1a2e !important;
+html,
+body {
+  font-family: 'Satoshi', -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, sans-serif;
 }
 
-.nav__wrap {
-  background: #1a1a2e !important;
+// Sidebar: brand ink, not the previous dark-navy (#1a1a2e)
+.nav,
+.nav__wrap,
+.app-header {
+  background: #071411 !important;
 }
 
 .nav a,
 .nav .nav-group__label,
 .nav .nav__link-label {
-  color: #e8e6f0 !important;
+  color: #f5f3ea !important;
 }
 
 .nav a:hover {
@@ -28,17 +51,25 @@
 }
 
 .nav__link--active {
-  background: rgba(216, 90, 48, 0.15) !important;
+  background: rgba(255, 90, 10, 0.18) !important;
 }
 
 .nav__link--active .nav__link-label {
-  color: #ff8a5c !important;
+  color: #ff7a00 !important;
 }
 
 .template-default .nav-toggler svg {
-  color: #e8e6f0 !important;
+  color: #f5f3ea !important;
 }
 
-.app-header {
-  background: #1a1a2e !important;
+// Primary action buttons -> brand orange
+.btn.btn--style-primary {
+  background: #ff5a0a !important;
+  border-color: #ff5a0a !important;
+  color: #f5f3ea !important;
+}
+
+.btn.btn--style-primary:hover {
+  background: #ff7a00 !important;
+  border-color: #ff7a00 !important;
 }
