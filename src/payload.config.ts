@@ -22,7 +22,6 @@ export default buildConfig({
   admin: {
     user: "users",
     meta: { titleSuffix: "— Stor24 CMS" },
-    css: path.resolve(dirname, "app/(payload)/custom.css"),
     components: {
       graphics: {
         Logo: { path: "@/components/Logo#Logo" },
