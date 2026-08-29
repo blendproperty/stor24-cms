@@ -2,6 +2,13 @@
 
 > Last reviewed: 19 August 2026. Read this file before planning or changing the repository. Update it whenever a material capability, decision, deployment state, or cross-repository contract changes.
 
+## CMS-managed homepage hero — implemented 29 August 2026, deployment verification pending
+
+- Added the editorial-only `homepage-hero` global. Authorised CMS users can edit every visible hero sentence, the size-guide CTA, mobile benefit-card copy, and up to three approved hero images without changing public-site code.
+- Each image supports a desktop asset, optional mobile crop, alt text, contain/cover fit and focal alignment. Editors can leave rotation off or enable a restrained 6–20 second crossfade; the public site respects reduced-motion preferences.
+- The public contract is read-only at `/api/globals/homepage-hero?depth=1`. The public portal keeps its current approved hero content and local artwork as a resilient fallback if the global has not yet been saved or the CMS is unavailable.
+- Migration `20260829_104700_add_homepage_hero` creates the global and its slide/benefit arrays. Do not call this live until the CMS deployment has run the migration and the public homepage has been deployed and verified against the approved desktop reference and mobile layout.
+
 ## Product identity and boundary
 
 This is the **STOR 24** content-management repository. It is not SiteLink and must use STOR 24 terminology and official CI. The public brand reference is <https://stor4.srv938083.hstgr.cloud/>: ink `#071411`, cream `#F5F3EA`, orange `#FF5A0A`, Satoshi typography and the official outlined logo.

@@ -68,16 +68,11 @@ export interface Config {
   blocks: {};
   collections: {
     'storage-insights': StorageInsight;
-    units: Unit;
     users: User;
-    'storage-units': StorageUnit;
     media: Media;
     posts: Post;
     faqs: Faq;
     areas: Area;
-    contacts: Contact;
-    deals: Deal;
-    activities: Activity;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
     'payload-migrations': PayloadMigration;
@@ -85,16 +80,11 @@ export interface Config {
   collectionsJoins: {};
   collectionsSelect: {
     'storage-insights': StorageInsightsSelect<false> | StorageInsightsSelect<true>;
-    units: UnitsSelect<false> | UnitsSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
-    'storage-units': StorageUnitsSelect<false> | StorageUnitsSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     posts: PostsSelect<false> | PostsSelect<true>;
     faqs: FaqsSelect<false> | FaqsSelect<true>;
     areas: AreasSelect<false> | AreasSelect<true>;
-    contacts: ContactsSelect<false> | ContactsSelect<true>;
-    deals: DealsSelect<false> | DealsSelect<true>;
-    activities: ActivitiesSelect<false> | ActivitiesSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
     'payload-migrations': PayloadMigrationsSelect<false> | PayloadMigrationsSelect<true>;
@@ -102,8 +92,12 @@ export interface Config {
   db: {
     defaultIDType: number;
   };
-  globals: {};
-  globalsSelect: {};
+  globals: {
+    'homepage-hero': HomepageHero;
+  };
+  globalsSelect: {
+    'homepage-hero': HomepageHeroSelect<false> | HomepageHeroSelect<true>;
+  };
   locale: null;
   user: User & {
     collection: 'users';
@@ -234,44 +228,6 @@ export interface Media {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "units".
- */
-export interface Unit {
-  id: number;
-  unitNumber: string;
-  location: 'sandton' | 'randburg' | 'midrand' | 'centurion' | 'roodepoort';
-  size: '5sqm' | '10sqm' | '15sqm' | '20sqm' | '30sqm';
-  floor?: ('ground' | 'first' | 'second') | null;
-  status: 'available' | 'occupied' | 'reserved' | 'maintenance';
-  monthlyRate?: number | null;
-  tenant?: (number | null) | Contact;
-  contractStart?: string | null;
-  contractEnd?: string | null;
-  notes?: string | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "contacts".
- */
-export interface Contact {
-  id: number;
-  firstName: string;
-  lastName?: string | null;
-  email: string;
-  phone?: string | null;
-  source?: ('web_form' | 'whatsapp' | 'email' | 'walk_in' | 'referral') | null;
-  unitSize?: ('small' | 'medium' | 'large' | 'extra_large') | null;
-  moveInDate?: string | null;
-  score?: number | null;
-  status?: ('new' | 'quoted' | 'viewing' | 'converted' | 'lost') | null;
-  notes?: string | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "users".
  */
 export interface User {
@@ -289,38 +245,6 @@ export interface User {
   loginAttempts?: number | null;
   lockUntil?: string | null;
   password?: string | null;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "storage-units".
- */
-export interface StorageUnit {
-  id: number;
-  name: string;
-  slug: string;
-  size: string;
-  dimensions?: string | null;
-  pricePerMonth: number;
-  features?:
-    | {
-        feature?: string | null;
-        id?: string | null;
-      }[]
-    | null;
-  available?: boolean | null;
-  popular?: boolean | null;
-  description?: string | null;
-  image?: (number | null) | Media;
-  meta?: {
-    title?: string | null;
-    description?: string | null;
-    /**
-     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
-     */
-    image?: (number | null) | Media;
-  };
-  updatedAt: string;
-  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -408,38 +332,6 @@ export interface Area {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "deals".
- */
-export interface Deal {
-  id: number;
-  contact: number | Contact;
-  stage: 'new_lead' | 'quoted' | 'viewing_scheduled' | 'active' | 'churned' | 'lost';
-  unitSize?: ('small' | 'medium' | 'large' | 'extra_large') | null;
-  monthlyRate?: number | null;
-  startDate?: string | null;
-  endDate?: string | null;
-  /**
-   * Link this deal to a physical storage unit
-   */
-  unit?: (number | null) | Unit;
-  notes?: string | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "activities".
- */
-export interface Activity {
-  id: number;
-  contact: number | Contact;
-  type: 'note' | 'email' | 'call' | 'whatsapp' | 'viewing' | 'status_change';
-  body?: string | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-locked-documents".
  */
 export interface PayloadLockedDocument {
@@ -450,16 +342,8 @@ export interface PayloadLockedDocument {
         value: number | StorageInsight;
       } | null)
     | ({
-        relationTo: 'units';
-        value: number | Unit;
-      } | null)
-    | ({
         relationTo: 'users';
         value: number | User;
-      } | null)
-    | ({
-        relationTo: 'storage-units';
-        value: number | StorageUnit;
       } | null)
     | ({
         relationTo: 'media';
@@ -476,18 +360,6 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'areas';
         value: number | Area;
-      } | null)
-    | ({
-        relationTo: 'contacts';
-        value: number | Contact;
-      } | null)
-    | ({
-        relationTo: 'deals';
-        value: number | Deal;
-      } | null)
-    | ({
-        relationTo: 'activities';
-        value: number | Activity;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -579,24 +451,6 @@ export interface StorageInsightsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "units_select".
- */
-export interface UnitsSelect<T extends boolean = true> {
-  unitNumber?: T;
-  location?: T;
-  size?: T;
-  floor?: T;
-  status?: T;
-  monthlyRate?: T;
-  tenant?: T;
-  contractStart?: T;
-  contractEnd?: T;
-  notes?: T;
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "users_select".
  */
 export interface UsersSelect<T extends boolean = true> {
@@ -612,36 +466,6 @@ export interface UsersSelect<T extends boolean = true> {
   hash?: T;
   loginAttempts?: T;
   lockUntil?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "storage-units_select".
- */
-export interface StorageUnitsSelect<T extends boolean = true> {
-  name?: T;
-  slug?: T;
-  size?: T;
-  dimensions?: T;
-  pricePerMonth?: T;
-  features?:
-    | T
-    | {
-        feature?: T;
-        id?: T;
-      };
-  available?: T;
-  popular?: T;
-  description?: T;
-  image?: T;
-  meta?:
-    | T
-    | {
-        title?: T;
-        description?: T;
-        image?: T;
-      };
-  updatedAt?: T;
-  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -728,51 +552,6 @@ export interface AreasSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "contacts_select".
- */
-export interface ContactsSelect<T extends boolean = true> {
-  firstName?: T;
-  lastName?: T;
-  email?: T;
-  phone?: T;
-  source?: T;
-  unitSize?: T;
-  moveInDate?: T;
-  score?: T;
-  status?: T;
-  notes?: T;
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "deals_select".
- */
-export interface DealsSelect<T extends boolean = true> {
-  contact?: T;
-  stage?: T;
-  unitSize?: T;
-  monthlyRate?: T;
-  startDate?: T;
-  endDate?: T;
-  unit?: T;
-  notes?: T;
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "activities_select".
- */
-export interface ActivitiesSelect<T extends boolean = true> {
-  contact?: T;
-  type?: T;
-  body?: T;
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-locked-documents_select".
  */
 export interface PayloadLockedDocumentsSelect<T extends boolean = true> {
@@ -802,6 +581,87 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
   batch?: T;
   updatedAt?: T;
   createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "homepage-hero".
+ */
+export interface HomepageHero {
+  id: number;
+  eyebrow: string;
+  headlinePrimary: string;
+  headlineAccentLineOne: string;
+  headlineAccentLineTwo: string;
+  bodyCopy: string;
+  slides?:
+    | {
+        desktopImage: number | Media;
+        /**
+         * Optional phone crop. Desktop image is used when empty.
+         */
+        mobileImage?: (number | null) | Media;
+        alt: string;
+        fit: 'contain' | 'cover';
+        position: 'left' | 'center' | 'right';
+        id?: string | null;
+      }[]
+    | null;
+  rotationEnabled?: boolean | null;
+  rotationIntervalSeconds?: number | null;
+  ctaEyebrow: string;
+  ctaStrong: string;
+  ctaButtonLabel: string;
+  ctaButtonLink: string;
+  benefitsHeading: string;
+  benefits?:
+    | {
+        icon: 'access' | 'camera' | 'flex' | 'people';
+        title: string;
+        copy: string;
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "homepage-hero_select".
+ */
+export interface HomepageHeroSelect<T extends boolean = true> {
+  eyebrow?: T;
+  headlinePrimary?: T;
+  headlineAccentLineOne?: T;
+  headlineAccentLineTwo?: T;
+  bodyCopy?: T;
+  slides?:
+    | T
+    | {
+        desktopImage?: T;
+        mobileImage?: T;
+        alt?: T;
+        fit?: T;
+        position?: T;
+        id?: T;
+      };
+  rotationEnabled?: T;
+  rotationIntervalSeconds?: T;
+  ctaEyebrow?: T;
+  ctaStrong?: T;
+  ctaButtonLabel?: T;
+  ctaButtonLink?: T;
+  benefitsHeading?: T;
+  benefits?:
+    | T
+    | {
+        icon?: T;
+        title?: T;
+        copy?: T;
+        id?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

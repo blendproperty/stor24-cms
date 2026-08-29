@@ -2,6 +2,7 @@ import * as migration_20260613_161747_storage_insights_init from './20260613_161
 import * as migration_20260616_142929 from './20260616_142929';
 import * as migration_20260818_120000_remove_crm_collections from './20260818_120000_remove_crm_collections';
 import * as migration_20260819_054800_remove_storage_units from './20260819_054800_remove_storage_units';
+import * as migration_20260829_104700_add_homepage_hero from './20260829_104700_add_homepage_hero';
 
 export const migrations = [
   {
@@ -23,5 +24,10 @@ export const migrations = [
     up: migration_20260819_054800_remove_storage_units.up,
     down: migration_20260819_054800_remove_storage_units.down,
     name: '20260819_054800_remove_storage_units'
+  },
+  {
+    up: migration_20260829_104700_add_homepage_hero.up,
+    down: migration_20260829_104700_add_homepage_hero.down,
+    name: '20260829_104700_add_homepage_hero'
   },
 ];

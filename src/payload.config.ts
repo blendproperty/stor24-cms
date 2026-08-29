@@ -3,6 +3,7 @@ import { postgresAdapter } from "@payloadcms/db-postgres";
 import { lexicalEditor } from "@payloadcms/richtext-lexical";
 import { seoPlugin } from "@payloadcms/plugin-seo";
 import { StorageInsights } from "./collections/StorageInsights";
+import { HomepageHero } from "./globals/HomepageHero";
 import path from "path";
 import { fileURLToPath } from "url";
 
@@ -102,6 +103,7 @@ export default buildConfig({
       ],
     },
   ],
+  globals: [HomepageHero],
   db: postgresAdapter({ pool: { connectionString: dbUri } }),
   editor: lexicalEditor({}),
   secret,
