@@ -1,4 +1,39 @@
-import type { GlobalConfig } from 'payload'
+import { ValidationError, type GlobalConfig } from 'payload'
+
+type MediaReference = number | string | { id: number | string; width?: number | null; height?: number | null; mimeType?: string | null }
+
+const mediaID = (value: MediaReference) => (typeof value === 'object' ? value.id : value)
+
+const validateHeroImage = async (
+  value: MediaReference | null | undefined,
+  req: Parameters<NonNullable<NonNullable<GlobalConfig['hooks']>['beforeValidate']>[number]>[0]['req'],
+  path: string,
+  mobile = false,
+) => {
+  if (!value) return []
+  const media = typeof value === 'object'
+    ? value
+    : await req.payload.findByID({ collection: 'media', id: mediaID(value), depth: 0, req })
+  const width = Number(media.width || 0)
+  const height = Number(media.height || 0)
+  const mimeType = String(media.mimeType || '')
+  const errors: Array<{ path: string; message: string }> = []
+
+  if (!['image/jpeg', 'image/png', 'image/webp'].includes(mimeType)) {
+    errors.push({ path, message: 'Use a JPG, PNG or WebP image.' })
+  }
+  if (mobile) {
+    if (width < 720 || height < 900 || width > height) {
+      errors.push({ path, message: 'Mobile hero images must be portrait and at least 720 × 900px.' })
+    }
+  } else {
+    const ratio = height ? width / height : 0
+    if (width < 1200 || height < 800 || ratio < 1.2 || ratio > 1.6) {
+      errors.push({ path, message: 'Desktop hero images must be at least 1200 × 800px with an aspect ratio between 6:5 and 8:5.' })
+    }
+  }
+  return errors
+}
 
 export const HomepageHero: GlobalConfig = {
   slug: 'homepage-hero',
@@ -6,6 +41,17 @@ export const HomepageHero: GlobalConfig = {
   access: {
     read: () => true,
     update: ({ req }) => Boolean(req.user),
+  },
+  hooks: {
+    beforeValidate: [async ({ data, req }) => {
+      const slides = Array.isArray(data?.slides) ? data.slides : []
+      const errors = (await Promise.all(slides.flatMap((slide: { desktopImage?: MediaReference; mobileImage?: MediaReference | null }, index: number) => [
+        validateHeroImage(slide?.desktopImage as MediaReference, req, `slides.${index}.desktopImage`),
+        validateHeroImage(slide?.mobileImage as MediaReference | null, req, `slides.${index}.mobileImage`, true),
+      ]))).flat()
+      if (errors.length) throw new ValidationError({ global: 'homepage-hero', errors })
+      return data
+    }],
   },
   fields: [
     {
@@ -36,8 +82,8 @@ export const HomepageHero: GlobalConfig = {
           maxRows: 3,
           labels: { singular: 'Hero image', plural: 'Hero images' },
           fields: [
-            { name: 'desktopImage', type: 'upload', relationTo: 'media', required: true },
-            { name: 'mobileImage', type: 'upload', relationTo: 'media', admin: { description: 'Optional phone crop. Desktop image is used when empty.' } },
+            { name: 'desktopImage', type: 'upload', relationTo: 'media', required: true, admin: { description: 'Landscape JPG, PNG or WebP. Minimum 1200 × 800px; accepted ratio 6:5 to 8:5.' } },
+            { name: 'mobileImage', type: 'upload', relationTo: 'media', admin: { description: 'Optional portrait crop, minimum 720 × 900px. Desktop image is used when empty.' } },
             { name: 'alt', type: 'text', required: true },
             {
               name: 'fit',
