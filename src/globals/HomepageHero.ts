@@ -3,6 +3,12 @@ import { ValidationError, type GlobalConfig } from 'payload'
 type MediaReference = number | string | { id: number | string; width?: number | null; height?: number | null; mimeType?: string | null }
 
 const mediaID = (value: MediaReference) => (typeof value === 'object' ? value.id : value)
+const validateInternalLink = (value: string | null | undefined) => {
+  if (!value || value.length > 120 || (!value.startsWith('/') && !value.startsWith('#')) || value.startsWith('//')) {
+    return 'Use a safe internal path beginning with / or an on-page anchor beginning with #.'
+  }
+  return true
+}
 
 const validateHeroImage = async (
   value: MediaReference | null | undefined,
@@ -45,6 +51,7 @@ export const HomepageHero: GlobalConfig = {
   hooks: {
     beforeValidate: [async ({ data, req }) => {
       const slides = Array.isArray(data?.slides) ? data.slides : []
+      if (data && slides.length < 2) data.rotationEnabled = false
       const errors = (await Promise.all(slides.flatMap((slide: { desktopImage?: MediaReference; mobileImage?: MediaReference | null }, index: number) => [
         validateHeroImage(slide?.desktopImage as MediaReference, req, `slides.${index}.desktopImage`),
         validateHeroImage(slide?.mobileImage as MediaReference | null, req, `slides.${index}.mobileImage`, true),
@@ -59,14 +66,15 @@ export const HomepageHero: GlobalConfig = {
       label: 'Hero copy',
       admin: { initCollapsed: false },
       fields: [
-        { name: 'eyebrow', type: 'text', required: true, defaultValue: 'Storage for Johannesburg' },
-        { name: 'headlinePrimary', label: 'Headline — ink line', type: 'text', required: true, defaultValue: 'Life happens.' },
-        { name: 'headlineAccentLineOne', label: 'Headline — orange line 1', type: 'text', required: true, defaultValue: 'We’ve got' },
-        { name: 'headlineAccentLineTwo', label: 'Headline — orange line 2', type: 'text', required: true, defaultValue: 'room.' },
+        { name: 'eyebrow', type: 'text', required: true, maxLength: 40, defaultValue: 'Storage for Johannesburg' },
+        { name: 'headlinePrimary', label: 'Headline — ink line', type: 'text', required: true, maxLength: 28, defaultValue: 'Life happens.' },
+        { name: 'headlineAccentLineOne', label: 'Headline — orange line 1', type: 'text', required: true, maxLength: 24, defaultValue: 'We’ve got' },
+        { name: 'headlineAccentLineTwo', label: 'Headline — orange line 2', type: 'text', required: true, maxLength: 20, defaultValue: 'room.' },
         {
           name: 'bodyCopy',
           type: 'textarea',
           required: true,
+          maxLength: 180,
           defaultValue: 'Moving, growing, renovating or simply running out of cupboards? Tell us what’s taking up space. We’ll help sort the rest.',
         },
       ],
@@ -79,12 +87,13 @@ export const HomepageHero: GlobalConfig = {
         {
           name: 'slides',
           type: 'array',
+          minRows: 1,
           maxRows: 3,
           labels: { singular: 'Hero image', plural: 'Hero images' },
           fields: [
             { name: 'desktopImage', type: 'upload', relationTo: 'media', required: true, admin: { description: 'Landscape JPG, PNG or WebP. Minimum 1200 × 800px; accepted ratio 6:5 to 8:5.' } },
             { name: 'mobileImage', type: 'upload', relationTo: 'media', admin: { description: 'Optional portrait crop, minimum 720 × 900px. Desktop image is used when empty.' } },
-            { name: 'alt', type: 'text', required: true },
+            { name: 'alt', type: 'text', required: true, maxLength: 120 },
             {
               name: 'fit',
               type: 'select',
@@ -120,17 +129,17 @@ export const HomepageHero: GlobalConfig = {
       type: 'collapsible',
       label: 'Size-guide call to action',
       fields: [
-        { name: 'ctaEyebrow', type: 'text', required: true, defaultValue: 'No idea what size you need?' },
-        { name: 'ctaStrong', type: 'text', required: true, defaultValue: 'Good. That’s what we’re here for.' },
-        { name: 'ctaButtonLabel', type: 'text', required: true, defaultValue: 'Find my space' },
-        { name: 'ctaButtonLink', type: 'text', required: true, defaultValue: '#quote' },
+        { name: 'ctaEyebrow', type: 'text', required: true, maxLength: 45, defaultValue: 'No idea what size you need?' },
+        { name: 'ctaStrong', type: 'text', required: true, maxLength: 55, defaultValue: 'Good. That’s what we’re here for.' },
+        { name: 'ctaButtonLabel', type: 'text', required: true, maxLength: 24, defaultValue: 'Find my space' },
+        { name: 'ctaButtonLink', type: 'text', required: true, maxLength: 120, validate: validateInternalLink, defaultValue: '#quote' },
       ],
     },
     {
       type: 'collapsible',
       label: 'Mobile benefit cards',
       fields: [
-        { name: 'benefitsHeading', type: 'text', required: true, defaultValue: 'Why choose Stor24?' },
+        { name: 'benefitsHeading', type: 'text', required: true, maxLength: 40, defaultValue: 'Why choose Stor24?' },
         {
           name: 'benefits',
           type: 'array',
@@ -147,8 +156,8 @@ export const HomepageHero: GlobalConfig = {
                 { label: 'Helpful people', value: 'people' },
               ],
             },
-            { name: 'title', type: 'text', required: true },
-            { name: 'copy', type: 'text', required: true },
+            { name: 'title', type: 'text', required: true, maxLength: 28 },
+            { name: 'copy', type: 'text', required: true, maxLength: 45 },
           ],
           defaultValue: [
             { icon: 'access', title: 'Controlled access', copy: 'Only authorised access' },
