@@ -1,6 +1,6 @@
 # STOR 24 CMS — Project Context
 
-> Last reviewed: 19 August 2026. Read this file before planning or changing the repository. Update it whenever a material capability, decision, deployment state, or cross-repository contract changes.
+> Last reviewed: 31 August 2026. Read this file before planning or changing the repository. Update it whenever a material capability, decision, deployment state, or cross-repository contract changes.
 
 ## CMS-managed homepage hero — implemented 29 August 2026, deployment verification pending
 
@@ -182,3 +182,12 @@ detailed mapping still open, see stor24-portal PROJECT_CONTEXT.md)
 ## Definition of done
 
 A CMS capability is complete only when ownership is approved, the schema and permissions enforce it, editorial workflow is usable, portal delivery is compatible, migrations and recovery are covered, and the deployed publish/preview experience is verified.
+
+## Programme evidence refresh — 31 August 2026
+
+- The CMS ownership and publishing boundary is now closed in Asana: CMS owns editorial content, approved media and publication state only; operational/customer/inventory/finance truth remains outside this repository.
+- Mainline commits through 30 August add the editable `homepage-hero` global, homepage media validation and protected homepage copy/link rules. The public portal contains resilient approved fallbacks.
+- Do not convert those commits into a production-complete claim without current CMS migration evidence, API readback, authenticated editor workflow proof and public desktop/mobile visual verification.
+- The public/CMS homepage safeguards now include responsive regression coverage and scheduled production smoke monitoring. Current live evidence must still identify the exact deployed revision and affected-route result.
+- Previously exposed `PAYLOAD_SECRET` and database credentials must remain treated as compromised until rotation is positively verified. CMS MFA, the Payload-specific CSP follow-up, README collection-list correction and the duplicated `(frontend)` decision remain open.
+- Asana programme `1217529585497952` records 46 tasks: 21 complete and 25 open; overall status is amber / at risk. This count is not a weighted delivery percentage.
