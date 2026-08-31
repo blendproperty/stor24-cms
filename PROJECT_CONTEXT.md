@@ -148,6 +148,16 @@ detailed mapping still open, see stor24-portal PROJECT_CONTEXT.md)
 
 **This boundary is now enforced in this repository's schema, not just documented.** `contacts`, `deals`, `activities`, `units` and their dashboards were removed 18 August 2026; `storage-units` (per-unit pricing/size data, also CRM-shaped) was removed 19 August 2026 once confirmed unused by the live site. The one remaining overlap against this boundary is the duplicated `(frontend)` public-site tree, which is a separate decision (see Priority next work item 1).
 
+### Customer and lead ownership task close-out — 31 August 2026
+
+- **Implementation:** no new CMS feature was added. The cross-repository contract is reconciled so that customer, lead, reservation, tenancy, occupancy and operational-audit truth belongs only to `stor24-portal`; this CMS remains editorial content, approved media and publication state only.
+- **Testing / validation:** current `src/payload.config.ts` exposes the editorial collections and `homepage-hero` global, while the retired CRM-shaped collection definitions are absent. Historical removal migrations and the production-confirmed admin cleanup remain the enforcement evidence.
+- **Commit and push:** this documentation-only close-out is committed and pushed to `main`, with remote presence checked using `git show origin/main:PROJECT_CONTEXT.md`.
+- **Merge:** promoted directly to `main`; no runtime-code merge is involved.
+- **Deployment / configuration:** none required for this context-only change.
+- **Live production verification:** no new production mutation was performed. The previously verified production removal of the CMS shadow CRM remains the applicable live evidence. Secret rotation, CMS MFA, publication workflow and the duplicated `(frontend)` decision remain open.
+- **Follow-up preserved:** the public portal's legacy `/pricing` source still requests the retired CMS `storage-units` endpoint. That consumer must be removed or moved to a sanitised CRM pricing contract; this CMS must not restore the retired collection.
+
 ## Cross-repository contract
 
 - Publish structured, versioned, sanitised content for the public portal.
