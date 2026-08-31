@@ -2,6 +2,12 @@
 
 > Last reviewed: 31 August 2026. Read this file before planning or changing the repository. Update it whenever a material capability, decision, deployment state, or cross-repository contract changes.
 
+## Verified production baseline — 31 August 2026
+
+- Repository `blendproperty/stor24-cms` production branch `main` is at `694ac9389bf24b9e730b4413698d2f9c4a2f90c1`. GitHub deployment run `#23` completed successfully for that exact commit.
+- The live admin route redirects to the login screen and returns HTTP 200. The live read-only `homepage-hero` global returns HTTP 200 with the saved headline, copy, benefits and populated slide media, proving that the migration and configured global are present in production.
+- The public portal is deployed at `a0db67252e95da04c95bf0a6687b3a4b5bc16db3` (deploy `#143`) and its `/api/health` reports CMS and CRM healthy. This closes CMS migration/API readback, but desktop/mobile visual acceptance remains a separate gate.
+
 ## CMS-managed homepage hero — implemented 29 August 2026, deployment verification pending
 
 - Added the editorial-only `homepage-hero` global. Authorised CMS users can edit every visible hero sentence, the size-guide CTA, mobile benefit-card copy, and up to three approved hero images without changing public-site code.
