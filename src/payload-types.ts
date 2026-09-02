@@ -232,6 +232,20 @@ export interface Media {
  */
 export interface User {
   id: number;
+  /**
+   * Managed from the account security panel, not edited directly.
+   */
+  mfaEnabled?: boolean | null;
+  mfaSecretEncrypted?: string | null;
+  mfaRecoveryCodeHashes?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
   updatedAt: string;
   createdAt: string;
   enableAPIKey?: boolean | null;
@@ -454,6 +468,9 @@ export interface StorageInsightsSelect<T extends boolean = true> {
  * via the `definition` "users_select".
  */
 export interface UsersSelect<T extends boolean = true> {
+  mfaEnabled?: T;
+  mfaSecretEncrypted?: T;
+  mfaRecoveryCodeHashes?: T;
   updatedAt?: T;
   createdAt?: T;
   enableAPIKey?: T;
@@ -595,9 +612,12 @@ export interface HomepageHero {
   bodyCopy: string;
   slides?:
     | {
+        /**
+         * Landscape JPG, PNG or WebP. Minimum 1200 × 800px; accepted ratio 6:5 to 8:5.
+         */
         desktopImage: number | Media;
         /**
-         * Optional phone crop. Desktop image is used when empty.
+         * Optional portrait crop, minimum 720 × 900px. Desktop image is used when empty.
          */
         mobileImage?: (number | null) | Media;
         alt: string;
