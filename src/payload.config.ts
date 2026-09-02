@@ -3,6 +3,7 @@ import { postgresAdapter } from "@payloadcms/db-postgres";
 import { lexicalEditor } from "@payloadcms/richtext-lexical";
 import { seoPlugin } from "@payloadcms/plugin-seo";
 import { StorageInsights } from "./collections/StorageInsights";
+import { Users } from "./collections/Users";
 import { HomepageHero } from "./globals/HomepageHero";
 import path from "path";
 import { fileURLToPath } from "url";
@@ -28,6 +29,7 @@ export default buildConfig({
         Logo: { path: "@/components/Logo#Logo" },
         Icon: { path: "@/components/Icon#Icon" },
       },
+      afterLogin: ["@/components/AdminLoginNotice#AdminLoginNotice"],
     },
   },
   plugins: [
@@ -40,22 +42,7 @@ export default buildConfig({
   ],
   collections: [
     StorageInsights,
-    {
-      slug: "users",
-      auth: {
-        maxLoginAttempts: 5,
-        lockTime: 10 * 60 * 1000,
-        tokenExpiration: 7200,
-        useAPIKey: true,
-      },
-      access: {
-        read: adminOnly,
-        create: adminOnly,
-        update: adminOnly,
-        delete: adminOnly,
-      },
-      fields: [],
-    },
+    Users,
     {
       slug: "media",
       access: { read: publicRead, create: adminOnly, update: adminOnly, delete: adminOnly },

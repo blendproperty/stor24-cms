@@ -1,8 +1,14 @@
 # STOR 24 CMS — Project Context
 
-> Last reviewed: 31 August 2026. Read this file before planning or changing the repository. Update it whenever a material capability, decision, deployment state, or cross-repository contract changes.
+> Last reviewed: 1 September 2026. Read this file before planning or changing the repository. Update it whenever a material capability, decision, deployment state, or cross-repository contract changes.
 
-## Verified production baseline — 31 August 2026
+## CMS administrator MFA — implemented 1 September 2026, PR open, live UAT pending
+
+- **Why:** the CRM programme handover (`blendproperty/stor24-portal` `PROJECT_CONTEXT.md`, outstanding item 9) requires MFA for this admin surface separately, because CRM MFA does not protect CMS accounts. The CMS remains editorial-content-only; this change touches only `users` authentication, not content ownership.
+- **Implementation:** on branch `codex/cms-admin-mfa`. Adds `mfaEnabled`/`mfaSecretEncrypted`/`mfaRecoveryCodeHashes` fields to the `users` collection (secret and recovery hashes are never API-readable); a zero-dependency TOTP + recovery-code implementation at `src/lib/mfa.ts`, ported from the CRM's own `src/lib/mfa.ts` so the CMS has an independent credential rather than sharing one with the CRM; and a `beforeLogin` hook that requires a valid `context.totp` or `context.recoveryCode` whenever `mfaEnabled` is set. That hook runs for every login path this collection exposes (default REST `/api/users/login`, local API, GraphQL), and only the new `/api/users/custom-login` endpoint can supply that context — so once an account has MFA enabled, no route can complete its login without a correct code. Self-service enroll/enable/disable/regenerate endpoints and UI (`src/components/MfaManagementField.tsx`, embedded as a `users` collection field, active only when editing your own account) let each admin turn it on for themselves. Payload's default `/admin/login` form has no field for a verification code, so a new `/cms-login` page (`src/components/CmsLoginForm.tsx`) collects it and posts to `/custom-login`; the default login screen links to it via `admin.components.afterLogin`.
+- **Testing:** `npm test` (new `tests/mfa.test.ts`, 12/12 passing, dependency-free `node:test`/`node:assert`, covers TOTP round-trip and window tolerance, secret encryption/tamper rejection, recovery-code single-use consumption, and the `evaluateMfaLogin` decision function including the "enabled but secret missing" fail-closed case) — no database required. `tsc --noEmit` clean. `next build` compiles the admin and `/cms-login` routes into the static output; the repository's pre-existing `<a>`-vs-`<Link>` ESLint errors in unrelated frontend pages already fail a lint-enabled build on unmodified `main` (verified against a clean clone of `cfb4813`) and are unrelated to this change.
+- **Commit and push:** pushed to `codex/cms-admin-mfa` (based on `cfb4813`, HEAD `083af08514d95a3b3e11caf3561d4e1ff73b5906`). **Pull request opened:** `blendproperty/stor24-cms#1` (draft), base `main`. Not yet merged, not yet deployed, not yet live-verified.
+- **Remaining before this is closed:** review and merge PR #1 to `main`, deploy, then live UAT against the deployed instance — enroll an account, sign out, sign back in with a live TOTP code and separately with a recovery code, and confirm a login attempt through the default `/admin/login` form (no code) is rejected once `mfaEnabled` is set. Do not consider CMS MFA enabled in production until that UAT passes.
 
 - Repository `blendproperty/stor24-cms` production branch `main` is at `694ac9389bf24b9e730b4413698d2f9c4a2f90c1`. GitHub deployment run `#23` completed successfully for that exact commit.
 - The live admin route redirects to the login screen and returns HTTP 200. The live read-only `homepage-hero` global returns HTTP 200 with the saved headline, copy, benefits and populated slide media, proving that the migration and configured global are present in production.
@@ -31,7 +37,7 @@ The CMS owns editorial content and media that authorised users publish to STOR 2
 
 ## Branching policy
 
-Branches exist only as short-lived rollback/review points before merging into `main`. Open a branch, get it reviewed and merged, then delete it immediately — do not let feature branches accumulate. This repository had only `main` as of the 17 August 2026 audit (no stale branches to clean up here), unlike `stor24` and `stor24-portal`; keep it that way.
+Branches exist only as short-lived rollback/review points before merging into `main`. Open a branch, get it reviewed and merged, then delete it immediately — do not let feature branches accumulate. This repository had only `main` as of the 17 August 2026 audit (no stale branches to clean up here), unlike `stor24` and `stor24-portal`; keep it that way. `codex/cms-admin-mfa` (PR #1, open 1 September 2026) is the current exception, pending review/merge — delete it once merged.
 
 ## Sign-in security hardening — 19 August 2026
 
@@ -47,19 +53,19 @@ Fixed: `docker-compose.yml` now reads both values via `${PAYLOAD_SECRET}` / `${D
 3. Rotating `PAYLOAD_SECRET` invalidates all existing admin sessions and API keys — everyone will need to log in again, and any stored API key integrations will need regenerating.
 4. Ideally, purge the old secret/password from git history (not just the latest commit) since they were exposed for however long this file was public — a `git filter-repo` or BFG pass on this repository, done by Brett or someone with full git tooling access, since it requires a force-push and coordination with anyone else who has a local clone.
 
-**Also fixed — orphaned CRM collection files removed:** `src/collections/Contacts.ts`, `Deals.ts`, `Activities.ts` were still sitting in the repo (not imported into `payload.config.ts`, so inert today) with no `access` block defined at all — Payload defaults to fully public read/write when `access` is omitted. If anyone had re-imported one of these without adding explicit access rules, it would have silently recreated the exact public-write CRM hole that was closed on 18 August. Deleted outright rather than patched, since they served no purpose once the CRM collections were removed. `src/collections/Users.ts` (also unused — the live `users` config is inline in `payload.config.ts`, not this file) was deleted too, since it lacked the lockout/token-expiry settings the live config has and was a trap if ever swapped in.
+**Also fixed — orphaned CRM collection files removed:** `src/collections/Contacts.ts`, `Deals.ts`, `Activities.ts` were still sitting in the repo (not imported into `payload.config.ts`, so inert today) with no `access` block defined at all — Payload defaults to fully public read/write when `access` is omitted. If anyone had re-imported one of these without adding explicit access rules, it would have silently recreated the exact public-write CRM hole that was closed on 18 August. Deleted outright rather than patched, since they served no purpose once the CRM collections were removed. `src/collections/Users.ts` (also unused at the time — the live `users` config was inline in `payload.config.ts`, not this file) was deleted too, since it lacked the lockout/token-expiry settings the live config has and was a trap if ever swapped in. **Note: `src/collections/Users.ts` was recreated 1 September 2026 as part of the CMS administrator MFA work above — this time it is the live, imported configuration, with `access` and `auth` fully specified.**
 
 **Also fixed — security headers:** `next.config.mjs` now sets `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, `Referrer-Policy: strict-origin-when-cross-origin`, a restrictive `Permissions-Policy`, and HSTS. **CSP was deliberately not added here** (unlike `stor24-portal` and `stor24`) — Payload's admin UI relies on inline styles/scripts and dynamically injected chunks that a strict CSP would break without careful per-directive tuning specific to Payload's admin bundle. Tracked as a follow-up, not skipped permanently.
 
 **Not fixed — needs a dedicated follow-up:**
-- No 2FA/MFA on CMS admin login (or the CRM's staff login in `stor24-portal`) — password-only currently.
+- ~~No 2FA/MFA on CMS admin login~~ — implemented 1 September 2026, see above; PR #1 open, live UAT still pending.
 - `useAPIKey: true` is set on the live `users` collection, giving a second credential path alongside password login — worth confirming any issued API keys are scoped appropriately and get rotated alongside the secret above.
 
 ## Current verified implementation
 
 - Payload admin and API routes are present.
 - PostgreSQL adapter, Lexical rich text, SEO plugin and local media storage are configured in the codebase.
-- **Collections are now editorial-only: `users`, `media`, `storage-insights`, `posts`, `faqs`, `areas`.** `contacts`, `deals`, `activities` and `units` were removed 18 August 2026 (see "CRM-collection removal" below); `storage-units` was removed 19 August 2026 (see "storage-units removal" below) after confirming the live marketing site never reads it. The dead `Contacts.ts`/`Deals.ts`/`Activities.ts`/`Users.ts` files (never imported, but present with no access control) were also deleted 19 August 2026 as part of the security hardening above.
+- **Collections are now editorial-only: `users`, `media`, `storage-insights`, `posts`, `faqs`, `areas`.** `contacts`, `deals`, `activities` and `units` were removed 18 August 2026 (see "CRM-collection removal" below); `storage-units` was removed 19 August 2026 (see "storage-units removal" below) after confirming the live marketing site never reads it.
 - Migration files exist for storage insights, the (now-retired) inventory/deal changes, the 18 August 2026 CRM-collection removal, and the 19 August 2026 storage-units removal.
 - Public frontend routes are also present under `src/app/(frontend)`.
 - README.md corrected 17 August 2026 to reflect PostgreSQL (not MongoDB/localDisk) and document the real collection list — **README's collection list is stale (still lists `contacts`/`deals`/`activities`/`units`/`storage-units`) and should be refreshed to match this file** (see Priority next work).
@@ -176,7 +182,7 @@ detailed mapping still open, see stor24-portal PROJECT_CONTEXT.md)
 6. Confirm the 19 August 2026 storage-units-removal migration (`20260819_054800_remove_storage_units`) has run against production on the next redeploy, and visually confirm the admin CI theme fix (`custom.scss`) renders correctly live.
 7. Refresh `README.md`'s collection list, which still documents the pre-removal state (`contacts`/`deals`/`activities`/`units`/`storage-units` included) and needs to be brought back in line with the current, editorial-only collection list in this file.
 8. Add a properly-tuned CSP for the Payload admin bundle (deliberately skipped in the 19 August 2026 headers pass — see "Sign-in security hardening").
-9. Consider 2FA/MFA for CMS admin accounts alongside the same work in `stor24-portal`.
+9. ~~Consider 2FA/MFA for CMS admin accounts alongside the same work in `stor24-portal`~~ — implemented 1 September 2026, see "CMS administrator MFA" above; PR #1 open, live UAT still pending.
 
 ## Working rules for any AI assistant
 
@@ -205,5 +211,5 @@ A CMS capability is complete only when ownership is approved, the schema and per
 - Mainline commits through 30 August add the editable `homepage-hero` global, homepage media validation and protected homepage copy/link rules. The public portal contains resilient approved fallbacks.
 - Do not convert those commits into a production-complete claim without current CMS migration evidence, API readback, authenticated editor workflow proof and public desktop/mobile visual verification.
 - The public/CMS homepage safeguards now include responsive regression coverage and scheduled production smoke monitoring. Current live evidence must still identify the exact deployed revision and affected-route result.
-- Previously exposed `PAYLOAD_SECRET` and database credentials must remain treated as compromised until rotation is positively verified. CMS MFA, the Payload-specific CSP follow-up, README collection-list correction and the duplicated `(frontend)` decision remain open.
+- Previously exposed `PAYLOAD_SECRET` and database credentials must remain treated as compromised until rotation is positively verified. The Payload-specific CSP follow-up, README collection-list correction and the duplicated `(frontend)` decision remain open.
 - Asana programme `1217529585497952` records 46 tasks: 21 complete and 25 open; overall status is amber / at risk. This count is not a weighted delivery percentage.
