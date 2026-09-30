@@ -43,7 +43,8 @@ const validateHeroImage = async (
 
 export const HomepageHero: GlobalConfig = {
   slug: 'homepage-hero',
-  label: 'Homepage Hero',
+  label: 'Homepage',
+  admin: { group: 'Website content', hideAPIURL: true, description: 'Manage the opening section of stor24.co.za. Saved changes can take up to five minutes to appear. Check both desktop and mobile after updating.' },
   access: {
     read: () => true,
     update: ({ req }) => Boolean(req.user),

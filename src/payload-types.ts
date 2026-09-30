@@ -126,6 +126,8 @@ export interface UserAuthOperations {
   };
 }
 /**
+ * In-depth guides that help customers plan, pack and find the right storage. Manage the writing, images and search details in one place.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "storage-insights".
  */
@@ -144,18 +146,6 @@ export interface StorageInsight {
    * For Cluster Pages: which Pillar Guide this supports.
    */
   relatedPillar?: (number | null) | StorageInsight;
-  status: 'draft' | 'published';
-  publishedDate?: string | null;
-  seoTitle: string;
-  metaDescription: string;
-  primaryKeyword: string;
-  secondaryKeywords?:
-    | {
-        keyword?: string | null;
-        id?: string | null;
-      }[]
-    | null;
-  searchIntent?: ('informational' | 'commercial' | 'transactional' | 'mixed') | null;
   /**
    * Short summary shown on the Storage Insights hub card (1-2 sentences).
    */
@@ -183,10 +173,6 @@ export interface StorageInsight {
         id?: string | null;
       }[]
     | null;
-  ctaHeading?: string | null;
-  ctaText?: string | null;
-  ctaButtonLabel?: string | null;
-  ctaButtonLink?: string | null;
   /**
    * For editorial/QA reference - documents which pages this content should link to.
    */
@@ -200,6 +186,25 @@ export interface StorageInsight {
         id?: string | null;
       }[]
     | null;
+  seoTitle: string;
+  metaDescription: string;
+  primaryKeyword: string;
+  secondaryKeywords?:
+    | {
+        keyword?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  searchIntent?: ('informational' | 'commercial' | 'transactional' | 'mixed') | null;
+  ctaHeading?: string | null;
+  ctaText?: string | null;
+  ctaButtonLabel?: string | null;
+  ctaButtonLink?: string | null;
+  /**
+   * Review the guide before setting it to Published.
+   */
+  status: 'draft' | 'published';
+  publishedDate?: string | null;
   /**
    * Which JSON-LD schema blocks to render for this page.
    */
@@ -208,11 +213,16 @@ export interface StorageInsight {
   createdAt: string;
 }
 /**
+ * Your website photography and artwork. Upload a clear, high-quality image and add a short description for accessibility.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "media".
  */
 export interface Media {
   id: number;
+  /**
+   * Describe what is in the image. This helps people using screen readers and makes your library easier to understand.
+   */
   alt?: string | null;
   updatedAt: string;
   createdAt: string;
@@ -227,6 +237,8 @@ export interface Media {
   focalY?: number | null;
 }
 /**
+ * People with access to this content studio. Website customers and staff operations are managed in the CRM.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "users".
  */
@@ -247,15 +259,18 @@ export interface User {
   password?: string | null;
 }
 /**
+ * News, stories and practical advice. Open an article to edit its content, imagery and search information.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "posts".
  */
 export interface Post {
   id: number;
   title: string;
+  /**
+   * Use lowercase words separated by hyphens. Changing a published address can break existing links.
+   */
   slug: string;
-  status: 'draft' | 'published';
-  publishedAt?: string | null;
   excerpt?: string | null;
   content?: {
     root: {
@@ -279,6 +294,11 @@ export interface Post {
         id?: string | null;
       }[]
     | null;
+  /**
+   * Check the article before setting it to Published.
+   */
+  status: 'draft' | 'published';
+  publishedAt?: string | null;
   meta?: {
     title?: string | null;
     description?: string | null;
@@ -291,6 +311,8 @@ export interface Post {
   createdAt: string;
 }
 /**
+ * Helpful answers for the website. Keep each question specific and each answer clear.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "faqs".
  */
@@ -298,11 +320,16 @@ export interface Faq {
   id: number;
   question: string;
   answer: string;
+  /**
+   * Lower numbers appear first.
+   */
   order?: number | null;
   updatedAt: string;
   createdAt: string;
 }
 /**
+ * Local content for the areas you serve. Explain the benefits for both personal and business storage.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "areas".
  */
@@ -412,18 +439,6 @@ export interface StorageInsightsSelect<T extends boolean = true> {
   slug?: T;
   pageType?: T;
   relatedPillar?: T;
-  status?: T;
-  publishedDate?: T;
-  seoTitle?: T;
-  metaDescription?: T;
-  primaryKeyword?: T;
-  secondaryKeywords?:
-    | T
-    | {
-        keyword?: T;
-        id?: T;
-      };
-  searchIntent?: T;
   excerpt?: T;
   heroImage?: T;
   content?: T;
@@ -434,10 +449,6 @@ export interface StorageInsightsSelect<T extends boolean = true> {
         answer?: T;
         id?: T;
       };
-  ctaHeading?: T;
-  ctaText?: T;
-  ctaButtonLabel?: T;
-  ctaButtonLink?: T;
   internalLinks?:
     | T
     | {
@@ -445,6 +456,22 @@ export interface StorageInsightsSelect<T extends boolean = true> {
         anchorText?: T;
         id?: T;
       };
+  seoTitle?: T;
+  metaDescription?: T;
+  primaryKeyword?: T;
+  secondaryKeywords?:
+    | T
+    | {
+        keyword?: T;
+        id?: T;
+      };
+  searchIntent?: T;
+  ctaHeading?: T;
+  ctaText?: T;
+  ctaButtonLabel?: T;
+  ctaButtonLink?: T;
+  status?: T;
+  publishedDate?: T;
   schemaTypes?: T;
   updatedAt?: T;
   createdAt?: T;
@@ -492,8 +519,6 @@ export interface MediaSelect<T extends boolean = true> {
 export interface PostsSelect<T extends boolean = true> {
   title?: T;
   slug?: T;
-  status?: T;
-  publishedAt?: T;
   excerpt?: T;
   content?: T;
   featuredImage?: T;
@@ -503,6 +528,8 @@ export interface PostsSelect<T extends boolean = true> {
         tag?: T;
         id?: T;
       };
+  status?: T;
+  publishedAt?: T;
   meta?:
     | T
     | {
@@ -583,6 +610,8 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
   createdAt?: T;
 }
 /**
+ * Manage the opening section of stor24.co.za. Saved changes can take up to five minutes to appear. Check both desktop and mobile after updating.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "homepage-hero".
  */
@@ -595,9 +624,12 @@ export interface HomepageHero {
   bodyCopy: string;
   slides?:
     | {
+        /**
+         * Landscape JPG, PNG or WebP. Minimum 1200 × 800px; accepted ratio 6:5 to 8:5.
+         */
         desktopImage: number | Media;
         /**
-         * Optional phone crop. Desktop image is used when empty.
+         * Optional portrait crop, minimum 720 × 900px. Desktop image is used when empty.
          */
         mobileImage?: (number | null) | Media;
         alt: string;
