@@ -1,4 +1,5 @@
 import React from 'react'
+import { SeoOverview } from './SeoOverview'
 import Link from 'next/link'
 import type { ServerProps } from 'payload'
 import { Gutter } from '@payloadcms/ui'
@@ -94,8 +95,8 @@ export async function Workspace({ payload, user, permissions, visibleEntities }:
       <header className="s24-page-heading">
         <div>
           <p className="s24-eyebrow">STOR24 / CONTENT STUDIO</p>
-          <h1>Content overview</h1>
-          <p>Edit your homepage, manage your content and keep the website up to date.</p>
+          <h1>SEO & content</h1>
+          <p>Help customers find STOR24. Improve useful content, then measure its performance in Google.</p>
         </div>
         <a
           className="s24-button s24-button--outline"
@@ -106,6 +107,7 @@ export async function Workspace({ payload, user, permissions, visibleEntities }:
           View website <span aria-hidden="true">↗</span>
         </a>
       </header>
+      <SeoOverview payload={payload} user={user} permissions={permissions} visibleEntities={visibleEntities} />
       {heroVisible && (
         <section className="s24-feature" aria-labelledby="homepage-title">
           <div>
@@ -233,7 +235,7 @@ export function NavIntro() {
         <span className="s24-studio-label">CONTENT STUDIO</span>
       </Link>
       <Link href="/admin" className="s24-overview-link">
-        Overview <span aria-hidden="true">↗</span>
+        SEO & content <span aria-hidden="true">↗</span>
       </Link>
     </div>
   )
