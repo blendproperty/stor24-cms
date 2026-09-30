@@ -805,3 +805,16 @@ textarea,
 .nav-toggler .stroke {
   stroke: #173b26;
 }
+// The mobile menu and breadcrumb share one row: allow the content to shrink.
+.app-header__wrapper,
+.app-header__step-nav-wrapper {
+  min-width: 0;
+}
+.app-header__controls-wrapper {
+  width: auto;
+  min-width: 0;
+  flex: 1;
+}
+.app-header__account {
+  flex-shrink: 0;
+}
