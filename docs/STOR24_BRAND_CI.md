@@ -6,7 +6,9 @@ actual supplied assets, never a text recreation or an independently drawn logo.
 - `public/brand/stor24-logo-official.svg` is copied byte-for-byte from
   `blendproperty/stor24` → `public/brand/stor24-logo-transparent-white.svg`.
   Native proportions: 611 × 160. SHA-256:
-  `221c75f75e50f92f1a3952cddff17c31d58655a323d437c5c78b2fe156793de8` (repository / deployed LF bytes).
+  `221c75f75e50f92f1a3952cddff17c31d58655a323d437c5c78b2fe156793de8` (repository and public website LF bytes).
+  CMS archive/live CRLF bytes: `1f10cef7132044cd3a67915e3c0275635d61cdcf1197bc26276fbf86ae641e89`.
+  The difference is line endings only; paths, colours and proportions are identical.
 - `public/brand/Satoshi-Variable.woff2` is the unmodified official Fontshare
   Satoshi variable font, weights 300–900. Its actual `wght` axis was verified.
   SHA-256: `e739aff9b4d02c264341d6d4872edcda28e79373aeda936f659566a1cd3eb47f`.
