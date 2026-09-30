@@ -1,24 +1,19 @@
 @font-face {
-  font-family: Satoshi;
-  src: url('/brand/Satoshi-Handover-400.woff2') format('woff2');
-  font-weight: 400;
-  font-display: swap;
-}
-@font-face {
-  font-family: Satoshi;
-  src: url('/brand/Satoshi-Handover-700.woff2') format('woff2');
-  font-weight: 600 900;
+  font-family: 'Satoshi';
+  src: url('/brand/Satoshi-Variable.ttf') format('truetype');
+  font-weight: 300 900;
+  font-style: normal;
   font-display: swap;
 }
 :root,
 [data-theme='light'] {
   --font-body: Satoshi, 'Segoe UI', sans-serif;
   --font-heading: var(--font-body);
-  --theme-bg: #f7f7f2;
+  --theme-bg: #f5f3ea;
   --theme-input-bg: #fff;
-  --theme-text: #142820;
+  --theme-text: #071411;
   --theme-elevation-0: #fff;
-  --theme-elevation-50: #f7f7f2;
+  --theme-elevation-50: #f5f3ea;
   --theme-elevation-100: #e7ebe4;
   --theme-elevation-150: #dde4dc;
   --theme-elevation-200: #d0d9d0;
@@ -29,7 +24,7 @@
   --theme-elevation-600: #465c4e;
   --theme-elevation-700: #2f493b;
   --theme-elevation-800: #193527;
-  --theme-elevation-900: #0b2319;
+  --theme-elevation-900: #071411;
   --theme-elevation-1000: #071411;
   --theme-success-500: #267249;
   --theme-warning-500: #ad4b12;
@@ -38,7 +33,7 @@
   --style-radius-m: 12px;
   --style-radius-l: 16px;
   --s24-muted: #617368;
-  --s24-border: #dfe5db;
+  --s24-border: #dfe3df;
 }
 html,
 body,
@@ -73,7 +68,7 @@ textarea,
 }
 // Retain Payload's responsive navigation, document actions and accessible controls.
 .nav {
-  background: #0b2119;
+  background: #071411;
   border-color: #253b30;
 }
 .nav__wrap {
@@ -104,13 +99,13 @@ textarea,
   transition: background 0.15s;
 }
 .nav .nav__link:hover {
-  background: #1b3528;
+  background: #0b1d19;
   color: #fff;
 }
 .nav .nav__link:has(.nav__link-indicator) {
   color: #fff;
-  background: #284332;
-  box-shadow: inset 3px 0 #ff681c;
+  background: #ff5a0a;
+  box-shadow: inset 3px 0 #ff5a0a;
 }
 .nav__link-indicator {
   display: none;
@@ -135,7 +130,7 @@ textarea,
   line-height: 1;
 }
 .s24-wordmark > span:not(.s24-studio-label) {
-  color: #ff681c;
+  color: #ff5a0a;
 }
 .s24-studio-label {
   display: block;
@@ -153,7 +148,7 @@ textarea,
   margin-top: 30px;
   text-decoration: none;
   padding: 13px 14px;
-  background: #1b3528;
+  background: #0b1d19;
   border: 1px solid #36503e;
   border-radius: 8px;
 }
@@ -179,7 +174,7 @@ textarea,
   border-bottom: 1px solid var(--s24-border);
 }
 .s24-header-brand {
-  color: #102c1f;
+  color: #071411;
   font-size: 16px;
   font-weight: 800;
   letter-spacing: -0.055em;
@@ -208,14 +203,14 @@ textarea,
   font-weight: 700;
 }
 .btn.btn--style-primary {
-  background: #ff681c;
-  border-color: #ff681c;
+  background: #ff5a0a;
+  border-color: #ff5a0a;
   color: #172219;
   box-shadow: 0 2px 0 #d64d0b;
 }
 .btn.btn--style-primary:hover {
-  background: #ff823e;
-  color: #142820;
+  background: #ff7a00;
+  color: #071411;
 }
 .btn:disabled {
   opacity: 0.5;
@@ -233,7 +228,7 @@ textarea,
   margin-bottom: 12px;
 }
 .view-description {
-  color: #526758;
+  color: #596660;
   max-width: 750px;
   font-size: 14px;
   line-height: 1.65;
@@ -248,7 +243,7 @@ textarea,
   border-collapse: collapse;
 }
 .table th {
-  background: #eef2eb;
+  background: #efeee7;
   color: #4b6052;
   font-size: 11px;
   letter-spacing: 0.03em;
@@ -260,10 +255,10 @@ textarea,
   font-size: 13px;
 }
 .table tbody tr:hover {
-  background: #f4f7ef;
+  background: #fffaf6;
 }
 .table td a {
-  color: #173e28;
+  color: #071411;
   font-weight: 700;
   text-decoration: none;
 }
@@ -289,22 +284,22 @@ textarea,
 }
 .field-type input:focus,
 .field-type textarea:focus {
-  border-color: #426d4c;
-  box-shadow: 0 0 0 3px #426d4c14;
+  border-color: #ff5a0a;
+  box-shadow: 0 0 0 3px #ff5a0a14;
 }
 .field-label {
   font-size: 13px;
   font-weight: 700;
-  color: #27402e;
+  color: #071411;
 }
 .field-description {
-  color: #607264;
+  color: #596660;
   font-size: 12px;
   line-height: 1.6;
   margin-top: 7px;
 }
 .document-fields__sidebar {
-  background: #f0f3ec;
+  background: #f5f3ea;
   border-left: 1px solid var(--s24-border);
 }
 .doc-controls {
@@ -392,7 +387,7 @@ textarea,
 }
 .s24-eyebrow {
   margin: 0 0 13px;
-  color: #586f5c;
+  color: #596660;
   font-size: 10px;
   font-weight: 700;
   letter-spacing: 0.14em;
@@ -407,7 +402,7 @@ textarea,
   color: #6e806b;
 }
 .s24-page-heading p:last-child {
-  color: #586f5c;
+  color: #596660;
   font-size: 14px;
   margin: 0;
   max-width: 430px;
@@ -418,29 +413,29 @@ textarea,
   align-items: center;
   gap: 26px;
   justify-content: space-between;
-  background: #ff681c;
-  color: #142820;
+  background: #ff5a0a;
+  color: #071411;
   padding: 14px 20px;
   font-size: 13px;
   font-weight: 700;
-  border: 1px solid #ff681c;
+  border: 1px solid #ff5a0a;
   border-radius: 7px;
   text-decoration: none;
   white-space: nowrap;
   transition: background 0.15s;
 }
 .s24-button:hover {
-  background: #ff823e;
+  background: #ff7a00;
 }
 .s24-button--outline {
-  border-color: #cbd5c5;
+  border-color: #dfe3df;
   background: transparent;
 }
 .s24-button--outline:hover {
-  background: #e9eee3;
+  background: #efeee7;
 }
 .s24-feature {
-  background: #122d20;
+  background: #071411;
   color: #f4f4e9;
   border-radius: 16px;
   display: grid;
@@ -481,7 +476,7 @@ textarea,
   z-index: 1;
 }
 .s24-feature-art strong {
-  color: #ff7937;
+  color: #ff5a0a;
   font-size: clamp(36px, 4vw, 54px);
   line-height: 1;
   letter-spacing: -0.055em;
@@ -522,7 +517,7 @@ textarea,
   margin: 0;
 }
 .s24-section-heading > span {
-  color: #657760;
+  color: #596660;
   font-size: 12px;
 }
 .s24-content-grid {
@@ -532,7 +527,7 @@ textarea,
 }
 .s24-content-card {
   background: #fff;
-  border: 1px solid #dfe5d9;
+  border: 1px solid #dfe3df;
   border-radius: 12px;
   padding: 23px;
   text-decoration: none;
@@ -541,7 +536,7 @@ textarea,
     box-shadow 0.15s;
 }
 .s24-content-card:hover {
-  border-color: #769769;
+  border-color: #ff5a0a;
   box-shadow: 0 5px 18px #193c2210;
 }
 .s24-card-top {
@@ -552,8 +547,8 @@ textarea,
   margin-bottom: 22px;
 }
 .s24-card-mark {
-  color: #547346;
-  background: #eef3e7;
+  color: #973503;
+  background: #fff0e8;
   font-size: 11px;
   padding: 7px 9px;
   border-radius: 5px;
@@ -561,22 +556,22 @@ textarea,
 }
 .s24-count {
   font-size: 11px;
-  color: #63775d;
+  color: #596660;
 }
 .s24-content-card h3 {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  color: #173b26;
+  color: #071411;
   font-size: 19px;
   margin: 0 0 12px;
 }
 .s24-content-card h3 span {
   font-size: 17px;
-  color: #819675;
+  color: #973503;
 }
 .s24-content-card p {
-  color: #63745d;
+  color: #596660;
   font-size: 12px;
   line-height: 1.7;
   margin: 0;
@@ -588,7 +583,7 @@ textarea,
   margin-top: 28px;
 }
 .s24-panel {
-  border: 1px solid #dfe5d9;
+  border: 1px solid #dfe3df;
   border-radius: 12px;
   padding: 28px;
   background: #fff;
@@ -626,7 +621,7 @@ textarea,
   font-weight: 700;
   line-height: 1.5;
   display: block;
-  color: #23462e;
+  color: #071411;
   overflow-wrap: anywhere;
 }
 .s24-recent-meta {
@@ -641,11 +636,11 @@ textarea,
   color: #677d60;
 }
 .s24-editor-note {
-  background: #edf2e5;
+  background: #f5f3ea;
 }
 .s24-editor-note ol {
   padding-left: 20px;
-  color: #4c6b3f;
+  color: #596660;
   margin: 0;
 }
 .s24-editor-note li {
@@ -656,23 +651,23 @@ textarea,
 }
 .s24-editor-note strong {
   display: block;
-  color: #23462e;
+  color: #071411;
 }
 .s24-editor-note li span {
-  color: #5c7252;
+  color: #596660;
 }
 .s24-workspace-footer {
   display: flex;
   justify-content: space-between;
   gap: 16px;
-  border-top: 1px solid #dfe5d9;
+  border-top: 1px solid #dfe3df;
   margin-top: 36px;
   padding-top: 20px;
   font-size: 10px;
-  color: #708168;
+  color: #596660;
 }
 .s24-wordmark--login {
-  color: #143320;
+  color: #071411;
   font-size: 38px;
 }
 .s24-login-intro {
@@ -683,14 +678,14 @@ textarea,
   margin: 0 0 12px;
 }
 .s24-login-intro > p:last-child {
-  color: #60745a;
+  color: #596660;
   font-size: 13px;
 }
 .login .template-minimal__wrap,
 .forgot-password .template-minimal__wrap,
 .reset-password .template-minimal__wrap {
   background: #fff;
-  border: 1px solid #dce4d6;
+  border: 1px solid #dfe3df;
   border-radius: 18px;
   padding: 40px;
   box-shadow: 0 12px 40px #173c2310;
@@ -795,7 +790,7 @@ textarea,
   border-radius: 7px;
 }
 .nav-group__toggle:focus-visible {
-  outline: 2px solid #ff823e;
+  outline: 2px solid #ff7a00;
   outline-offset: 4px;
 }
 .nav-toggler {
@@ -803,7 +798,7 @@ textarea,
   min-height: 30px;
 }
 .nav-toggler .stroke {
-  stroke: #173b26;
+  stroke: #071411;
 }
 // The mobile menu and breadcrumb share one row: allow the content to shrink.
 .app-header__wrapper,
@@ -883,3 +878,44 @@ textarea,
 .s24-search-preview strong { display: block; color: #163d87; font-size: 20px; margin-top: 7px; }
 .s24-search-preview p { margin-bottom: 0; }
 @media (max-width: 700px) { .s24-seo-stats { grid-template-columns: 1fr; } .s24-seo-review { padding: 16px; } .s24-seo-hub .s24-section-heading { align-items: flex-start; gap: 14px; flex-direction: column; } }
+
+/* Official STOR24 CI: shared across login, navigation, lists and editors. */
+:root, [data-theme='light'] {
+  --s24-ink: #071411;
+  --s24-cream: #f5f3ea;
+  --s24-orange: #ff5a0a;
+  --style-radius-s: 12px;
+  --style-radius-m: 18px;
+  --style-radius-l: 20px;
+}
+h1, h2, h3 { font-weight: 850; }
+.s24-brand-logo { display: block; width: 168px; height: auto; max-width: 100%; }
+.s24-wordmark { letter-spacing: normal; }
+.s24-wordmark--login { display: inline-block; background: var(--s24-ink); padding: 24px 30px; border-radius: 14px; }
+.s24-wordmark--login .s24-brand-logo { width: 210px; }
+.s24-header-brand { display: inline-flex; background: var(--s24-ink); padding: 8px 12px; border-radius: 8px; }
+.s24-header-brand .s24-brand-logo { width: 92px; }
+.step-nav .step-nav__home { width: 116px; height: 40px; }
+.step-nav .s24-header-brand { height: 40px; }
+.app-header { background: var(--s24-cream); }
+.nav .nav__link:has(.nav__link-indicator) { color: var(--s24-ink); font-weight: 800; box-shadow: none; }
+.nav .nav__link { border-radius: 12px; }
+.s24-overview-link { border-radius: 12px; border-color: #35433e; }
+.btn.btn--style-primary, .s24-button { border-radius: 999px; color: var(--s24-ink); box-shadow: none; font-weight: 800; }
+.s24-content-card, .s24-panel, .s24-feature, .s24-seo-stats > div { border-radius: 20px; }
+.s24-page-heading h1 { font-weight: 850; letter-spacing: -0.045em; }
+.s24-account-avatar { background: #fff0e8; color: var(--s24-ink); border-color: #e4dcd5; }
+.s24-outline-box { display: none; }
+.s24-ideas-banner { display: flex; align-items: center; justify-content: space-between; gap: 28px; background: var(--s24-ink); color: var(--s24-cream); padding: 28px; border-radius: 20px; margin-bottom: 30px; }
+.s24-ideas-banner .s24-eyebrow { color: #ff8b57; }
+.s24-ideas-banner h2 { font-size: clamp(23px, 2.4vw, 30px); margin: 0 0 12px; }
+.s24-ideas-banner p:last-child { margin: 0; color: #c5ceca; max-width: 490px; line-height: 1.6; }
+.s24-ideas-actions { display: grid; gap: 14px; flex-shrink: 0; }
+.s24-ideas-link { color: var(--s24-cream); font-size: 13px; text-underline-offset: 4px; }
+@media (max-width: 700px) {
+  .s24-ideas-banner { flex-direction: column; align-items: stretch; padding: 24px; }
+  .s24-ideas-actions { justify-items: start; }
+  .step-nav .step-nav__home { width: 88px; height: 34px; }
+  .step-nav .s24-header-brand { height: 34px; padding: 7px 9px; }
+  .s24-header-brand .s24-brand-logo { width: 70px; }
+}

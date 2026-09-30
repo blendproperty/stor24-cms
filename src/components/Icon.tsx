@@ -1,7 +1,8 @@
 import React from 'react'
+import { BrandLogo } from './BrandLogo'
 export const Icon = () => (
   <span className="s24-header-brand">
-    STOR<span>24</span>
+    <BrandLogo />
   </span>
 )
 export default Icon
