@@ -1,5 +1,15 @@
 # STOR 24 CMS — Project Context
 
+## CMS domain migration - 30 September 2026
+
+- **Implementation:** canonical CMS address is https://cms.stor24.co.za/admin. Tracked Compose adds canonical HTTPS routing and legacy GET/HEAD page redirects preserving path/query; legacy APIs and media remain available directly. CMS remains editorial-only. Public website companion accepts the new image origin and passes NEXT_PUBLIC_CMS_URL into its Docker build.
+- **Testing:** resolved Compose comparison confirmed only labels changed; environment, network and volume definitions match. Recreated only the CMS with no build; exact image ID and media mounts unchanged. DNS authoritative/Google/Cloudflare return 93.127.186.194. No schema/data migration, content edit, account change or credential change performed.
+- **Commit and push:** candidate branch codex/cms-domain-20260929 from canonical main cfb481344fa9f2096481b323844c6751b5dbe48a. Existing VPS application source 340a887609e57556c4194b9bf5c11c8c91641104 differs from that baseline only in documentation. Isolated clone used; unrelated primary/VPS files preserved. Commit/push and merge pending at this checkpoint.
+- **Merge:** pending configuration/evidence PR. The domain-only release reuses the existing image; skip-ci on the merge will avoid an unrelated full CMS rebuild/migration.
+- **Deployment and configuration:** Hostinger cms A record 93.127.186.194 TTL60 and persistent /opt/stor24-cms/docker-compose.yml applied at 2026-09-30T02:49:43Z. Root-only rollback directory /root/stor24-cms-domain-backup-20260930 holds original CMS/public Compose and environments plus original CMS image/mount identifiers. Website public-media URL promotion remains pending.
+- **Live production verification:** new admin login 200; real browser shows Login - Stor24 CMS on the new domain. Valid HTTPS certificate covers cms.stor24.co.za through 29 December 2026. Public homepage-hero API returns 200 with three slides; unauthenticated users API remains 403. The exact old admin URL redirects 301 preserving its nested redirect query, and old hero API remains direct 200. Public site health reports CMS and CRM healthy. Authenticated editorial save/publish/preview UAT not performed; users must sign in again on the new hostname.
+- **Open gates:** authenticated editorial acceptance, previously recorded credential-rotation evidence, CMS MFA/CSP and other outstanding security/editorial gates remain open. Existing legal/provider/payment/access/finance/data/training/approval gates are unaffected. No tracker acceptance or overall business-readiness claim.
+
 > Last reviewed: 31 August 2026. Read this file before planning or changing the repository. Update it whenever a material capability, decision, deployment state, or cross-repository contract changes.
 
 ## Verified production baseline — 31 August 2026
