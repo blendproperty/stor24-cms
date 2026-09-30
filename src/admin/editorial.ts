@@ -89,5 +89,8 @@ export function editorialCollection(collection: CollectionConfig): CollectionCon
       ...sidebar(['status', 'publishedDate', 'schemaTypes']),
     ]
   }
+  if (['posts', 'storage-insights'].includes(collection.slug)) {
+    collection.fields.unshift({ name: 'seoReview', type: 'ui', admin: { components: { Field: { path: '@/components/SeoReview#SeoReview', clientProps: { guide: collection.slug === 'storage-insights' } } } } })
+  }
   return collection
 }
