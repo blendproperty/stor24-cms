@@ -20,13 +20,20 @@ import { StrikethroughFeatureClient as StrikethroughFeatureClient_e70f5e05f09f93
 import { UnderlineFeatureClient as UnderlineFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
 import { BoldFeatureClient as BoldFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
 import { ItalicFeatureClient as ItalicFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
+import { StatusCell as StatusCell_c67f77f7520ceb580da4334938604056 } from '@/components/Workspace'
 import { OverviewComponent as OverviewComponent_a8a977ebc872c5d5ea7ee689724c0860 } from '@payloadcms/plugin-seo/client'
 import { MetaTitleComponent as MetaTitleComponent_a8a977ebc872c5d5ea7ee689724c0860 } from '@payloadcms/plugin-seo/client'
 import { MetaDescriptionComponent as MetaDescriptionComponent_a8a977ebc872c5d5ea7ee689724c0860 } from '@payloadcms/plugin-seo/client'
 import { MetaImageComponent as MetaImageComponent_a8a977ebc872c5d5ea7ee689724c0860 } from '@payloadcms/plugin-seo/client'
 import { PreviewComponent as PreviewComponent_a8a977ebc872c5d5ea7ee689724c0860 } from '@payloadcms/plugin-seo/client'
+import { AccountAvatar as AccountAvatar_c67f77f7520ceb580da4334938604056 } from '@/components/Workspace'
 import { Icon as Icon_fe9ca0c9b67829fe284b73bb77968447 } from '@/components/Icon'
 import { Logo as Logo_2b7e2e151f989fb419ce3009e56b903e } from '@/components/Logo'
+import { WebsiteAction as WebsiteAction_c67f77f7520ceb580da4334938604056 } from '@/components/Workspace'
+import { NavFooter as NavFooter_c67f77f7520ceb580da4334938604056 } from '@/components/Workspace'
+import { LoginIntro as LoginIntro_c67f77f7520ceb580da4334938604056 } from '@/components/Workspace'
+import { NavIntro as NavIntro_c67f77f7520ceb580da4334938604056 } from '@/components/Workspace'
+import { Workspace as Workspace_c67f77f7520ceb580da4334938604056 } from '@/components/Workspace'
 
 export const importMap = {
   "@payloadcms/richtext-lexical/rsc#RscEntryLexicalCell": RscEntryLexicalCell_44fe37237e0ebf4470c9990d8cb7b07e,
@@ -51,11 +58,18 @@ export const importMap = {
   "@payloadcms/richtext-lexical/client#UnderlineFeatureClient": UnderlineFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "@payloadcms/richtext-lexical/client#BoldFeatureClient": BoldFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "@payloadcms/richtext-lexical/client#ItalicFeatureClient": ItalicFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
+  "@/components/Workspace#StatusCell": StatusCell_c67f77f7520ceb580da4334938604056,
   "@payloadcms/plugin-seo/client#OverviewComponent": OverviewComponent_a8a977ebc872c5d5ea7ee689724c0860,
   "@payloadcms/plugin-seo/client#MetaTitleComponent": MetaTitleComponent_a8a977ebc872c5d5ea7ee689724c0860,
   "@payloadcms/plugin-seo/client#MetaDescriptionComponent": MetaDescriptionComponent_a8a977ebc872c5d5ea7ee689724c0860,
   "@payloadcms/plugin-seo/client#MetaImageComponent": MetaImageComponent_a8a977ebc872c5d5ea7ee689724c0860,
   "@payloadcms/plugin-seo/client#PreviewComponent": PreviewComponent_a8a977ebc872c5d5ea7ee689724c0860,
+  "@/components/Workspace#AccountAvatar": AccountAvatar_c67f77f7520ceb580da4334938604056,
   "@/components/Icon#Icon": Icon_fe9ca0c9b67829fe284b73bb77968447,
-  "@/components/Logo#Logo": Logo_2b7e2e151f989fb419ce3009e56b903e
+  "@/components/Logo#Logo": Logo_2b7e2e151f989fb419ce3009e56b903e,
+  "@/components/Workspace#WebsiteAction": WebsiteAction_c67f77f7520ceb580da4334938604056,
+  "@/components/Workspace#NavFooter": NavFooter_c67f77f7520ceb580da4334938604056,
+  "@/components/Workspace#LoginIntro": LoginIntro_c67f77f7520ceb580da4334938604056,
+  "@/components/Workspace#NavIntro": NavIntro_c67f77f7520ceb580da4334938604056,
+  "@/components/Workspace#Workspace": Workspace_c67f77f7520ceb580da4334938604056
 }

@@ -2,10 +2,12 @@ import type { CollectionConfig } from 'payload'
 
 export const StorageInsights: CollectionConfig = {
   slug: 'storage-insights',
+  labels: { singular: 'Storage guide', plural: 'Storage guides' },
   admin: {
     useAsTitle: 'title',
-    defaultColumns: ['title', 'pageType', 'primaryKeyword', 'status', 'publishedDate'],
-    group: 'Content',
+    defaultColumns: ['title', 'pageType', 'status', 'updatedAt'],
+    group: 'Website content',
+    description: 'In-depth guides that help customers plan, pack and find the right storage. Manage the writing, images and search details in one place.',
   },
   access: {
     read: () => true,
@@ -58,6 +60,7 @@ export const StorageInsights: CollectionConfig = {
       type: 'select',
       required: true,
       defaultValue: 'draft',
+      admin: { description: 'Review the guide before setting it to Published.', components: { Cell: '@/components/Workspace#StatusCell' } },
       options: [
         { label: 'Draft', value: 'draft' },
         { label: 'Published', value: 'published' },
