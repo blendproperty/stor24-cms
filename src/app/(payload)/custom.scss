@@ -818,3 +818,14 @@ textarea,
 .app-header__account {
   flex-shrink: 0;
 }
+// Clip only the closed off-canvas menu; unlike hidden, clip preserves sticky controls.
+.template-default {
+  overflow-x: clip;
+}
+@media (max-width: 600px) {
+  .doc-header__title {
+    white-space: normal;
+    overflow-wrap: anywhere;
+    text-overflow: clip;
+  }
+}
