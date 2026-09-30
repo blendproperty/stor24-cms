@@ -94,12 +94,8 @@ export async function Workspace({ payload, user, permissions, visibleEntities }:
       <header className="s24-page-heading">
         <div>
           <p className="s24-eyebrow">STOR24 / CONTENT STUDIO</p>
-          <h1>
-            A little space.
-            <br />
-            <span>A lot to say.</span>
-          </h1>
-          <p>Welcome to your website workspace. Make every word and image count.</p>
+          <h1>Content overview</h1>
+          <p>Edit your homepage, manage your content and keep the website up to date.</p>
         </div>
         <a
           className="s24-button s24-button--outline"
@@ -114,8 +110,8 @@ export async function Workspace({ payload, user, permissions, visibleEntities }:
         <section className="s24-feature" aria-labelledby="homepage-title">
           <div>
             <p className="s24-eyebrow">YOUR FIRST IMPRESSION</p>
-            <h2 id="homepage-title">Make the homepage yours.</h2>
-            <p>Update your headline, choose your images and give visitors a reason to stay.</p>
+            <h2 id="homepage-title">Your homepage, up to date.</h2>
+            <p>Manage your headlines, images and calls to action.</p>
             <Link className="s24-button" href="/admin/globals/homepage-hero">
               Edit homepage <span aria-hidden="true">↗</span>
             </Link>
