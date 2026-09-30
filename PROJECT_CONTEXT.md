@@ -1,5 +1,15 @@
 # STOR 24 CMS — Project Context
 
+## CMS account recovery - 30 September 2026
+
+- **Implementation:** at Brett's explicit request, renamed the existing CMS account from its Gmail login to brettd@blendproperty.co.za and reset its password through Payload's supported Local API. Existing account ID and permissions preserved; no additional account created. Cleared the account lockout fields. A cryptographically random password was delivered through the local clipboard; temporary transfer files were deleted. No credential is recorded here. The password does not automatically expire; Brett should replace it in his account settings.
+- **Testing:** production-mode Local API execution returned success and confirmed the account ID was unchanged. HTTPS login on the canonical CMS returned 200 for the new email; a subsequent cookie-authenticated users/me request returned the matching account. Real Edge browser sign-in reached the CMS dashboard at https://cms.stor24.co.za/admin on 30 September 2026, approximately 06:03 UTC.
+- **Commit and push:** this documentation-only recovery record is committed through a short-lived codex branch based on remote main 5697cf264fcf2abe36d91dbb4f8ddcf9e38896f7. Remote main and this record must be verified before handoff; no application-code change is part of recovery.
+- **Merge:** documentation PR is merged to main with skip-ci after reviewing its documentation-only diff. The resulting merge evidence is retained in GitHub history.
+- **Deployment and configuration:** the authorized account change was applied directly to the existing production CMS through Payload in explicit production mode. No image rebuild, application deployment, schema migration, routing change or permission expansion was required. Existing image and media remain in place.
+- **Live production verification:** both canonical HTTPS cookie authentication and the browser dashboard succeeded with the new login. This closes the account sign-in check only; no content was saved or published during verification.
+- **Open gates:** editorial save/publish/preview UAT, historical infrastructure-secret rotation evidence, MFA/CSP, provider, legal, payment/access, finance, data, training and approval gates remain open. No claim that all prior sessions were revoked, that the password expires automatically, or that overall business readiness is complete.
+
 ## CMS domain migration - 30 September 2026
 
 - **Implementation:** canonical CMS address is https://cms.stor24.co.za/admin. Tracked Compose adds canonical HTTPS routing and legacy GET/HEAD page redirects preserving path/query. Legacy APIs/media remain direct for compatibility. CMS remains editorial-only. Public website accepts the new image/connect origin and its Docker builder now consumes NEXT_PUBLIC_CMS_URL.
