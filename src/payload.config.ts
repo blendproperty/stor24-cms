@@ -1,4 +1,5 @@
 import { buildConfig } from "payload";
+import { ContentIdeas } from './collections/ContentIdeas';
 import { postgresAdapter } from "@payloadcms/db-postgres";
 import { lexicalEditor } from "@payloadcms/richtext-lexical";
 import { seoPlugin } from "@payloadcms/plugin-seo";
@@ -48,6 +49,7 @@ export default buildConfig({
     }),
   ],
   collections: ([
+    ContentIdeas,
     StorageInsights,
     {
       slug: "users",

@@ -1,5 +1,13 @@
 # STOR 24 CMS — Project Context
 
+## Official CI and content ideas - 30 September 2026 (release in validation)
+
+- **Implementation:** replaced the incorrect text-built logo with the byte-identical official 611:160 outlined artwork from the public website. Shared Satoshi Variable, ink/cream/orange, action and active-navigation styling cover all CMS surfaces. Added authenticated-only Content ideas with search phrase, audience, brief, research, format, priority, planned date, progress and finished-content link. Ideas do not publish website content. Brand provenance is recorded in docs/STOR24_BRAND_CI.md.
+- **Testing:** official logo and font SHA-256 match the public website. Generated Payload types/import map; type/lint/build, isolated migration and browser verification are in progress.
+- **Commit and push / merge:** pending this release; production remains the previous documented SEO release.
+- **Deployment and configuration / live production verification:** not yet deployed. Protected current DB/config backup is /root/stor24-brand-20260930. New migration is additive and must pass on a private database copy before production.
+- **Open gates:** all earlier security, provider, UAT, data, training and approval gates remain. User review of the corrected CI and editorial strategy remains separate from technical validation.
+
 ## SEO workspace - 30 September 2026
 
 - **Implementation:** SEO is now the dashboard priority, with permission-respecting saved-content checks, published-first improvement links, Google Search Console and PageSpeed entry points, and reactive article/guide writing checks and search previews. Existing metadata/data paths retained; no schema, production content, account or provider change. Google metrics remain in the authorised Google account, explicitly not imported into the CMS. Live saved-content check found three published items, two with editorial improvements to review.

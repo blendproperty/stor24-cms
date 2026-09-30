@@ -67,6 +67,7 @@ export interface Config {
   };
   blocks: {};
   collections: {
+    'content-ideas': ContentIdea;
     'storage-insights': StorageInsight;
     users: User;
     media: Media;
@@ -79,6 +80,7 @@ export interface Config {
   };
   collectionsJoins: {};
   collectionsSelect: {
+    'content-ideas': ContentIdeasSelect<false> | ContentIdeasSelect<true>;
     'storage-insights': StorageInsightsSelect<false> | StorageInsightsSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
@@ -124,6 +126,45 @@ export interface UserAuthOperations {
     email: string;
     password: string;
   };
+}
+/**
+ * Make room for your next good idea. Plan useful content here before creating an article, guide or FAQ. Ideas stay private to your CMS team.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "content-ideas".
+ */
+export interface ContentIdea {
+  id: number;
+  /**
+   * A working title or a question your customers ask.
+   */
+  title: string;
+  /**
+   * The phrase a customer might type into Google. Check it in Search Console.
+   */
+  keyword?: string | null;
+  /**
+   * For example, people moving home or businesses storing stock.
+   */
+  audience?: string | null;
+  /**
+   * What will readers learn? Note the angle, useful answers and the next step you want them to take.
+   */
+  brief?: string | null;
+  /**
+   * Save customer questions, Search Console findings, source links and facts to check. Do not assume search volumes or rankings.
+   */
+  research?: string | null;
+  /**
+   * Paste the STOR24 page link once the content is published. Changing an idea’s status does not publish a page.
+   */
+  publishedUrl?: string | null;
+  status: 'idea' | 'researching' | 'ready' | 'writing' | 'published' | 'parked';
+  format: 'guide' | 'article' | 'faq' | 'location';
+  priority: 'high' | 'normal' | 'low';
+  targetDate?: string | null;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * In-depth guides that help customers plan, pack and find the right storage. Manage the writing, images and search details in one place.
@@ -365,6 +406,10 @@ export interface PayloadLockedDocument {
   id: number;
   document?:
     | ({
+        relationTo: 'content-ideas';
+        value: number | ContentIdea;
+      } | null)
+    | ({
         relationTo: 'storage-insights';
         value: number | StorageInsight;
       } | null)
@@ -429,6 +474,24 @@ export interface PayloadMigration {
   batch?: number | null;
   updatedAt: string;
   createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "content-ideas_select".
+ */
+export interface ContentIdeasSelect<T extends boolean = true> {
+  title?: T;
+  keyword?: T;
+  audience?: T;
+  brief?: T;
+  research?: T;
+  publishedUrl?: T;
+  status?: T;
+  format?: T;
+  priority?: T;
+  targetDate?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

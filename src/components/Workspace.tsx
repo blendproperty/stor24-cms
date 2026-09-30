@@ -3,6 +3,7 @@ import { SeoOverview } from './SeoOverview'
 import Link from 'next/link'
 import type { ServerProps } from 'payload'
 import { Gutter } from '@payloadcms/ui'
+import { BrandLogo } from './BrandLogo'
 
 const sections = [
   {
@@ -107,6 +108,19 @@ export async function Workspace({ payload, user, permissions, visibleEntities }:
           View website <span aria-hidden="true">↗</span>
         </a>
       </header>
+      {permissions?.collections?.['content-ideas']?.read && visibleEntities?.collections.includes('content-ideas') && (
+        <section className="s24-ideas-banner" aria-labelledby="ideas-title">
+          <div>
+            <p className="s24-eyebrow">ROOM FOR GOOD IDEAS</p>
+            <h2 id="ideas-title">Your next useful story starts here.</h2>
+            <p>Capture customer questions, plan search topics and turn a good idea into helpful content.</p>
+          </div>
+          <div className="s24-ideas-actions">
+            <Link className="s24-button" href="/admin/collections/content-ideas/create">Add an idea <span aria-hidden="true">+</span></Link>
+            <Link className="s24-ideas-link" href="/admin/collections/content-ideas">Browse content ideas →</Link>
+          </div>
+        </section>
+      )}
       <SeoOverview payload={payload} user={user} permissions={permissions} visibleEntities={visibleEntities} />
       {heroVisible && (
         <section className="s24-feature" aria-labelledby="homepage-title">
@@ -231,7 +245,7 @@ export function NavIntro() {
   return (
     <div className="s24-nav-intro">
       <Link href="/admin" className="s24-wordmark">
-        STOR<span>24</span>
+        <BrandLogo />
         <span className="s24-studio-label">CONTENT STUDIO</span>
       </Link>
       <Link href="/admin" className="s24-overview-link">
