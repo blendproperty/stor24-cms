@@ -6,10 +6,14 @@ actual supplied assets, never a text recreation or an independently drawn logo.
 - `public/brand/stor24-logo-official.svg` is copied byte-for-byte from
   `blendproperty/stor24` → `public/brand/stor24-logo-transparent-white.svg`.
   Native proportions: 611 × 160. SHA-256:
-  `1f10cef7132044cd3a67915e3c0275635d61cdcf1197bc26276fbf86ae641e89`.
-- `public/brand/Satoshi-Variable.ttf` is the same official variable font as the
-  website and CRM, with weights 300–900. SHA-256:
-  `623a9cca788ce4519643fe7bf8c71d4056fce3408bfe5f4149d01c67b57b6b53`.
+  `221c75f75e50f92f1a3952cddff17c31d58655a323d437c5c78b2fe156793de8` (repository / deployed LF bytes).
+- `public/brand/Satoshi-Variable.woff2` is the unmodified official Fontshare
+  Satoshi variable font, weights 300–900. Its actual `wght` axis was verified.
+  SHA-256: `e739aff9b4d02c264341d6d4872edcda28e79373aeda936f659566a1cd3eb47f`.
+  Source: https://api.fontshare.com/v2/css?f[]=satoshi@variable&display=swap
+  Downloaded 30 September 2026 from the normal variable face in that stylesheet.
+  The old website file named Satoshi-Variable.ttf was inspected and is a static
+  Bold instance with no variable axis; it is not used for CMS body text.
 - The complete white logo sits on ink; retain its native orange artwork without
   recolouring, rearranging, filtering or replacing the hexagon or superscript.
 - Shared interface colours: ink `#071411`, cream `#F5F3EA`, orange `#FF5A0A`.
