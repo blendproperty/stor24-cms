@@ -3,10 +3,10 @@
 ## SEO workspace - 30 September 2026 (release in progress)
 
 - **Implementation:** SEO is now the dashboard priority, with permission-respecting saved-content checks, published-first improvement links, Google Search Console and PageSpeed entry points, and reactive article/guide writing checks and search previews. Existing metadata fields and data paths retained; no schema, content, account or provider change. Google metrics remain in the authorised Google account rather than being represented as CMS-imported data.
-- **Testing:** TypeScript and four focused audit tests passed. Browser preview and production image validation remain pending. Existing dependency/security gates retained.
+- **Testing:** TypeScript, ESLint and four focused audit tests passed. Production image built successfully at 4e10a12e4ebfad2fab718f36e5a200baf31f6e66. Six browser checks covered dashboard/article/guide at 1440px and 390px with no rendered errors or overflow. Changing an article search title immediately updated the preview; save and reload persisted it in an isolated database copy. Preview has no external network and mounts production media read-only. Existing dependency/security gates retained.
 - **Commit and push:** short-lived codex/seo-workspace-20260930 from verified remote main 2f42fe324d09855cf4270bf22c8ae75db84e5f0b. Commit/push recorded in Git history; no primary checkout changes.
 - **Merge:** pending.
-- **Deployment and configuration:** pending. Companion public-site work connects the SEO fields, canonical URLs, sitemap and robots directives. Google domain DNS verification is being configured separately.
+- **Deployment and configuration:** pending. Companion public-site work connects the SEO fields, canonical URLs, sitemap and robots directives. Google domain ownership was verified through Hostinger DNS CNAME in Brett's existing Google account. Reports are processing data; sitemap submission follows public deployment.
 - **Live production verification:** pending; do not treat local implementation as live.
 - **Open gates:** Google verification/data availability and sitemap acceptance; editorial content/keyword accuracy and publishing acceptance; existing security, provider, legal, finance, access, data, training and approval gates. No ranking or business-readiness guarantee.
 
