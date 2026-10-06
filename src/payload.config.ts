@@ -1,9 +1,11 @@
+import { cmsEmail } from "./email";
 import { buildConfig } from "payload";
 import { ContentIdeas } from './collections/ContentIdeas';
 import { postgresAdapter } from "@payloadcms/db-postgres";
 import { lexicalEditor } from "@payloadcms/richtext-lexical";
 import { seoPlugin } from "@payloadcms/plugin-seo";
 import { StorageInsights } from "./collections/StorageInsights";
+import { MicroWarehousing } from "./globals/MicroWarehousing";
 import { HomepageHero } from "./globals/HomepageHero";
 import { editorialCollection } from "./admin/editorial";
 import path from "path";
@@ -22,6 +24,8 @@ const publicRead = () => true;
 const adminOnly = ({ req: { user } }: any) => !!user;
 
 export default buildConfig({
+  serverURL: "https://cms.stor24.co.za",
+  email: cmsEmail,
   admin: {
     user: "users",
     theme: 'light',
@@ -121,7 +125,7 @@ export default buildConfig({
       ],
     },
   ] satisfies import('payload').CollectionConfig[]).map(editorialCollection),
-  globals: [HomepageHero],
+  globals: [HomepageHero, MicroWarehousing],
   db: postgresAdapter({ pool: { connectionString: dbUri } }),
   editor: lexicalEditor({}),
   secret,

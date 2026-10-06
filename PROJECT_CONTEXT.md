@@ -1,5 +1,16 @@
 # STOR 24 CMS — Project Context
 
+## Micro Warehousing implementation candidate — 6 October 2026
+
+- **Implementation:** editorial Micro Warehousing global, five media references, approved copy/FAQ/facility JSON, publication switch and SEO fields; reversible additive migration. CMS account-recovery email adapter uses the company SendGrid sender and fails closed if unconfigured. No credential is stored in code or context.
+- **Testing:** Payload type generation and local TypeScript passed. Production build, migration, authenticated editorial API publishing, account recovery mail and live media consumption remain pending verification.
+- **Commit and push:** candidate prepared on `codex/micro-warehousing-20261006`; exact SHA and remote verification to be recorded after promotion.
+- **Merge:** not yet merged at this entry.
+- **Deployment and configuration:** not yet deployed at this entry. No provider, payment, access or financial automation is enabled by this work.
+- **Live production verification:** pending. Website/CRM/CMS delivery must each be checked after release; a build or API health result alone is not lifecycle acceptance.
+- **Open gates:** owner selection of pilot ground-floor units and their exclusive/shared designation; business permitted-use rules and legal addendum; authenticated booking CAPTCHA/OTP/customer UAT; real payment/access/finance provider acceptance, data reconciliation, staff training, approvals and independent backup/recovery remain OPEN. Later reporting/add-ons/multi-user access/offline conversions and optional use-case routes in the draft scope are not implemented by this MVP. Existing legal signing amounts and provider boundaries are retained.
+
+
 ## Official CI and content ideas - 30 September 2026
 
 - **Implementation:** replaced the incorrect text-built logo with the official 611:160 outlined artwork used by the public website. Applied shared ink #071411, cream #F5F3EA, orange #FF5A0A, navigation and action styling throughout Payload screens. Verified genuine Satoshi Variable WOFF2 from Fontshare has a wght axis 300–900: the older brand-pack TTF was actually a static Bold instance despite its filename and is not used. Added authenticated-only Content ideas with search phrase, audience, brief, research, format, priority, planned date, progress and finished-content link. Ideas never publish website pages. Provenance is in docs/STOR24_BRAND_CI.md.

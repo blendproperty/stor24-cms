@@ -6,6 +6,7 @@ import { Gutter } from '@payloadcms/ui'
 import { BrandLogo } from './BrandLogo'
 
 const sections = [
+
   {
     slug: 'storage-insights',
     title: 'Storage guides',
@@ -147,7 +148,7 @@ export async function Workspace({ payload, user, permissions, visibleEntities }:
         <div className="s24-section-heading">
           <div>
             <p className="s24-eyebrow">THE BUILDING BLOCKS</p>
-            <h2 id="content-title">Your content</h2>
+            <h2 id="content-title">Your content</h2><Link href="/admin/globals/micro-warehousing">Micro Warehousing →</Link>
           </div>
           <span>Choose a section to get started</span>
         </div>
