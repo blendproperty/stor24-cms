@@ -10,6 +10,10 @@
 - **Live production verification:** CMS global is published; homepage image 26, business hero 27, growing/detail interior 28, compact interior 29 and large interior 30 are stored in the CMS and publicly readable. Reset request returned HTTP200 and the actual Reset Your Password message reached brettd@blendproperty.co.za at 03:16:04Z. Existing account/password was preserved; following the reset link is still the user's step. Public website/CRM promotion and customer lifecycle UAT remain separate gates.
 - **Open gates:** owner selection of pilot ground-floor units and their exclusive/shared designation; business permitted-use rules and legal addendum; authenticated booking CAPTCHA/OTP/customer UAT; real payment/access/finance provider acceptance, data reconciliation, staff training, approvals and independent backup/recovery remain OPEN. Later reporting/add-ons/multi-user access/offline conversions and optional use-case routes in the draft scope are not implemented by this MVP. Existing legal signing amounts and provider boundaries are retained.
 
+### CMS default-copy follow-up — 6 October 2026
+
+- **Implementation:** corrected the fallback accent's source encoding to plain ASCII "We've got room.". Published editorial copy was already correct. **Testing:** TypeScript passed after the correction. **Commit/push and merge:** follow-up promotion pending at this entry. **Deployment/configuration:** pending normal CMS workflow; no schema or email configuration change. **Live production verification:** fresh reset email received03:53:51Z from STOR24 Content Studio; published global and images remain readable. Runtime default-copy promotion is tracked separately. All open gates above remain unchanged.
+
 
 ## Official CI and content ideas - 30 September 2026
 

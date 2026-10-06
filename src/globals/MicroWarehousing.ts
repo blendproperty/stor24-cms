@@ -6,7 +6,7 @@ export const MicroWarehousing: GlobalConfig = {
  fields: [
   { name: 'published', type: 'checkbox', defaultValue: false },
   { name: 'headline', type: 'text', defaultValue: 'Your business grows.' },
-  { name: 'accent', type: 'text', defaultValue: 'Weâ€™ve got room.' },
+  { name: 'accent', type: 'text', defaultValue: "We've got room." },
   { name: 'intro', type: 'textarea', defaultValue: 'Space for stock, equipment and your next stage of growth.' },
   { name: 'heroImage', type: 'upload', relationTo: 'media' },
   { name: 'compactImage', type: 'upload', relationTo: 'media' },
