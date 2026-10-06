@@ -89,7 +89,7 @@ export const HomepageHero: GlobalConfig = {
           name: 'slides',
           type: 'array',
           minRows: 1,
-          maxRows: 3,
+          maxRows: 6,
           labels: { singular: 'Hero image', plural: 'Hero images' },
           fields: [
             { name: 'desktopImage', type: 'upload', relationTo: 'media', required: true, admin: { description: 'Landscape JPG, PNG or WebP. Minimum 1200 × 800px; accepted ratio 6:5 to 8:5.' } },
