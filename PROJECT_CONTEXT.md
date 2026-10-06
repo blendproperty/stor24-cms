@@ -271,3 +271,11 @@ A CMS capability is complete only when ownership is approved, the schema and per
 - The public/CMS homepage safeguards now include responsive regression coverage and scheduled production smoke monitoring. Current live evidence must still identify the exact deployed revision and affected-route result.
 - Previously exposed `PAYLOAD_SECRET` and database credentials must remain treated as compromised until rotation is positively verified. CMS MFA, the Payload-specific CSP follow-up, README collection-list correction and the duplicated `(frontend)` decision remain open.
 - Asana programme `1217529585497952` records 46 tasks: 21 complete and 25 open; overall status is amber / at risk. This count is not a weighted delivery percentage.
+## Micro Warehousing correction — 6 October 2026
+
+- **Implementation:** restore the original rotating homepage artwork and retain all three original images; allow up to six carousel slides so business artwork can be added. Corrected official-logo warehouse illustration is CMS media31 and is now the Micro Warehousing hero. Existing account identity preserved; no password or schema change.
+- **Testing:** TypeScript validation passed. Authenticated Payload content update readback confirms original media22/23/25, rotation enabled and9-second interval; Micro hero now31. Attempted content update with fourth slide hit the previous three-slide validation limit; no fourth slide was saved. Schema-push prompt was stopped without acceptance and publication rerun with NODE_ENV=production.
+- **Commit and push:** correction branch prepared from verified origin/main bed3c0c; pending publication.
+- **Merge:** pending.
+- **Deployment and configuration:** CMS content correction published; six-slide code limit awaits standard deployment, then fourth business slide publication.
+- **Live production verification:** content API and carousel rendering verification pending. Existing password-recovery delivery, provider, data, legal, staff training and customer UAT gates remain open.
