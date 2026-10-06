@@ -1,3 +1,11 @@
+## Cloudflare-compatible CMS origin renewal — 6 October 2026
+
+- **Implementation:** canonical CMS router supports optional STOR24_CERT_RESOLVER, with unchanged mytlschallenge default. Both legacy routers retain the original resolver. Hostinger has a STOR24-specific HTTP-01 resolver using port80 and separate protected ACME storage; existing valid STOR24 certificates were seeded locally, with no key disclosure or forced reissuance. CMS application/editorial/authentication behavior is unchanged.
+- **Testing:** root effective-Compose comparison allows only four new resolver arguments. Configuration validation passed; public/CRM health200, booking200 and CMS admin307 passed after Traefik restart07:55:57Z. CMS Compose default/override comparison and canonical promotion remain required.
+- **Commit and push / merge / deployment:** this scoped Compose option and context are a candidate pending normal promotion. Existing CMS application release and unrelated editorial changes are preserved. Hostinger environment selection and CMS container recreation follow only after exact configuration validation/promotion.
+- **Cloudflare configuration:** Brett explicitly approved nameserver/proxy activation. All22 Hostinger DNS records reconciled in company Free zone; six missing records added and seven mail/DKIM proxies corrected. Hostinger accepted fonzie.ns.cloudflare.com and katja.ns.cloudflare.com. Strict HTTPS, minimumTLS1.2, HTTPS redirects and cache bypass for allCMS/portal and transactional public routes saved. Delegation/certificate propagation pending; all22 records staged DNS-only, so no claim of active proxy/WAF protection. Mail continues on Hostinger.
+- **Live acceptance / remaining gates:** origin certificates remain valid to28–29December2026; full HTTP-01 renewal through Cloudflare is not yet exercised. Edge-certificate/proxy/route/mail acceptance pending. Off-server recovery and independent keys, reliable external monitoring, GA/Meta credentials/conversion reconciliation, provider/payment/device/legal/data/training/business UAT remain OPEN; CloudSphere99442 acknowledged only, map decision deferred to Brett/Mark, Asana1217529230514116 incomplete.
+
 # STOR 24 CMS — Project Context
 
 ## Micro Warehousing CMS release — 6 October 2026

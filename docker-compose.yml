@@ -17,7 +17,7 @@ services:
       - "traefik.http.routers.stor24-cms.rule=Host(`cms.stor24.co.za`)"
       - "traefik.http.routers.stor24-cms.entrypoints=websecure"
       - "traefik.http.routers.stor24-cms.tls=true"
-      - "traefik.http.routers.stor24-cms.tls.certresolver=mytlschallenge"
+      - "traefik.http.routers.stor24-cms.tls.certresolver=${STOR24_CERT_RESOLVER:-mytlschallenge}"
       - "traefik.http.services.stor24-cms.loadbalancer.server.port=3000"
       - "traefik.http.routers.stor24-cms-legacy.rule=Host(`cms.stor4.srv938083.hstgr.cloud`)"
       - "traefik.http.routers.stor24-cms-legacy.entrypoints=websecure"
