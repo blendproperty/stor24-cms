@@ -5,7 +5,9 @@ import * as migration_20260819_054800_remove_storage_units from './20260819_0548
 import * as migration_20260829_104700_add_homepage_hero from './20260829_104700_add_homepage_hero';
 import * as migration_20260930_120000_content_ideas from './20260930_120000_content_ideas';
 
+import * as micro from './20261006_031500_micro_warehousing';
 export const migrations = [
+
   {
     up: migration_20260613_161747_storage_insights_init.up,
     down: migration_20260613_161747_storage_insights_init.down,
@@ -36,4 +38,5 @@ export const migrations = [
     down: migration_20260930_120000_content_ideas.down,
     name: '20260930_120000_content_ideas',
   },
+ { up: micro.up, down: micro.down, name: '20261006_031500_micro_warehousing' },
 ];

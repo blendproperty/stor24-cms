@@ -96,9 +96,11 @@ export interface Config {
   };
   globals: {
     'homepage-hero': HomepageHero;
+    'micro-warehousing': MicroWarehousing;
   };
   globalsSelect: {
     'homepage-hero': HomepageHeroSelect<false> | HomepageHeroSelect<true>;
+    'micro-warehousing': MicroWarehousingSelect<false> | MicroWarehousingSelect<true>;
   };
   locale: null;
   user: User & {
@@ -720,6 +722,40 @@ export interface HomepageHero {
   createdAt?: string | null;
 }
 /**
+ * Business landing page and imagery. Availability and prices always come from the CRM.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "micro-warehousing".
+ */
+export interface MicroWarehousing {
+  id: number;
+  published?: boolean | null;
+  headline?: string | null;
+  accent?: string | null;
+  intro?: string | null;
+  heroImage?: (number | null) | Media;
+  compactImage?: (number | null) | Media;
+  growingImage?: (number | null) | Media;
+  largeImage?: (number | null) | Media;
+  detailsImage?: (number | null) | Media;
+  seoTitle?: string | null;
+  seoDescription?: string | null;
+  /**
+   * Optional approved FAQs and facility introductions. Do not enter inventory or prices.
+   */
+  content?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "homepage-hero_select".
  */
@@ -754,6 +790,27 @@ export interface HomepageHeroSelect<T extends boolean = true> {
         copy?: T;
         id?: T;
       };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "micro-warehousing_select".
+ */
+export interface MicroWarehousingSelect<T extends boolean = true> {
+  published?: T;
+  headline?: T;
+  accent?: T;
+  intro?: T;
+  heroImage?: T;
+  compactImage?: T;
+  growingImage?: T;
+  largeImage?: T;
+  detailsImage?: T;
+  seoTitle?: T;
+  seoDescription?: T;
+  content?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;

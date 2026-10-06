@@ -6,6 +6,8 @@ services:
     environment:
       - PAYLOAD_SECRET=${PAYLOAD_SECRET}
       - DATABASE_URI=${DATABASE_URI}
+      - SENDGRID_API_KEY=${SENDGRID_API_KEY}
+      - EMAIL_FROM=${EMAIL_FROM}
     volumes:
       - stor24_media:/app/media
     networks:
