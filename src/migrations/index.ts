@@ -7,6 +7,7 @@ import * as migration_20260930_120000_content_ideas from './20260930_120000_cont
 
 import * as micro from './20261006_031500_micro_warehousing';
 import * as warehouseImage from './20261014_090000_warehouse_image';
+import * as largeSpaceHeroImages from './20261014_100000_large_space_hero_images';
 export const migrations = [
 
   {
@@ -41,4 +42,5 @@ export const migrations = [
   },
  { up: micro.up, down: micro.down, name: '20261006_031500_micro_warehousing' },
  { up: warehouseImage.up, down: warehouseImage.down, name: '20261014_090000_warehouse_image' },
+ { up: largeSpaceHeroImages.up, down: largeSpaceHeroImages.down, name: '20261014_100000_large_space_hero_images' },
 ];
