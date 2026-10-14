@@ -9,6 +9,8 @@ export const MicroWarehousing: GlobalConfig = {
   { name: 'accent', type: 'text', defaultValue: "We've got room." },
   { name: 'intro', type: 'textarea', defaultValue: 'Space for stock, equipment and your next stage of growth.' },
   { name: 'heroImage', type: 'upload', relationTo: 'media' },
+  { name: 'distributionHeroImage', label: 'Header: Warehouse & distribution (200–500 m²)', type: 'upload', relationTo: 'media', admin: { description: 'Additional header slideshow example. Upload or replace its image here.' } },
+  { name: 'bulkHeroImage', label: 'Header: Large-scale business storage (500–1,000 m²)', type: 'upload', relationTo: 'media', admin: { description: 'Additional header slideshow example. Upload or replace its image here.' } },
   { name: 'compactImage', type: 'upload', relationTo: 'media' },
   { name: 'growingImage', type: 'upload', relationTo: 'media' },
   { name: 'largeImage', type: 'upload', relationTo: 'media' },

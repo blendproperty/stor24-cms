@@ -734,6 +734,14 @@ export interface MicroWarehousing {
   accent?: string | null;
   intro?: string | null;
   heroImage?: (number | null) | Media;
+  /**
+   * Additional header slideshow example. Upload or replace its image here.
+   */
+  distributionHeroImage?: (number | null) | Media;
+  /**
+   * Additional header slideshow example. Upload or replace its image here.
+   */
+  bulkHeroImage?: (number | null) | Media;
   compactImage?: (number | null) | Media;
   growingImage?: (number | null) | Media;
   largeImage?: (number | null) | Media;
@@ -808,6 +816,8 @@ export interface MicroWarehousingSelect<T extends boolean = true> {
   accent?: T;
   intro?: T;
   heroImage?: T;
+  distributionHeroImage?: T;
+  bulkHeroImage?: T;
   compactImage?: T;
   growingImage?: T;
   largeImage?: T;
