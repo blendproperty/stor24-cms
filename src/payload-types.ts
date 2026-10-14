@@ -737,6 +737,10 @@ export interface MicroWarehousing {
   compactImage?: (number | null) | Media;
   growingImage?: (number | null) | Media;
   largeImage?: (number | null) | Media;
+  /**
+   * Fourth space option. Leave empty until the approved image is ready.
+   */
+  warehouseImage?: (number | null) | Media;
   detailsImage?: (number | null) | Media;
   seoTitle?: string | null;
   seoDescription?: string | null;
@@ -807,6 +811,7 @@ export interface MicroWarehousingSelect<T extends boolean = true> {
   compactImage?: T;
   growingImage?: T;
   largeImage?: T;
+  warehouseImage?: T;
   detailsImage?: T;
   seoTitle?: T;
   seoDescription?: T;

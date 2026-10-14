@@ -12,6 +12,7 @@ export const MicroWarehousing: GlobalConfig = {
   { name: 'compactImage', type: 'upload', relationTo: 'media' },
   { name: 'growingImage', type: 'upload', relationTo: 'media' },
   { name: 'largeImage', type: 'upload', relationTo: 'media' },
+  { name: 'warehouseImage', label: 'Larger business spaces (200–1,000 m²)', type: 'upload', relationTo: 'media', admin: { description: 'Fourth space option. Leave empty until the approved image is ready.' } },
   { name: 'detailsImage', type: 'upload', relationTo: 'media' },
   { name: 'seoTitle', type: 'text', defaultValue: 'Micro Warehousing | STOR24' },
   { name: 'seoDescription', type: 'textarea', defaultValue: 'Find ground-floor business storage for stock, tools and equipment at STOR24. Explore spaces, arrange a viewing or speak to our team.' },

@@ -6,6 +6,7 @@ import * as migration_20260829_104700_add_homepage_hero from './20260829_104700_
 import * as migration_20260930_120000_content_ideas from './20260930_120000_content_ideas';
 
 import * as micro from './20261006_031500_micro_warehousing';
+import * as warehouseImage from './20261014_090000_warehouse_image';
 export const migrations = [
 
   {
@@ -39,4 +40,5 @@ export const migrations = [
     name: '20260930_120000_content_ideas',
   },
  { up: micro.up, down: micro.down, name: '20261006_031500_micro_warehousing' },
+ { up: warehouseImage.up, down: warehouseImage.down, name: '20261014_090000_warehouse_image' },
 ];
