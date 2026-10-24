@@ -60,6 +60,8 @@ try {
   expect((await fetch(origin + '/admin/login')).ok, 'CMS login is healthy');
   const login = await api('/api/users/login', { method: 'POST', body: JSON.stringify({ email, password }) });
   expect(login.response.ok && login.body.token, 'Legacy password authenticates and creates a current session');
+  const cookie = login.response.headers.get('set-cookie') || '';
+  expect(/;\s*Secure/i.test(cookie) && /;\s*HttpOnly/i.test(cookie) && /;\s*SameSite=Lax/i.test(cookie), 'Production authentication cookie is Secure, HttpOnly and SameSite=Lax');
   const token = login.body.token;
   const upgraded = await database.query('SELECT hash FROM users WHERE id=$1', [editor.id]);
   expect(upgraded.rows[0].hash.startsWith('pbkdf2-sha256-v1:'), 'Legacy password hash upgrades on successful login');
