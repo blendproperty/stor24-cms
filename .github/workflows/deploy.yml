@@ -67,8 +67,10 @@ jobs:
           rollback_tag="rollback-$RELEASE_SHA"
           docker image tag "$previous_image" "stor24-cms:$rollback_tag"
           cutover=0
+          verified=0
           recover() {
             result=$?
+            if test "$result" = 0 && test "$verified" != 1; then result=1; fi
             if test "$result" -ne 0 && test "$cutover" = 1; then
               IMAGE_TAG="$rollback_tag" "${compose[@]}" up -d --no-build --no-deps stor24-cms
               echo 'Previous CMS image restored; additive migration retained.' >&2
@@ -79,11 +81,13 @@ jobs:
           export IMAGE_TAG="$RELEASE_SHA"
           "${compose[@]}" config --quiet
           "${compose[@]}" build --pull --build-arg RELEASE_SHA="$RELEASE_SHA" stor24-cms
-          "${compose[@]}" run --rm -T --no-deps stor24-cms npx payload migrate
+          "${compose[@]}" run --rm -T --no-deps stor24-cms npx payload migrate </dev/null
           cutover=1
           "${compose[@]}" up -d --no-build --no-deps stor24-cms
           for attempt in $(seq 1 45); do
             if docker exec stor24-cms node -e "fetch('http://127.0.0.1:3000/admin/login').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"; then
+              test "$(docker inspect stor24-cms --format '{{index .Config.Labels "org.opencontainers.image.revision"}}')" = "$RELEASE_SHA"
+              verified=1
               echo "CMS deployed: $RELEASE_SHA"
               exit 0
             fi
