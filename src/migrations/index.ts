@@ -1,3 +1,4 @@
+import * as securityFramework from './20261024_120000_security_framework';
 import * as migration_20260613_161747_storage_insights_init from './20260613_161747_storage_insights_init';
 import * as migration_20260616_142929 from './20260616_142929';
 import * as migration_20260818_120000_remove_crm_collections from './20260818_120000_remove_crm_collections';
@@ -9,6 +10,7 @@ import * as micro from './20261006_031500_micro_warehousing';
 import * as warehouseImage from './20261014_090000_warehouse_image';
 import * as largeSpaceHeroImages from './20261014_100000_large_space_hero_images';
 export const migrations = [
+
 
   {
     up: migration_20260613_161747_storage_insights_init.up,
@@ -43,4 +45,5 @@ export const migrations = [
  { up: micro.up, down: micro.down, name: '20261006_031500_micro_warehousing' },
  { up: warehouseImage.up, down: warehouseImage.down, name: '20261014_090000_warehouse_image' },
  { up: largeSpaceHeroImages.up, down: largeSpaceHeroImages.down, name: '20261014_100000_large_space_hero_images' },
+ { up: securityFramework.up, down: securityFramework.down, name: '20261024_120000_security_framework' },
 ];

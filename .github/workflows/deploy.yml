@@ -1,29 +1,94 @@
 name: Deploy to VPS
-
 on:
-  push:
-    branches:
-      - main
-  workflow_dispatch: {}
-
+  workflow_run:
+    workflows: ["Security checks"]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: stor24-cms-production
+  cancel-in-progress: false
 jobs:
   deploy:
+    if: github.event_name == 'workflow_dispatch' || (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push')
     runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment: production
     steps:
-      - name: Deploy to VPS
-        uses: appleboy/ssh-action@master
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
-          host: ${{ secrets.VPS_HOST }}
-          username: ${{ secrets.VPS_USER }}
-          key: ${{ secrets.VPS_SSH_KEY }}
-          port: 22
-          timeout: 60s
-          command_timeout: 10m
-          script: |
-            cd /opt/stor24-cms
-            git pull origin main
-            docker compose up -d --build
-            echo "Waiting for container to be ready before migrating..."
-            sleep 10
-            docker compose exec -T stor24-cms npx payload migrate
-            echo "CMS deployed and migrated successfully"
+          ref: main
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 22.23.4
+      - name: Require exact main security and validation evidence
+        id: release
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          DEPLOY_REF: ${{ github.event.workflow_run.head_sha || github.sha }}
+        run: node scripts/verify-release.mjs
+      - name: Deploy the verified revision through pinned SSH
+        env:
+          RELEASE_SHA: ${{ steps.release.outputs.sha }}
+          VPS_USER: ${{ secrets.VPS_USER }}
+          VPS_SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
+        run: |
+          set -euo pipefail
+          [[ "$VPS_USER" =~ ^[a-z_][a-z0-9_-]*$ ]]
+          [[ "$RELEASE_SHA" =~ ^[a-f0-9]{40}$ ]]
+          test -n "$VPS_SSH_KEY"
+          install -d -m 700 "$HOME/.ssh"
+          install -m 600 .github/known_hosts "$HOME/.ssh/known_hosts"
+          printf '%s\n' "$VPS_SSH_KEY" > "$HOME/.ssh/cms_deploy"
+          chmod 600 "$HOME/.ssh/cms_deploy"
+          trap 'rm -f "$HOME/.ssh/cms_deploy"' EXIT
+          ssh -o BatchMode=yes -o StrictHostKeyChecking=yes -o ConnectTimeout=20 -i "$HOME/.ssh/cms_deploy" "$VPS_USER@srv938083.hstgr.cloud" "RELEASE_SHA='$RELEASE_SHA' /bin/bash -s" <<'DEPLOY'
+          set -euo pipefail
+          umask 077
+          cd /opt/stor24-cms
+          git fetch origin "$RELEASE_SHA"
+          test "$(git rev-parse FETCH_HEAD)" = "$RELEASE_SHA"
+          mkdir -p /opt/stor24-cms-releases
+          release="$(mktemp -d "/opt/stor24-cms-releases/$RELEASE_SHA.XXXXXX")"
+          git archive "$RELEASE_SHA" | tar -x -C "$release"
+          git show "$RELEASE_SHA:package.json" | cmp - "$release/package.json"
+          test ! -e "$release/.git"
+          test "$(docker inspect stor24-cms --format '{{index .Config.Labels "com.docker.compose.project"}}')" = stor24-cms
+          compose=(docker compose -p stor24-cms --project-directory "$release" --env-file /opt/stor24-cms/.env -f "$release/docker-compose.yml")
+          backup="/root/stor24-cms-releases/$RELEASE_SHA"
+          mkdir -p "$backup"
+          docker exec stor4_db pg_dump -U stor4_user -d stor4_db -Fc > "$backup/database.dump"
+          cp .env "$backup/runtime.env"
+          previous_image="$(docker inspect stor24-cms --format '{{.Image}}')"
+          printf '%s\n' "$previous_image" > "$backup/previous-image"
+          rollback_tag="rollback-$RELEASE_SHA"
+          docker image tag "$previous_image" "stor24-cms:$rollback_tag"
+          cutover=0
+          recover() {
+            result=$?
+            if test "$result" -ne 0 && test "$cutover" = 1; then
+              IMAGE_TAG="$rollback_tag" "${compose[@]}" up -d --no-build --no-deps stor24-cms
+              echo 'Previous CMS image restored; additive migration retained.' >&2
+            fi
+            exit "$result"
+          }
+          trap recover EXIT
+          export IMAGE_TAG="$RELEASE_SHA"
+          "${compose[@]}" config --quiet
+          "${compose[@]}" build --pull --build-arg RELEASE_SHA="$RELEASE_SHA" stor24-cms
+          "${compose[@]}" run --rm -T --no-deps stor24-cms npx payload migrate
+          cutover=1
+          "${compose[@]}" up -d --no-build --no-deps stor24-cms
+          for attempt in $(seq 1 45); do
+            if docker exec stor24-cms node -e "fetch('http://127.0.0.1:3000/admin/login').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"; then
+              echo "CMS deployed: $RELEASE_SHA"
+              exit 0
+            fi
+            sleep 2
+          done
+          echo 'CMS login did not become healthy; retain backup and previous image for recovery.' >&2
+          exit 1
+          DEPLOY

@@ -1,0 +1,7 @@
+# Exact historical fingerprints only: old database password rejected by live PostgreSQL (28P01);
+# old signing secret differs from current runtime. Values removed from the current tree.
+dd69c7c6a0057b2c38d548a3d8f43bd0e480975a:PROJECT_CONTEXT.md:documented-database-password:46
+497f4a3259bd48284379e52d89dafdb230869b9d:PROJECT_CONTEXT.md:documented-database-password:27
+f62e868797958941bc6399ef5773cd9841ebc14c:INFRASTRUCTURE.md:documented-database-password:68
+f62e868797958941bc6399ef5773cd9841ebc14c:INFRASTRUCTURE.md:cms-signing-secret:67
+085472520e24c92d44aad5d27eb318b3f8fa79ab:docker-compose.yml:cms-signing-secret:7

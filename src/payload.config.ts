@@ -1,3 +1,4 @@
+import { published } from "./access";
 import { cmsEmail } from "./email";
 import { buildConfig } from "payload";
 import { ContentIdeas } from './collections/ContentIdeas';
@@ -64,6 +65,7 @@ export default buildConfig({
         lockTime: 10 * 60 * 1000,
         tokenExpiration: 7200,
         useAPIKey: true,
+        cookies: { secure: process.env.NODE_ENV === "production", sameSite: "Lax" },
       },
       access: {
         read: adminOnly,
@@ -86,7 +88,7 @@ export default buildConfig({
     {
       slug: "posts",
       labels: { singular: 'Article', plural: 'Articles' },
-      access: { read: publicRead, create: adminOnly, update: adminOnly, delete: adminOnly },
+      access: { read: published, create: adminOnly, update: adminOnly, delete: adminOnly },
       admin: { useAsTitle: "title", group: 'Website content', defaultColumns: ['title', 'status', 'updatedAt'], description: 'News, stories and practical advice. Open an article to edit its content, imagery and search information.' },
       fields: [
         { name: "title", type: "text", required: true },

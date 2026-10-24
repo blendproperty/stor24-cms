@@ -5,30 +5,32 @@
   "license": "MIT",
   "type": "module",
   "scripts": {
-    "build": "cross-env NODE_OPTIONS=--no-deprecation next build",
+    "build": "cross-env NODE_OPTIONS=--no-deprecation next build --webpack",
     "dev": "cross-env NODE_OPTIONS=--no-deprecation next dev --port 4000",
     "devsafe": "rm -rf .next && cross-env NODE_OPTIONS=--no-deprecation next dev",
     "generate:importmap": "cross-env NODE_OPTIONS=--no-deprecation payload generate:importmap",
     "generate:types": "cross-env NODE_OPTIONS=--no-deprecation payload generate:types",
     "lint": "cross-env NODE_OPTIONS=--no-deprecation next lint",
     "payload": "cross-env NODE_OPTIONS=--no-deprecation payload",
-    "start": "cross-env NODE_OPTIONS=--no-deprecation next start"
+    "start": "cross-env NODE_OPTIONS=--no-deprecation next start",
+    "test": "tsx --test tests/*.test.ts",
+    "typecheck": "tsc --noEmit",
+    "test:security:integration": "tsx scripts/security-integration.mjs"
   },
   "dependencies": {
-    "@payloadcms/db-postgres": "3.31.0",
-    "@payloadcms/next": "3.31.0",
-    "@payloadcms/payload-cloud": "3.31.0",
-    "@payloadcms/plugin-seo": "^3.31.0",
-    "@payloadcms/richtext-lexical": "3.31.0",
+    "@payloadcms/db-postgres": "3.92.0",
+    "@payloadcms/next": "3.92.0",
+    "@payloadcms/plugin-seo": "3.92.0",
+    "@payloadcms/richtext-lexical": "3.92.0",
     "@tailwindcss/postcss": "^4.3.0",
     "cross-env": "^7.0.3",
     "graphql": "^16.8.1",
-    "next": "15.2.3",
-    "payload": "3.31.0",
-    "react": "19.0.0",
-    "react-dom": "19.0.0",
+    "next": "16.4.2",
+    "payload": "3.92.0",
+    "react": "19.2.4",
+    "react-dom": "19.2.4",
     "recharts": "^3.8.1",
-    "sharp": "0.32.6"
+    "sharp": "0.35.5"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.2.0",
@@ -36,17 +38,26 @@
     "@types/react": "19.0.12",
     "@types/react-dom": "19.0.4",
     "eslint": "^9.16.0",
-    "eslint-config-next": "15.2.3",
+    "eslint-config-next": "16.4.2",
     "prettier": "^3.4.2",
-    "typescript": "5.7.3"
+    "typescript": "5.7.3",
+    "tailwindcss": "4.3.0",
+    "autoprefixer": "10.6.1",
+    "tsx": "^4.23.13"
   },
   "engines": {
-    "node": "^18.20.2 || >=20.9.0",
+    "node": "^22.23.4 || >=24.22.1",
     "pnpm": "^9"
   },
   "pnpm": {
     "onlyBuiltDependencies": [
       "sharp"
     ]
+  },
+  "overrides": {
+    "postcss": "8.5.25",
+    "source-map-js": "1.2.2",
+    "happy-dom": "21.0.4",
+    "esbuild": "0.28.2"
   }
 }
