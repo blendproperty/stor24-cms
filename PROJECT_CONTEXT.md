@@ -1,3 +1,8 @@
+## 2026-10-24 - CMS cutover correction; production image verification required
+
+- **Deployment evidence:** PR #27 merged as 35267c175efcc06620879223de58601637b3b416; exact-main Security 40087129163 passed. Deploy 40087253361 reported success but live image readback proved the old container remained. The additive security migration applied in 65ms; this is not evidence of a completed application deployment.
+- **Implementation/testing:** redirect migration stdin from /dev/null so the SSH script continues; require an explicit verified completion flag and matching running image revision. Shell syntax, stdin continuation and incomplete-release exit guard checked in isolation. No production customer/provider mutations. A corrected protected release and live readback remain required.
+
 ## 2026-10-24 - Isolated security remediation validation; production promotion pending
 
 - **Implementation:** all nine assessed finding families have candidate fixes, including booking ownership checks across lease and checkout callers, scope/relationship guards, publication access, patched CMS framework, clean build context and immutable gated CMS release with rollback. Current-tree credentials removed; verified-retired historical findings use exact scanner fingerprints only. Historical reCAPTCHA provider revocation remains open and is not ignored.
