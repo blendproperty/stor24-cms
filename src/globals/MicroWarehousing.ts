@@ -1,6 +1,9 @@
 import type { GlobalConfig } from 'payload'
+import { APIError } from 'payload'
 export const MicroWarehousing: GlobalConfig = {
- slug: 'micro-warehousing', label: 'Micro Warehousing',
+ slug: 'micro-warehousing',
+ forceSelect: { published: true },
+ hooks: { afterRead: [({ doc, req }) => { if (!req.user && !doc.published) throw new APIError('Content is not published.', 404); return doc }] }, label: 'Micro Warehousing',
  admin: { group: 'Website content', description: 'Business landing page and imagery. Availability and prices always come from the CRM.' },
  access: { read: () => true, update: ({ req }) => Boolean(req.user) },
  fields: [

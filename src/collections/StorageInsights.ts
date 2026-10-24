@@ -1,4 +1,5 @@
 import type { CollectionConfig } from 'payload'
+import { authenticated, published } from '../access'
 
 export const StorageInsights: CollectionConfig = {
   slug: 'storage-insights',
@@ -10,7 +11,10 @@ export const StorageInsights: CollectionConfig = {
     description: 'In-depth guides that help customers plan, pack and find the right storage. Manage the writing, images and search details in one place.',
   },
   access: {
-    read: () => true,
+    read: published,
+    create: authenticated,
+    update: authenticated,
+    delete: authenticated,
   },
   fields: [
     // ---------- Core ----------

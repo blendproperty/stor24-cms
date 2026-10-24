@@ -1,6 +1,7 @@
 services:
   stor24-cms:
     build: .
+    image: stor24-cms:${IMAGE_TAG:-latest}
     container_name: stor24-cms
     restart: unless-stopped
     environment:
