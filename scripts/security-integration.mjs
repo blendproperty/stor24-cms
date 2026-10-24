@@ -50,9 +50,13 @@ try {
   await payload.updateGlobal({ slug: 'micro-warehousing', user, overrideAccess: false, data: { published: false } });
   server = spawn(process.execPath, ['node_modules/next/dist/bin/next', 'start', '--hostname', '0.0.0.0', '--port', '3097'], { env: { ...process.env, NODE_ENV: 'production' }, stdio: ['ignore', 'ignore', 'inherit'] });
   for (let attempt = 0; attempt < 60; attempt++) {
+    // Loopback-only isolated test server; HTTP never carries production credentials.
+    // nosemgrep: typescript.react.security.react-insecure-request.react-insecure-request
     try { if ((await fetch(origin + '/admin/login')).ok) break; } catch {}
     await new Promise(resolve => setTimeout(resolve, 500));
   }
+  // Loopback-only health read on the isolated test server.
+  // nosemgrep: typescript.react.security.react-insecure-request.react-insecure-request
   expect((await fetch(origin + '/admin/login')).ok, 'CMS login is healthy');
   const login = await api('/api/users/login', { method: 'POST', body: JSON.stringify({ email, password }) });
   expect(login.response.ok && login.body.token, 'Legacy password authenticates and creates a current session');
