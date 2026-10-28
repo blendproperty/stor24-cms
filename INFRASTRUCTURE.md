@@ -134,7 +134,7 @@ Note: local CMS and live CMS are **separate databases and separate media storage
 
 ## Deploy workflow
 
-The restricted CMS deployment candidate is described in [ROOT_SSH_CMS_MIGRATION.md](docs/ROOT_SSH_CMS_MIGRATION.md). It is not installed or active until the separately approved host setup, new CI credentials and normal checked source promotion are verified.
+The restricted CMS deployment candidate is described in [ROOT_SSH_CMS_MIGRATION.md](docs/ROOT_SSH_CMS_MIGRATION.md). Restricted host account/handler and new CI credentials are installed; actual VPS/GitHub preflight passed28October2026. The candidate workflow and library patch remain unmerged and the current CMS application is unchanged until separately approved source promotion/cutover.
 
 The workflow verifies exact current-main security evidence, then submits only a fixed operation and data to the root-owned server handler. The dedicated account has no general shell, Docker membership or general sudo. The server repeats the release check before preparation and immediately before migrations/cutover. Backups and the runtime environment remain root-only; image rollback retains migration data.
 
