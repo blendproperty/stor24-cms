@@ -12,6 +12,15 @@ concurrency:
   group: security-${{ github.ref }}
   cancel-in-progress: true
 jobs:
+  host-release-boundary:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - run: python3 scripts/test-host-cms-release.py
+      - run: bash -n scripts/host-cms-release.sh scripts/install-host-cms-release.sh
+      - run: docker build -f tests/host-release/Dockerfile -t stor24-cms-host-boundary:test .
+      - run: docker run --rm --network none stor24-cms-host-boundary:test
   node24-image:
     runs-on: ubuntu-latest
     timeout-minutes: 25
