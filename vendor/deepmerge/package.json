@@ -1,0 +1,9 @@
+{
+  "name": "deepmerge",
+  "version": "4.3.1-stor24.1",
+  "private": true,
+  "description": "STOR24 local security patch of deepmerge4.3.1; not an upstream release",
+  "main": "dist/cjs.js",
+  "types": "index.d.ts",
+  "license": "MIT"
+}

@@ -5,6 +5,12 @@ on:
     types: [completed]
     branches: [main]
   workflow_dispatch:
+    inputs:
+      operation:
+        description: Restricted preflight or verified CMS deployment
+        type: choice
+        options: [deploy, preflight]
+        default: deploy
 permissions:
   contents: read
   actions: read
@@ -17,82 +23,44 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     environment: production
+    env:
+      RELEASE_SHA: ${{ github.event.workflow_run.head_sha || github.sha }}
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
-          ref: main
-      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+          ref: ${{ env.RELEASE_SHA }}
+      - if: github.event.inputs.operation != 'preflight'
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
         with:
           node-version: 24.22.1
       - name: Require exact main security and validation evidence
         id: release
+        if: github.event.inputs.operation != 'preflight'
         env:
           GITHUB_TOKEN: ${{ github.token }}
           DEPLOY_REF: ${{ github.event.workflow_run.head_sha || github.sha }}
         run: node scripts/verify-release.mjs
-      - name: Deploy the verified revision through pinned SSH
+      - name: Deploy through the restricted CMS identity
+        timeout-minutes: 25
         env:
-          RELEASE_SHA: ${{ steps.release.outputs.sha }}
-          VPS_USER: ${{ secrets.VPS_USER }}
-          VPS_SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
+          RELEASE_SHA: ${{ steps.release.outputs.sha || github.sha }}
+          VPS_USER: ${{ secrets.VPS_CMS_DEPLOY_USER }}
+          VPS_SSH_KEY: ${{ secrets.VPS_CMS_DEPLOY_SSH_KEY }}
+          GH_TOKEN: ${{ github.token }}
+          OPERATION: ${{ github.event.inputs.operation || 'deploy' }}
         run: |
           set -euo pipefail
-          [[ "$VPS_USER" =~ ^[a-z_][a-z0-9_-]*$ ]]
-          [[ "$RELEASE_SHA" =~ ^[a-f0-9]{40}$ ]]
+          test "$VPS_USER" = stor24-cms-deploy
+          [[ "$OPERATION" = deploy || "$OPERATION" = preflight ]]
           test -n "$VPS_SSH_KEY"
           install -d -m 700 "$HOME/.ssh"
           install -m 600 .github/known_hosts "$HOME/.ssh/known_hosts"
           printf '%s\n' "$VPS_SSH_KEY" > "$HOME/.ssh/cms_deploy"
           chmod 600 "$HOME/.ssh/cms_deploy"
           trap 'rm -f "$HOME/.ssh/cms_deploy"' EXIT
-          ssh -o BatchMode=yes -o StrictHostKeyChecking=yes -o ConnectTimeout=20 -i "$HOME/.ssh/cms_deploy" "$VPS_USER@srv938083.hstgr.cloud" "RELEASE_SHA='$RELEASE_SHA' /bin/bash -s" <<'DEPLOY'
-          set -euo pipefail
-          umask 077
-          cd /opt/stor24-cms
-          git fetch origin "$RELEASE_SHA"
-          test "$(git rev-parse FETCH_HEAD)" = "$RELEASE_SHA"
-          mkdir -p /opt/stor24-cms-releases
-          release="$(mktemp -d "/opt/stor24-cms-releases/$RELEASE_SHA.XXXXXX")"
-          git archive "$RELEASE_SHA" | tar -x -C "$release"
-          git show "$RELEASE_SHA:package.json" | cmp - "$release/package.json"
-          test ! -e "$release/.git"
-          test "$(docker inspect stor24-cms --format '{{index .Config.Labels "com.docker.compose.project"}}')" = stor24-cms
-          compose=(docker compose -p stor24-cms --project-directory "$release" --env-file /opt/stor24-cms/.env -f "$release/docker-compose.yml")
-          backup="/root/stor24-cms-releases/$RELEASE_SHA"
-          mkdir -p "$backup"
-          docker exec stor4_db pg_dump -U stor4_user -d stor4_db -Fc > "$backup/database.dump"
-          cp .env "$backup/runtime.env"
-          previous_image="$(docker inspect stor24-cms --format '{{.Image}}')"
-          printf '%s\n' "$previous_image" > "$backup/previous-image"
-          rollback_tag="rollback-$RELEASE_SHA"
-          docker image tag "$previous_image" "stor24-cms:$rollback_tag"
-          cutover=0
-          verified=0
-          recover() {
-            result=$?
-            if test "$result" = 0 && test "$verified" != 1; then result=1; fi
-            if test "$result" -ne 0 && test "$cutover" = 1; then
-              IMAGE_TAG="$rollback_tag" "${compose[@]}" up -d --no-build --no-deps stor24-cms
-              echo 'Previous CMS image restored; additive migration retained.' >&2
-            fi
-            exit "$result"
-          }
-          trap recover EXIT
-          export IMAGE_TAG="$RELEASE_SHA"
-          "${compose[@]}" config --quiet
-          "${compose[@]}" build --pull --build-arg RELEASE_SHA="$RELEASE_SHA" stor24-cms
-          "${compose[@]}" run --rm -T --no-deps stor24-cms npx payload migrate </dev/null
-          cutover=1
-          "${compose[@]}" up -d --no-build --no-deps stor24-cms
-          for attempt in $(seq 1 45); do
-            if docker exec stor24-cms node -e "fetch('http://127.0.0.1:3000/admin/login').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"; then
-              test "$(docker inspect stor24-cms --format '{{index .Config.Labels "org.opencontainers.image.revision"}}')" = "$RELEASE_SHA"
-              verified=1
-              echo "CMS deployed: $RELEASE_SHA"
-              exit 0
-            fi
-            sleep 2
-          done
-          echo 'CMS login did not become healthy; retain backup and previous image for recovery.' >&2
-          exit 1
-          DEPLOY
+          ssh-keygen -F srv938083.hstgr.cloud -f "$HOME/.ssh/known_hosts" > /dev/null
+          python3 -c 'import json,os; op=os.environ["OPERATION"]; print(json.dumps({"operation":op,**({"sha":os.environ["RELEASE_SHA"],"github_token":os.environ["GH_TOKEN"]} if op=="deploy" else {})}))' | \
+          ssh -4 -o BatchMode=yes -o StrictHostKeyChecking=yes \
+            -o ConnectionAttempts=3 -o ConnectTimeout=20 \
+            -o ServerAliveInterval=30 -o ServerAliveCountMax=3 \
+            -i "$HOME/.ssh/cms_deploy" "$VPS_USER@srv938083.hstgr.cloud" "$OPERATION"

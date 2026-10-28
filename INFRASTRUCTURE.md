@@ -134,19 +134,15 @@ Note: local CMS and live CMS are **separate databases and separate media storage
 
 ## Deploy workflow
 
-1. Edit code locally, test with `npm run dev`
-2. `git add . && git commit -m "..." && git push origin main`
-3. GitHub Actions auto-deploys to `/opt/stor24-cms` via SSH, runs `docker compose up -d --build`
+The restricted CMS deployment candidate is described in [ROOT_SSH_CMS_MIGRATION.md](docs/ROOT_SSH_CMS_MIGRATION.md). Restricted host account/handler and new CI credentials are installed; actual VPS/GitHub preflight passed28October2026. The candidate workflow and library patch remain unmerged and the current CMS application is unchanged until separately approved source promotion/cutover.
 
-### Manual deploy (if auto-deploy fails)
+The workflow verifies exact current-main security evidence, then submits only a fixed operation and data to the root-owned server handler. The dedicated account has no general shell, Docker membership or general sudo. The server repeats the release check before preparation and immediately before migrations/cutover. Backups and the runtime environment remain root-only; image rollback retains migration data.
 
-```bash
-ssh root@93.127.186.194
-cd /opt/stor24-cms
-git pull origin main
-docker rmi stor24-cms-stor24-cms
-docker compose up -d --build
-```
+### Manual deployment and recovery
+
+Use the reviewed deployment workflow's fixed operation after required checks succeed. Do not send arbitrary root shell through CI or delete the current image to force a deployment. Each attempt retains its database/env backup and preceding image.
+
+Independent administrator recovery, network repair and SQL repair below remain separate privileged duties; the restricted deployment identity does not grant those capabilities. A database restore or manual migration repair requires a separate reviewed decision.
 
 ### If CMS shows "getaddrinfo EAI_AGAIN stor4_db" or Application Error
 
