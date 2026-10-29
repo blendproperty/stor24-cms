@@ -1,4 +1,4 @@
-# Database privilege separation and RLS rollout — 2026-10-29
+# Database privilege separation and RLS rollout â€” 2026-10-29
 
 This is a staged candidate, not an instruction to change production. Production read-only catalog evidence previously identified superuser/BYPASSRLS application roles and zero RLS-enabled public tables. It does not establish external database exposure. The website has no direct database connection within this change's scope.
 
@@ -19,3 +19,5 @@ The isolated `tests/integration/database-role-rls.test.mjs` requires explicit op
 5. Separately approve the concrete production role/configuration/RLS change and maintenance window after staging evidence. Monitor permissions and login failures; independently verify expected access and absence of cross-scope access after cutover. Preserve recovery, data, privacy, provider, staff/customer/editor and device acceptance gates.
 
 The prior RLS/role prototypes and this preparation change do not modify production grants, credentials, roles, policies or data. References: PostgreSQL 17 [row security](https://www.postgresql.org/docs/17/ddl-rowsecurity.html), [role membership](https://www.postgresql.org/docs/17/role-membership.html), and [default privileges](https://www.postgresql.org/docs/17/sql-alterdefaultprivileges.html).
+
+Production read-only migration metadata lists `20260610_194631` and `20260611_183017` before the first migration in the current source. Their TypeScript files were not found in fetched local Git refs or inspected host release directories. This supports, but does not prove, a missing-baseline explanation for the empty-database failure. Recover and verify the originals or establish an independently verified baseline; do not fabricate migration history.
