@@ -128,6 +128,43 @@ jobs:
           PUBLIC_ROLE_URL: postgresql://stage_tenant_a:synthetic-tenant-a@localhost:55481/cms_baseline_replay_ci
           EDITOR_ROLE_URL: postgresql://stage_tenant_b:synthetic-tenant-b@localhost:55481/cms_baseline_replay_ci
         run: node --test tests/integration/posts-rls-stage.test.mjs
+      - name: Exercise CMS HTTP access with separate database identities and RLS
+        env:
+          DB_ROLE_TEST: isolated-ci
+          PAYLOAD_SECRET: synthetic-ci-security-secret-at-least-32-characters
+          DATABASE_URI: postgresql://stage_runtime:synthetic-runtime-only@localhost:55481/cms_baseline_replay_ci
+          MIGRATION_DATABASE_URL: postgresql://stage_owner:synthetic-owner-only@localhost:55481/cms_baseline_replay_ci
+          PUBLIC_ROLE_URL: postgresql://stage_tenant_a:synthetic-tenant-a@localhost:55481/cms_baseline_replay_ci
+          EDITOR_ROLE_URL: postgresql://stage_tenant_b:synthetic-tenant-b@localhost:55481/cms_baseline_replay_ci
+        run: npx tsx scripts/test-rls-payload-stage.mjs
+      - name: Verify synthetic CMS backup, restore and content
+        env:
+          PGPASSWORD: synthetic-ci
+          POSTGRES_CONTAINER: ${{ job.services.postgres.id }}
+        run: |
+          psql -h localhost -U ci -d postgres -v ON_ERROR_STOP=1 -c "CREATE ROLE stage_backup LOGIN PASSWORD 'synthetic-backup-only' NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION NOBYPASSRLS" -c 'GRANT pg_read_all_data TO stage_backup' -c 'CREATE DATABASE cms_restore_ci OWNER stage_owner'
+          psql -h localhost -U ci -d cms_baseline_replay_ci -v ON_ERROR_STOP=1 -c "INSERT INTO posts(title,slug,status,content) VALUES ('Synthetic recovery published','synthetic-recovery-published','published','{\"test\":\"synthetic\"}'::jsonb),('Synthetic recovery draft','synthetic-recovery-draft','draft','{\"test\":\"synthetic draft\"}'::jsonb); INSERT INTO posts_tags (_order,_parent_id,id,tag) SELECT 1,id,'synthetic-recovery-tag','synthetic' FROM posts WHERE slug='synthetic-recovery-published';"
+          docker exec "$POSTGRES_CONTAINER" pg_dump -U stage_backup -d cms_baseline_replay_ci --format=custom --no-owner --no-privileges -f /tmp/cms-recovery-synthetic.dump
+          docker exec "$POSTGRES_CONTAINER" pg_restore -U stage_owner -d cms_restore_ci --exit-on-error --no-owner --no-privileges /tmp/cms-recovery-synthetic.dump
+          query="SELECT row_to_json(t) FROM (SELECT p.slug,p.title,p.status,p.content,(SELECT json_agg(json_build_object('order',t._order,'id',t.id,'tag',t.tag) ORDER BY t._order) FROM posts_tags t WHERE t._parent_id=p.id) tags FROM posts p WHERE p.slug LIKE 'synthetic-recovery-%' ORDER BY p.slug) t"
+          psql -h localhost -U ci -d cms_baseline_replay_ci -At -c "$query" > /tmp/cms-before-synthetic.jsonl
+          psql -h localhost -U ci -d cms_restore_ci -At -c "$query" > /tmp/cms-after-synthetic.jsonl
+          test "$(wc -l < /tmp/cms-before-synthetic.jsonl)" -eq 2
+          diff -u /tmp/cms-before-synthetic.jsonl /tmp/cms-after-synthetic.jsonl
+          psql -h localhost -U ci -d cms_restore_ci -v ON_ERROR_STOP=1 -c 'REVOKE CREATE ON SCHEMA public FROM PUBLIC' -c 'GRANT USAGE ON SCHEMA public TO stage_runtime' -c 'GRANT SELECT,INSERT,UPDATE,DELETE ON ALL TABLES IN SCHEMA public TO stage_runtime' -c 'GRANT USAGE,SELECT ON ALL SEQUENCES IN SCHEMA public TO stage_runtime' -c 'REVOKE ALL ON TABLE payload_migrations FROM stage_runtime'
+      - name: Exercise CMS against the restored synthetic database
+        env:
+          CMS_SECURITY_DB_TEST: isolated-ci
+          PAYLOAD_SECRET: synthetic-ci-security-secret-at-least-32-characters
+          DATABASE_URI: postgresql://stage_runtime:synthetic-runtime-only@localhost:55481/cms_restore_ci
+        run: npm run test:security:integration
+      - name: Check migration history after synthetic restore
+        env:
+          NODE_ENV: production
+          PAYLOAD_SECRET: synthetic-ci-security-secret-at-least-32-characters
+          DATABASE_URI: postgresql://stage_runtime:synthetic-runtime-only@localhost:55481/cms_restore_ci
+          MIGRATION_DATABASE_URL: postgresql://stage_owner:synthetic-owner-only@localhost:55481/cms_restore_ci
+        run: node scripts/migrate-with-owner.mjs
   dependencies:
     runs-on: ubuntu-latest
     timeout-minutes: 10
