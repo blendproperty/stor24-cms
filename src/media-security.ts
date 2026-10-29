@@ -14,7 +14,9 @@ export async function safeCmsImage(data: Buffer) {
   }
 }
 
-export const protectMediaUpload: CollectionBeforeOperationHook = async ({ args, operation, req }) => {
+export const protectMediaUpload: CollectionBeforeOperationHook = async ({ args, operation, req, overrideAccess }) => {
+  // Payload checks collection access after this hook; do not decode denied uploads.
+  if (!req.user && !overrideAccess) return args
   if ((operation === 'create' || operation === 'update') && req.file) {
     const image = await safeCmsImage(req.file.data)
     req.file.data = image.buffer
