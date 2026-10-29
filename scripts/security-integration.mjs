@@ -3,6 +3,8 @@ import { spawn } from 'node:child_process';
 import { createRequire } from 'node:module';
 import { randomBytes, pbkdf2Sync } from 'node:crypto';
 import { writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { verifyCmsXss } from './xss-browser.mjs';
 
 assert.equal(process.env.CMS_SECURITY_DB_TEST, 'isolated-ci');
@@ -24,7 +26,7 @@ const payload = await getPayload({ config });
 let server;
 let checks = 0;
 const origin = 'http://127.0.0.1:3097';
-const email = 'security-regression@example.invalid';
+const email = `security-regression-${randomBytes(8).toString('hex')}@example.invalid`;
 const password = 'Synthetic CMS regression password only 2026';
 const content = { root: { type: 'root', children: [{ type: 'paragraph', children: [{ type: 'text', text: 'Synthetic security regression content.', detail: 0, format: 0, mode: 'normal', style: '', version: 1 }], direction: 'ltr', format: '', indent: 0, version: 1 }], direction: 'ltr', format: '', indent: 0, version: 1 } };
 const expect = (condition, message) => { assert.ok(condition, message); checks++; };
@@ -64,6 +66,12 @@ try {
   const cookie = login.response.headers.get('set-cookie') || '';
   expect(/;\s*Secure/i.test(cookie) && /;\s*HttpOnly/i.test(cookie) && /;\s*SameSite=Lax/i.test(cookie), 'Production authentication cookie is Secure, HttpOnly and SameSite=Lax');
   const token = login.body.token;
+  for (const [method, path] of [['POST', '/api/media'], ['PATCH', '/api/media/1']]) {
+    const anonymousFile = new FormData();
+    anonymousFile.set('file', new Blob(['not a raster image'], { type: 'image/png' }), 'synthetic-invalid.png');
+    const denied = await api(path, { method, body: anonymousFile });
+    expect(denied.response.status === 403, `Anonymous ${method} is denied before the invalid image reaches the decoder`);
+  }
   const xssPayload = '</script><img src=x onerror="globalThis.xssExecuted=1"><script>globalThis.xssExecuted=1</script>';
   const xssContent = structuredClone(content);
   xssContent.root.children[0].children[0].text = xssPayload;
@@ -113,7 +121,7 @@ try {
   await api('/api/users/logout', { method: 'POST', headers: { authorization: `JWT ${token}` } });
   const revoked = await api(`/api/posts/${fixtures[0].draft.id}`, { headers: { authorization: `JWT ${token}` } });
   expect(revoked.response.status === 404 || revoked.response.status === 401, 'Logged-out session cannot retain draft authority');
-  writeFileSync('/tmp/stor24-cms-security-fixtures.json', JSON.stringify({ email, draftPostId: fixtures[0].draft.id, publishedPostId: fixtures[0].published.id }));
+  writeFileSync(join(tmpdir(), 'stor24-cms-security-fixtures.json'), JSON.stringify({ email, draftPostId: fixtures[0].draft.id, publishedPostId: fixtures[0].published.id }));
   console.log(JSON.stringify({ checksPassed: checks, database: uri.pathname, providerCalls: 0, customerMutations: 0 }));
 } finally {
   server?.kill('SIGTERM');

@@ -1,7 +1,16 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import sharp from 'sharp'
-import { safeCmsImage } from '../src/media-security'
+import { protectMediaUpload, safeCmsImage } from '../src/media-security'
+
+test('anonymous media operations reach access denial without decoding', async () => {
+  const args = {} as never
+  for (const operation of ['create', 'update'] as const) {
+    const req = { user: null, file: { data: Buffer.from('not an image') } } as never
+    assert.equal(await protectMediaUpload({ args, operation, req, overrideAccess: false } as never), args)
+    await assert.rejects(async () => { await protectMediaUpload({ args, operation, req, overrideAccess: true } as never) }, /Upload a valid/)
+  }
+})
 
 test('CMS rejects active HTML/SVG content even when submitted as a PNG', async () => {
   for (const content of ['<svg xmlns="http://www.w3.org/2000/svg" onload="alert(1)"><rect width="1" height="1"/></svg>', '<!doctype html><script>alert(1)</script>', 'invalid image']) {
