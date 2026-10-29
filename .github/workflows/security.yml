@@ -71,7 +71,7 @@ jobs:
           POSTGRES_USER: ci
           POSTGRES_PASSWORD: synthetic-ci
           POSTGRES_DB: stor24_cms_ci
-        ports: [5432:5432]
+        ports: [5432:5432, 55481:5432]
         options: --health-cmd pg_isready --health-interval 5s --health-timeout 5s --health-retries 10
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
@@ -81,7 +81,7 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm test
-      - run: node --test tests/migration-connection.test.mjs
+      - run: node --test tests/migration-connection.test.mjs tests/baseline-guard.test.mjs
       - run: npm run typecheck
       - run: npx playwright install --with-deps chromium
       - run: npm run build
@@ -93,6 +93,41 @@ jobs:
           CMS_SECURITY_DB_TEST: isolated-ci
           PAYLOAD_SECRET: synthetic-ci-security-secret-at-least-32-characters
           DATABASE_URI: postgresql://ci:synthetic-ci@localhost:5432/stor24_cms_ci
+      - name: Prepare reconstructed-baseline staging roles
+        env:
+          PGPASSWORD: synthetic-ci
+        run: |
+          psql -h localhost -U ci -d postgres -v ON_ERROR_STOP=1 -c "CREATE ROLE stage_owner LOGIN PASSWORD 'synthetic-owner-only' NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION NOBYPASSRLS" -c "CREATE ROLE stage_runtime LOGIN PASSWORD 'synthetic-runtime-only' NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION NOBYPASSRLS" -c "CREATE ROLE stage_tenant_a LOGIN PASSWORD 'synthetic-tenant-a' NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION NOBYPASSRLS" -c "CREATE ROLE stage_tenant_b LOGIN PASSWORD 'synthetic-tenant-b' NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION NOBYPASSRLS" -c "CREATE DATABASE cms_baseline_replay_ci OWNER stage_owner"
+      - name: Apply and replay reconstructed CMS staging baseline
+        env:
+          CMS_BASELINE_TEST: isolated-ci
+          NODE_ENV: production
+          PAYLOAD_SECRET: synthetic-ci-security-secret-at-least-32-characters
+          DATABASE_URI: postgresql://stage_runtime:synthetic-runtime-only@localhost:55481/cms_baseline_replay_ci
+          MIGRATION_DATABASE_URL: postgresql://stage_owner:synthetic-owner-only@localhost:55481/cms_baseline_replay_ci
+        run: |
+          node scripts/bootstrap-reconstructed-baseline.mjs
+          if node scripts/bootstrap-reconstructed-baseline.mjs; then echo 'Repeated bootstrap must fail'; exit 1; fi
+          node scripts/migrate-with-owner.mjs
+      - name: Grant restricted runtime privileges in disposable staging only
+        env:
+          PGPASSWORD: synthetic-ci
+        run: |
+          psql -h localhost -U ci -d cms_baseline_replay_ci -v ON_ERROR_STOP=1 -c 'REVOKE CREATE ON SCHEMA public FROM PUBLIC' -c 'GRANT USAGE ON SCHEMA public TO stage_runtime' -c 'GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO stage_runtime' -c 'GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO stage_runtime' -c 'REVOKE ALL ON TABLE payload_migrations FROM stage_runtime'
+      - name: Exercise reconstructed baseline with restricted runtime
+        env:
+          CMS_SECURITY_DB_TEST: isolated-ci
+          PAYLOAD_SECRET: synthetic-ci-security-secret-at-least-32-characters
+          DATABASE_URI: postgresql://stage_runtime:synthetic-runtime-only@localhost:55481/cms_baseline_replay_ci
+        run: npm run test:security:integration
+      - name: Exercise role-bound policies on CMS posts in disposable staging
+        env:
+          DB_ROLE_TEST: isolated-ci
+          DATABASE_URI: postgresql://stage_runtime:synthetic-runtime-only@localhost:55481/cms_baseline_replay_ci
+          MIGRATION_DATABASE_URL: postgresql://stage_owner:synthetic-owner-only@localhost:55481/cms_baseline_replay_ci
+          PUBLIC_ROLE_URL: postgresql://stage_tenant_a:synthetic-tenant-a@localhost:55481/cms_baseline_replay_ci
+          EDITOR_ROLE_URL: postgresql://stage_tenant_b:synthetic-tenant-b@localhost:55481/cms_baseline_replay_ci
+        run: node --test tests/integration/posts-rls-stage.test.mjs
   dependencies:
     runs-on: ubuntu-latest
     timeout-minutes: 10
