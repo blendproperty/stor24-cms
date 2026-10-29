@@ -51,6 +51,7 @@ jobs:
       - run: npm ci
       - run: npm test
       - run: npm run typecheck
+      - run: npx playwright install --with-deps chromium
       - run: npm run build
         env:
           PAYLOAD_SECRET: synthetic-ci-build-secret-never-used-in-production

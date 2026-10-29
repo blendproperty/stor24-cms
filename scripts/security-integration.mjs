@@ -3,6 +3,7 @@ import { spawn } from 'node:child_process';
 import { createRequire } from 'node:module';
 import { randomBytes, pbkdf2Sync } from 'node:crypto';
 import { writeFileSync } from 'node:fs';
+import { verifyCmsXss } from './xss-browser.mjs';
 
 assert.equal(process.env.CMS_SECURITY_DB_TEST, 'isolated-ci');
 const uri = new URL(process.env.DATABASE_URI);
@@ -28,8 +29,8 @@ const password = 'Synthetic CMS regression password only 2026';
 const content = { root: { type: 'root', children: [{ type: 'paragraph', children: [{ type: 'text', text: 'Synthetic security regression content.', detail: 0, format: 0, mode: 'normal', style: '', version: 1 }], direction: 'ltr', format: '', indent: 0, version: 1 }], direction: 'ltr', format: '', indent: 0, version: 1 } };
 const expect = (condition, message) => { assert.ok(condition, message); checks++; };
 async function api(path, options = {}) {
-  const response = await fetch(origin + path, { ...options, headers: { 'content-type': 'application/json', origin: 'https://cms.stor24.co.za', ...options.headers } });
-  const body = await response.json();
+  const response = await fetch(origin + path, { ...options, headers: { ...(options.body instanceof FormData ? {} : { 'content-type': 'application/json' }), origin: 'https://cms.stor24.co.za', ...options.headers } });
+  const body = response.headers.get('content-type')?.includes('application/json') ? await response.json() : Buffer.from(await response.arrayBuffer());
   return { response, body };
 }
 try {
@@ -63,6 +64,25 @@ try {
   const cookie = login.response.headers.get('set-cookie') || '';
   expect(/;\s*Secure/i.test(cookie) && /;\s*HttpOnly/i.test(cookie) && /;\s*SameSite=Lax/i.test(cookie), 'Production authentication cookie is Secure, HttpOnly and SameSite=Lax');
   const token = login.body.token;
+  const xssPayload = '</script><img src=x onerror="globalThis.xssExecuted=1"><script>globalThis.xssExecuted=1</script>';
+  const xssContent = structuredClone(content);
+  xssContent.root.children[0].children[0].text = xssPayload;
+  const stored = await payload.create({ collection: 'posts', user, overrideAccess: false, data: { title: xssPayload, slug: 'synthetic-xss-' + randomBytes(6).toString('hex'), content: xssContent, status: 'draft' } });
+  checks += await verifyCmsXss({ origin, token, cookieName: cookie.split('=')[0], postId: stored.id, payload: xssPayload });
+  const maliciousUpload = new FormData();
+  maliciousUpload.set('file', new Blob(['<svg xmlns="http://www.w3.org/2000/svg" onload="alert(1)"><rect width="1" height="1"/></svg>'], { type: 'image/png' }), 'synthetic-disguised.png');
+  const rejectedUpload = await api('/api/media', { method: 'POST', headers: { authorization: `JWT ${token}` }, body: maliciousUpload });
+  expect(rejectedUpload.response.status === 400, 'Actual CMS upload endpoint rejects active SVG bytes disguised as PNG');
+  const sharp = (await import('sharp')).default;
+  for (const format of ['jpeg', 'png', 'webp', 'gif']) {
+    const validImage = await sharp({ create: { width: 2, height: 2, channels: 3, background: '#ff5a0a' } }).toFormat(format).toBuffer();
+    const validUpload = new FormData();
+    validUpload.set('file', new Blob([Buffer.concat([validImage, Buffer.from('<script>globalThis.xssExecuted=1</script>')])], { type: `image/${format}` }), `synthetic-valid.${format}`);
+    const acceptedUpload = await api('/api/media', { method: 'POST', headers: { authorization: `JWT ${token}` }, body: validUpload });
+    expect(acceptedUpload.response.ok, `Actual CMS upload endpoint retains valid ${format} uploads`);
+    const uploaded = await api(new URL(acceptedUpload.body.doc.url, origin).pathname);
+    expect(uploaded.response.ok && !uploaded.body.includes(Buffer.from('<script>')), `Stored ${format} response excludes appended active content`);
+  }
   const upgraded = await database.query('SELECT hash FROM users WHERE id=$1', [editor.id]);
   expect(upgraded.rows[0].hash.startsWith('pbkdf2-sha256-v1:'), 'Legacy password hash upgrades on successful login');
   for (const { collection, draft, published, related } of fixtures) {
