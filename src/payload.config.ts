@@ -9,6 +9,7 @@ import { StorageInsights } from "./collections/StorageInsights";
 import { MicroWarehousing } from "./globals/MicroWarehousing";
 import { HomepageHero } from "./globals/HomepageHero";
 import { editorialCollection } from "./admin/editorial";
+import { protectMediaUpload } from './media-security';
 import path from "path";
 import { fileURLToPath } from "url";
 
@@ -83,6 +84,7 @@ export default buildConfig({
       upload: {
         mimeTypes: ["image/jpeg", "image/png", "image/webp", "image/gif"],
       },
+      hooks: { beforeOperation: [protectMediaUpload] },
       fields: [{ name: "alt", label: 'Image description', type: "text", admin: { description: 'Describe what is in the image. This helps people using screen readers and makes your library easier to understand.' } }],
     },
     {
