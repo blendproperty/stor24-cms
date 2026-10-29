@@ -10,6 +10,7 @@ import { MicroWarehousing } from "./globals/MicroWarehousing";
 import { HomepageHero } from "./globals/HomepageHero";
 import { editorialCollection } from "./admin/editorial";
 import { protectMediaUpload } from './media-security';
+import sharp from 'sharp';
 import path from "path";
 import { fileURLToPath } from "url";
 
@@ -26,6 +27,7 @@ const publicRead = () => true;
 const adminOnly = ({ req: { user } }: any) => !!user;
 
 export default buildConfig({
+  sharp,
   serverURL: "https://cms.stor24.co.za",
   email: cmsEmail,
   admin: {
@@ -83,6 +85,8 @@ export default buildConfig({
       access: { read: publicRead, create: adminOnly, update: adminOnly, delete: adminOnly },
       upload: {
         mimeTypes: ["image/jpeg", "image/png", "image/webp", "image/gif"],
+        // Payload applies this shared decoder to direct, duplicated and URL-imported raster files.
+        constructorOptions: { failOn: 'error', limitInputPixels: 40_000_000 },
       },
       hooks: { beforeOperation: [protectMediaUpload] },
       fields: [{ name: "alt", label: 'Image description', type: "text", admin: { description: 'Describe what is in the image. This helps people using screen readers and makes your library easier to understand.' } }],
