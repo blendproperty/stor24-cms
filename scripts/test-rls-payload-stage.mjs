@@ -122,7 +122,12 @@ try {
   assert.ok(!denied.ok,'public database identity cannot change draft');
   const after=await request(3099,`/api/posts/${postIds[1]}`,{headers:auth});
   assert.equal((await after.json()).title,'Synthetic draft','denied change did not persist');
-  console.log(JSON.stringify({cmsRoleRlsHttpChecks:9, privateTablesDenied:8, additionalRlsTables:7,scope:'synthetic local databases and separate test servers only',productionIntegrated:false}));
+  const edited=await request(3099,`/api/posts/${postIds[1]}`,{method:'PATCH',headers:auth,body:JSON.stringify({title:'Synthetic editor update'})});
+  assert.equal(edited.status,200,'authenticated editor can update a draft through the editor role');
+  const reread=await request(3099,`/api/posts/${postIds[1]}`,{headers:auth});
+  assert.equal((await reread.json()).title,'Synthetic editor update');
+  assert.equal((await request(3098,`/api/posts/${postIds[1]}`,{headers:auth})).status,404,'the updated draft remains hidden through the public role');
+  console.log(JSON.stringify({cmsRoleRlsHttpRehearsal:'passed', privateTablesDenied:8, additionalRlsTables:7,scope:'synthetic local databases and separate test servers only',productionIntegrated:false}));
 } finally {
   for(const child of servers) child.kill('SIGTERM');
   await Promise.all(servers.map(child=>new Promise(resolve=>{if(child.exitCode!==null)return resolve();child.once('exit',resolve);setTimeout(resolve,5000).unref();})));
