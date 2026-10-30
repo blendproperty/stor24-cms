@@ -74,7 +74,7 @@ jobs:
           test "$(docker run --rm --entrypoint node stor24-node24-cms:test --version)" = v24.22.1
   validate:
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 30
     services:
       postgres:
         image: postgres:16-alpine
@@ -175,6 +175,28 @@ jobs:
           PAYLOAD_SECRET: synthetic-ci-security-secret-at-least-32-characters
           DATABASE_URI: postgresql://stage_runtime:synthetic-runtime-only@localhost:55481/cms_restore_ci
           MIGRATION_DATABASE_URL: postgresql://stage_owner:synthetic-owner-only@localhost:55481/cms_restore_ci
+        run: node scripts/migrate-with-owner.mjs
+      - name: Prepare full database RLS recovery rehearsal
+        env:
+          PGPASSWORD: synthetic-ci
+        run: |
+          psql -h localhost -p 55481 -U ci -d postgres -v ON_ERROR_STOP=1 -c "CREATE ROLE stage_backup_restore LOGIN PASSWORD 'synthetic-backup-only' NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION BYPASSRLS" -c 'GRANT pg_read_all_data TO stage_backup_restore' -c 'CREATE DATABASE cms_rls_restore_ci OWNER stage_owner'
+      - name: Restore complete CMS schema with forced RLS
+        env:
+          DB_ROLE_TEST: isolated-ci
+          RLS_RECOVERY_APP: cms
+          POSTGRES_CONTAINER: ${{ job.services.postgres.id }}
+          DATABASE_URI: postgresql://stage_runtime:synthetic-runtime-only@localhost:55481/cms_baseline_replay_ci
+          MIGRATION_DATABASE_URL: postgresql://stage_owner:synthetic-owner-only@localhost:55481/cms_baseline_replay_ci
+          RLS_BACKUP_URL: postgresql://stage_backup_restore:synthetic-backup-only@localhost:55481/cms_baseline_replay_ci
+          RLS_RESTORE_URL: postgresql://stage_owner:synthetic-owner-only@localhost:55481/cms_rls_restore_ci
+        run: node scripts/test-full-rls-recovery.mjs
+      - name: Verify CMS migration history after RLS restore
+        env:
+          NODE_ENV: production
+          PAYLOAD_SECRET: synthetic-ci-security-secret-at-least-32-characters
+          DATABASE_URI: postgresql://stage_runtime:synthetic-runtime-only@localhost:55481/cms_rls_restore_ci
+          MIGRATION_DATABASE_URL: postgresql://stage_owner:synthetic-owner-only@localhost:55481/cms_rls_restore_ci
         run: node scripts/migrate-with-owner.mjs
   dependencies:
     runs-on: ubuntu-latest
