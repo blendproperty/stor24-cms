@@ -1,7 +1,10 @@
 import { published } from "./access";
+import { searchIndexing } from "./fields/search-indexing";
 import { cmsEmail } from "./email";
 import { buildConfig } from "payload";
 import { ContentIdeas } from './collections/ContentIdeas';
+import { PageSeo } from './collections/PageSeo';
+import { Redirects } from './collections/Redirects';
 import { postgresAdapter } from "@payloadcms/db-postgres";
 import { lexicalEditor } from "@payloadcms/richtext-lexical";
 import { seoPlugin } from "@payloadcms/plugin-seo";
@@ -58,6 +61,8 @@ export default buildConfig({
   ],
   collections: ([
     ContentIdeas,
+    PageSeo,
+    Redirects,
     StorageInsights,
     {
       slug: "users",
@@ -97,6 +102,7 @@ export default buildConfig({
       access: { read: published, create: adminOnly, update: adminOnly, delete: adminOnly },
       admin: { useAsTitle: "title", group: 'Website content', defaultColumns: ['title', 'status', 'updatedAt'], description: 'News, stories and practical advice. Open an article to edit its content, imagery and search information.' },
       fields: [
+        searchIndexing,
         { name: "title", type: "text", required: true },
         { name: "slug", label: 'Page address', type: "text", required: true, unique: true, admin: { description: 'Use lowercase words separated by hyphens. Changing a published address can break existing links.' } },
         { name: "status", type: "select", options: [{ label: 'Draft', value: 'draft' }, { label: 'Published', value: 'published' }], defaultValue: "draft", required: true, admin: { description: 'Check the article before setting it to Published.', components: { Cell: '@/components/Workspace#StatusCell' } } },

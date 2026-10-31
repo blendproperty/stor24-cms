@@ -68,12 +68,15 @@ export interface Config {
   blocks: {};
   collections: {
     'content-ideas': ContentIdea;
+    'page-seo': PageSeo;
+    redirects: Redirect;
     'storage-insights': StorageInsight;
     users: User;
     media: Media;
     posts: Post;
     faqs: Faq;
     areas: Area;
+    'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
     'payload-migrations': PayloadMigration;
@@ -81,12 +84,15 @@ export interface Config {
   collectionsJoins: {};
   collectionsSelect: {
     'content-ideas': ContentIdeasSelect<false> | ContentIdeasSelect<true>;
+    'page-seo': PageSeoSelect<false> | PageSeoSelect<true>;
+    redirects: RedirectsSelect<false> | RedirectsSelect<true>;
     'storage-insights': StorageInsightsSelect<false> | StorageInsightsSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     posts: PostsSelect<false> | PostsSelect<true>;
     faqs: FaqsSelect<false> | FaqsSelect<true>;
     areas: AreasSelect<false> | AreasSelect<true>;
+    'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
     'payload-migrations': PayloadMigrationsSelect<false> | PayloadMigrationsSelect<true>;
@@ -94,6 +100,7 @@ export interface Config {
   db: {
     defaultIDType: number;
   };
+  fallbackLocale: null;
   globals: {
     'homepage-hero': HomepageHero;
     'micro-warehousing': MicroWarehousing;
@@ -103,9 +110,10 @@ export interface Config {
     'micro-warehousing': MicroWarehousingSelect<false> | MicroWarehousingSelect<true>;
   };
   locale: null;
-  user: User & {
-    collection: 'users';
+  widgets: {
+    collections: CollectionsWidget;
   };
+  user: User;
   jobs: {
     tasks: unknown;
     workflows: unknown;
@@ -169,6 +177,128 @@ export interface ContentIdea {
   createdAt: string;
 }
 /**
+ * Manage search and social previews for existing public pages. Drafts do not affect the website. Blank fields retain the current website defaults. Published changes can take up to one minute.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "page-seo".
+ */
+export interface PageSeo {
+  id: number;
+  /**
+   * These are existing, verified public routes. This does not create or change a page address.
+   */
+  path:
+    | '/'
+    | '/micro-warehousing'
+    | '/personal-storage'
+    | '/business-storage'
+    | '/student-storage'
+    | '/moving-storage'
+    | '/storage-unit-sizes'
+    | '/space-guide'
+    | '/storage/midpoint'
+    | '/storage/melrose'
+    | '/contact'
+    | '/faq'
+    | '/blog'
+    | '/storage-insights'
+    | '/terms'
+    | '/privacy'
+    | '/paia'
+    | '/micro-warehousing/midpoint';
+  seoTitle?: string | null;
+  metaDescription?: string | null;
+  /**
+   * Leave empty to use this page. Choose another page only for equivalent content. Excluded targets and canonical chains cannot be published.
+   */
+  canonicalPath?:
+    | (
+        | '/'
+        | '/micro-warehousing'
+        | '/personal-storage'
+        | '/business-storage'
+        | '/student-storage'
+        | '/moving-storage'
+        | '/storage-unit-sizes'
+        | '/space-guide'
+        | '/storage/midpoint'
+        | '/storage/melrose'
+        | '/contact'
+        | '/faq'
+        | '/blog'
+        | '/storage-insights'
+        | '/terms'
+        | '/privacy'
+        | '/paia'
+        | '/micro-warehousing/midpoint'
+      )
+    | null;
+  /**
+   * The published page stays public by its link, but is removed from the sitemap and asks search engines not to index it. This is not privacy protection. Clear an alternate canonical choice before selecting exclusion.
+   */
+  noIndex?: boolean | null;
+  /**
+   * Optional; otherwise uses the search title.
+   */
+  ogTitle?: string | null;
+  /**
+   * Optional; otherwise uses the search description.
+   */
+  ogDescription?: string | null;
+  /**
+   * Optional; choose approved artwork from the media library.
+   */
+  socialImage?: (number | null) | Media;
+  /**
+   * Review before publishing. Unpublish or remove the record to restore website defaults.
+   */
+  status: 'draft' | 'published';
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Your website photography and artwork. Upload a clear, high-quality image and add a short description for accessibility.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "media".
+ */
+export interface Media {
+  id: number;
+  /**
+   * Describe what is in the image. This helps people using screen readers and makes your library easier to understand.
+   */
+  alt?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  url?: string | null;
+  thumbnailURL?: string | null;
+  filename?: string | null;
+  mimeType?: string | null;
+  filesize?: number | null;
+  width?: number | null;
+  height?: number | null;
+  focalX?: number | null;
+  focalY?: number | null;
+}
+/**
+ * Send an old public address to its replacement. Review the destination before publishing. Drafts do not redirect. Existing booking, payment and required legacy routes are protected. Incoming campaign queries are preserved.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "redirects".
+ */
+export interface Redirect {
+  id: number;
+  source: string;
+  destination: string;
+  /**
+   * 308 is the recommended permanent redirect. Only public GET/HEAD requests are redirected.
+   */
+  statusCode: number;
+  status: 'draft' | 'published';
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * In-depth guides that help customers plan, pack and find the right storage. Manage the writing, images and search details in one place.
  *
  * This interface was referenced by `Config`'s JSON-Schema
@@ -198,7 +328,7 @@ export interface StorageInsight {
     root: {
       type: string;
       children: {
-        type: string;
+        type: any;
         version: number;
         [k: string]: unknown;
       }[];
@@ -229,6 +359,10 @@ export interface StorageInsight {
         id?: string | null;
       }[]
     | null;
+  /**
+   * Published content stays available by its link, but is excluded from the sitemap and asks search engines not to index it. This is not privacy protection. Canonical addresses are generated from the published page address.
+   */
+  noIndex?: boolean | null;
   seoTitle: string;
   metaDescription: string;
   primaryKeyword: string;
@@ -256,30 +390,6 @@ export interface StorageInsight {
   createdAt: string;
 }
 /**
- * Your website photography and artwork. Upload a clear, high-quality image and add a short description for accessibility.
- *
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "media".
- */
-export interface Media {
-  id: number;
-  /**
-   * Describe what is in the image. This helps people using screen readers and makes your library easier to understand.
-   */
-  alt?: string | null;
-  updatedAt: string;
-  createdAt: string;
-  url?: string | null;
-  thumbnailURL?: string | null;
-  filename?: string | null;
-  mimeType?: string | null;
-  filesize?: number | null;
-  width?: number | null;
-  height?: number | null;
-  focalX?: number | null;
-  focalY?: number | null;
-}
-/**
  * People with access to this content studio. Website customers and staff operations are managed in the CRM.
  *
  * This interface was referenced by `Config`'s JSON-Schema
@@ -292,14 +402,24 @@ export interface User {
   enableAPIKey?: boolean | null;
   apiKey?: string | null;
   apiKeyIndex?: string | null;
+  hasAPIKey?: boolean | null;
   email: string;
   resetPasswordToken?: string | null;
   resetPasswordExpiration?: string | null;
   salt?: string | null;
   hash?: string | null;
+  resetPasswordRequestedAt?: string | null;
   loginAttempts?: number | null;
   lockUntil?: string | null;
+  sessions?:
+    | {
+        id: string;
+        createdAt?: string | null;
+        expiresAt: string;
+      }[]
+    | null;
   password?: string | null;
+  collection: 'users';
 }
 /**
  * News, stories and practical advice. Open an article to edit its content, imagery and search information.
@@ -319,7 +439,7 @@ export interface Post {
     root: {
       type: string;
       children: {
-        type: string;
+        type: any;
         version: number;
         [k: string]: unknown;
       }[];
@@ -337,6 +457,10 @@ export interface Post {
         id?: string | null;
       }[]
     | null;
+  /**
+   * Published content stays available by its link, but is excluded from the sitemap and asks search engines not to index it. This is not privacy protection. Canonical addresses are generated from the published page address.
+   */
+  noIndex?: boolean | null;
   /**
    * Check the article before setting it to Published.
    */
@@ -402,6 +526,23 @@ export interface Area {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "payload-kv".
+ */
+export interface PayloadKv {
+  id: number;
+  key: string;
+  data:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-locked-documents".
  */
 export interface PayloadLockedDocument {
@@ -410,6 +551,14 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'content-ideas';
         value: number | ContentIdea;
+      } | null)
+    | ({
+        relationTo: 'page-seo';
+        value: number | PageSeo;
+      } | null)
+    | ({
+        relationTo: 'redirects';
+        value: number | Redirect;
       } | null)
     | ({
         relationTo: 'storage-insights';
@@ -497,6 +646,35 @@ export interface ContentIdeasSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "page-seo_select".
+ */
+export interface PageSeoSelect<T extends boolean = true> {
+  path?: T;
+  seoTitle?: T;
+  metaDescription?: T;
+  canonicalPath?: T;
+  noIndex?: T;
+  ogTitle?: T;
+  ogDescription?: T;
+  socialImage?: T;
+  status?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "redirects_select".
+ */
+export interface RedirectsSelect<T extends boolean = true> {
+  source?: T;
+  destination?: T;
+  statusCode?: T;
+  status?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "storage-insights_select".
  */
 export interface StorageInsightsSelect<T extends boolean = true> {
@@ -521,6 +699,7 @@ export interface StorageInsightsSelect<T extends boolean = true> {
         anchorText?: T;
         id?: T;
       };
+  noIndex?: T;
   seoTitle?: T;
   metaDescription?: T;
   primaryKeyword?: T;
@@ -551,13 +730,22 @@ export interface UsersSelect<T extends boolean = true> {
   enableAPIKey?: T;
   apiKey?: T;
   apiKeyIndex?: T;
+  hasAPIKey?: T;
   email?: T;
   resetPasswordToken?: T;
   resetPasswordExpiration?: T;
   salt?: T;
   hash?: T;
+  resetPasswordRequestedAt?: T;
   loginAttempts?: T;
   lockUntil?: T;
+  sessions?:
+    | T
+    | {
+        id?: T;
+        createdAt?: T;
+        expiresAt?: T;
+      };
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -593,6 +781,7 @@ export interface PostsSelect<T extends boolean = true> {
         tag?: T;
         id?: T;
       };
+  noIndex?: T;
   status?: T;
   publishedAt?: T;
   meta?:
@@ -641,6 +830,14 @@ export interface AreasSelect<T extends boolean = true> {
       };
   updatedAt?: T;
   createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "payload-kv_select".
+ */
+export interface PayloadKvSelect<T extends boolean = true> {
+  key?: T;
+  data?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -829,6 +1026,16 @@ export interface MicroWarehousingSelect<T extends boolean = true> {
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "collections_widget".
+ */
+export interface CollectionsWidget {
+  data?: {
+    [k: string]: unknown;
+  };
+  width: 'full';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

@@ -6,6 +6,8 @@ import { Gutter } from '@payloadcms/ui'
 import { BrandLogo } from './BrandLogo'
 
 const sections = [
+  { slug: 'page-seo', title: 'Page search settings', mark: 'SEO', description: 'Edit fixed-page search and social previews, canonical pages and index eligibility.' },
+  { slug: 'redirects', title: 'Website redirects', mark: 'URL', description: 'Review and publish safe redirects from retired public addresses.' },
 
   {
     slug: 'storage-insights',
@@ -78,6 +80,8 @@ export async function Workspace({ payload, user, permissions, visibleEntities }:
         section: title,
         title: String(
           ('title' in doc && doc.title) ||
+            ('path' in doc && doc.path) ||
+            ('source' in doc && doc.source) ||
             ('question' in doc && doc.question) ||
             ('filename' in doc && doc.filename) ||
             ('name' in doc && doc.name) ||

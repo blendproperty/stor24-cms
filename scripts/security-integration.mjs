@@ -6,6 +6,8 @@ import { writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { verifyCmsXss } from './xss-browser.mjs';
+import { verifyEditorSeoHttp } from './editor-seo-http.mjs';
+import { verifyEditorSeoUi } from './editor-seo-ui.mjs';
 
 assert.equal(process.env.CMS_SECURITY_DB_TEST, 'isolated-ci');
 const uri = new URL(process.env.DATABASE_URI);
@@ -61,11 +63,15 @@ try {
   // Loopback-only health read on the isolated test server.
   // nosemgrep: typescript.react.security.react-insecure-request.react-insecure-request
   expect((await fetch(origin + '/admin/login')).ok, 'CMS login is healthy');
+  const adminTranslation = await api('/admin/translation-schema.json');
+  expect(adminTranslation.response.ok && adminTranslation.response.headers.get('x-robots-tag') === 'noindex, nofollow', 'CMS admin JSON remains usable and is excluded from search');
   const login = await api('/api/users/login', { method: 'POST', body: JSON.stringify({ email, password }) });
   expect(login.response.ok && login.body.token, 'Legacy password authenticates and creates a current session');
   const cookie = login.response.headers.get('set-cookie') || '';
   expect(/;\s*Secure/i.test(cookie) && /;\s*HttpOnly/i.test(cookie) && /;\s*SameSite=Lax/i.test(cookie), 'Production authentication cookie is Secure, HttpOnly and SameSite=Lax');
   const token = login.body.token;
+  const editorSeo = await verifyEditorSeoHttp({ api, token, expect, publishedPostSlug: fixtures[0].published.slug });
+  checks += await verifyEditorSeoUi({origin,token,cookieName:'payload-token',pageSeoId:editorSeo.id});
   for (const [method, path] of [['POST', '/api/media'], ['PATCH', '/api/media/1']]) {
     const anonymousFile = new FormData();
     anonymousFile.set('file', new Blob(['not a raster image'], { type: 'image/png' }), 'synthetic-invalid.png');
@@ -100,6 +106,14 @@ try {
     expect(direct.response.status === 404, `${collection} anonymous by-ID denies draft`);
     const visible = await api(`/api/${collection}/${published.id}`);
     expect(visible.response.ok && visible.body.id === published.id, `${collection} published document stays public`);
+    const anonymousIndexEdit = await api(`/api/${collection}/${published.id}`, { method: 'PATCH', body: JSON.stringify({ noIndex: true }) });
+    expect([401, 403].includes(anonymousIndexEdit.response.status), `${collection} anonymous visitors cannot edit search eligibility`);
+    const excluded = await api(`/api/${collection}/${published.id}`, { method: 'PATCH', headers: { authorization: `JWT ${token}` }, body: JSON.stringify({ noIndex: true }) });
+    expect(excluded.response.ok && excluded.body.doc.noIndex === true, `${collection} editor can save search exclusion`);
+    const excludedRead = await api(`/api/${collection}/${published.id}`);
+    expect(excludedRead.response.ok && excludedRead.body.noIndex === true, `${collection} excluded published content remains public by link`);
+    const restoredIndex = await api(`/api/${collection}/${published.id}`, { method: 'PATCH', headers: { authorization: `JWT ${token}` }, body: JSON.stringify({ noIndex: false }) });
+    expect(restoredIndex.response.ok && restoredIndex.body.doc.noIndex === false, `${collection} editor can restore search eligibility`);
     const privateView = await api(`/api/${collection}/${draft.id}`, { headers: { authorization: `JWT ${token}` } });
     expect(privateView.response.ok && privateView.body.title === draft.title, `${collection} editor retains draft access`);
     if (related) {

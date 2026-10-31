@@ -3,7 +3,7 @@ export type SeoDocument = {
   title?: string | null; slug?: string | null; excerpt?: string | null; status?: string | null
   seoTitle?: string | null; metaDescription?: string | null; primaryKeyword?: string | null
   meta?: { title?: string | null; description?: string | null } | null
-  content?: unknown
+  content?: unknown; noIndex?: boolean | null
 }
 type RichNode = { type?: string; tag?: string; text?: string; children?: RichNode[]; fields?: { url?: string } }
 export function auditDocument(doc: SeoDocument, guide = false) {
@@ -16,6 +16,7 @@ export function auditDocument(doc: SeoDocument, guide = false) {
   const body = nodes.map(n => n.text || '').join(' ').trim()
   const words = body ? body.split(/\s+/).length : 0
   const issues: string[] = []
+  if (doc.noIndex) issues.push('Excluded from search results by editor choice. Clear the search exclusion if this page should be discoverable.')
   if (!title) issues.push('Write a search title. The page title is currently used as a fallback.')
   else if (title.length > 65) issues.push('Review the long search title; Google may shorten it.')
   if (!description) issues.push('Write a search description. The excerpt is currently used as a fallback.')
