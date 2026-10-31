@@ -915,3 +915,18 @@ Commit/push, merge, deployment/configuration and live verification: pending for 
 - Hosted CI on 2026-10-31: dependency audit failed on the newly listed minimatch advisory GHSA-g3hv-75wg-m249 (CVE-2026-118764), covering versions below 11.0.1. Existing consumers include older CommonJS APIs; an untested global major upgrade is not established safe. The source guard is pushed as PR #66 but cannot be merged while required checks fail; no scan or protection has been waived. Assess upstream-compatible fixes and test consumers before promotion.
 
 2026-10-31 conflict resolution: incorporated the current CMS main context and preserved the migration-guard history. Main now includes a minimatch compatibility change; the earlier failed audit remains historical evidence and fresh exact-head CI must determine current status. The guard remains unmerged and undeployed; database role separation, migration/backup recovery and production verification remain outstanding.
+
+
+### 2026-10-31 — isolated migration credential file candidate
+
+Implementation: the opt-in migration launcher can read a migration-only URL from the fixed /run/secrets/stor24_migration_url path, with POSIX file ownership, permissions, type and content checks; it rejects mixed credential sources. The CRM opt-in runtime credential preflight also rejects the migration-file environment variable. This does not itself configure a secret mount or prevent a runtime container from receiving one.
+
+Testing: focused migration-connection tests passed on Windows, with POSIX-only cases skipped, and in isolated networkless Linux Node 24.22.1 containers (CRM 6/6 including runtime preflight; CMS 5/5). Independent review identified trusted parent-directory and mount isolation as necessary deployment assumptions. Tests use synthetic credentials and do not demonstrate production credential isolation or actual migration and backup roles.
+
+Commit/push, merge, deployment/configuration and live production verification: pending for this candidate. Hosted dependency auditing for the preceding migration guard pull requests fails on the newly published minimatch advisory GHSA-g3hv-75wg-m249; no audit bypass was applied. Actual one-off mount wiring, secret custody, production runtime exclusion, full migration and backup recovery, real-user routing, complete RLS and role grants, and staff/customer/editor/provider acceptance remain outstanding. No production database role, policy, credential or data was changed. Preserve all prior data, privacy, training and approval gates.
+
+2026-10-31 promotion update: CMS PR #67, branch codex/migration-file-isolation-20261031 was committed and pushed as a draft, based on the migration guard branch. Merge, deployment, configuration and live production verification remain pending.
+
+2026-10-31 further test attempt: the CRM production-shaped migrator image installed its dependencies, but Docker image export/unpack did not complete in time and the disposable PostgreSQL migration rehearsal did not run. This is not a passed real-migration test; repeat it, verify one-off secret mount isolation and backup/recovery before any production cutover. The preceding security-check failure remains unresolved.
+
+2026-10-31: refreshed the CMS credential-file draft from the conflict-resolved migration-guard branch; both histories are preserved. Draft merge, production secret mounting, deployment and live verification remain pending.
