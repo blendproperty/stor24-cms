@@ -34,7 +34,7 @@ export function editorialCollection(collection: CollectionConfig): CollectionCon
         'Choose the image and topics that help readers find this article.',
         named(['featuredImage', 'tags']),
       ),
-      ...sidebar(['status', 'publishedAt']),
+      ...sidebar(['status', 'publishedAt', 'noIndex']),
     ]
   if (collection.slug === 'areas')
     collection.fields = [

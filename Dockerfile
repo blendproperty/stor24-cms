@@ -4,6 +4,7 @@ LABEL org.opencontainers.image.revision=$RELEASE_SHA
 WORKDIR /app
 COPY package.json package-lock.json .npmrc ./
 COPY vendor/deepmerge ./vendor/deepmerge
+COPY vendor/minimatch-compat ./vendor/minimatch-compat
 RUN npm ci
 COPY . .
 ENV NEXT_TELEMETRY_DISABLED=1

@@ -918,4 +918,7 @@ h1, h2, h3 { font-weight: 850; }
   .step-nav .step-nav__home { width: 88px; height: 34px; }
   .step-nav .s24-header-brand { height: 34px; padding: 7px 9px; }
   .s24-header-brand .s24-brand-logo { width: 70px; }
+  .app-header__step-nav-wrapper { flex: 1; overflow: hidden; }
+  .app-header__actions-wrapper { flex-shrink: 0; }
+  .step-nav { max-width: 100%; overflow: hidden; white-space: nowrap; }
 }
