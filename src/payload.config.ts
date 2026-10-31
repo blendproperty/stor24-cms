@@ -1,4 +1,5 @@
 import { published } from "./access";
+import { searchIndexing } from "./fields/search-indexing";
 import { cmsEmail } from "./email";
 import { buildConfig } from "payload";
 import { ContentIdeas } from './collections/ContentIdeas';
@@ -97,6 +98,7 @@ export default buildConfig({
       access: { read: published, create: adminOnly, update: adminOnly, delete: adminOnly },
       admin: { useAsTitle: "title", group: 'Website content', defaultColumns: ['title', 'status', 'updatedAt'], description: 'News, stories and practical advice. Open an article to edit its content, imagery and search information.' },
       fields: [
+        searchIndexing,
         { name: "title", type: "text", required: true },
         { name: "slug", label: 'Page address', type: "text", required: true, unique: true, admin: { description: 'Use lowercase words separated by hyphens. Changing a published address can break existing links.' } },
         { name: "status", type: "select", options: [{ label: 'Draft', value: 'draft' }, { label: 'Published', value: 'published' }], defaultValue: "draft", required: true, admin: { description: 'Check the article before setting it to Published.', components: { Cell: '@/components/Workspace#StatusCell' } } },

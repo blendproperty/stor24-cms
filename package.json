@@ -46,7 +46,8 @@
     "tailwindcss": "4.3.0",
     "autoprefixer": "10.6.1",
     "tsx": "^4.23.13",
-    "@playwright/test": "1.63.0"
+    "@playwright/test": "1.63.0",
+    "minimatch": "file:vendor/minimatch-compat"
   },
   "engines": {
     "node": "^22.23.4 || >=24.22.1",
@@ -63,6 +64,7 @@
     "happy-dom": "21.0.4",
     "esbuild": "0.28.2",
     "deepmerge": "$deepmerge",
-    "graphql-scalars": "2.0.1"
+    "graphql-scalars": "2.0.1",
+    "minimatch": "$minimatch"
   }
 }
