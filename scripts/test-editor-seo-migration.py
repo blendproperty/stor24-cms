@@ -15,8 +15,11 @@ try:
     docker("run", "--detach", "--name", name, "--label", "codex.task=stor24-editor-seo-migration", "--network", "none", "--memory", "256m", "--tmpfs", "/var/lib/postgresql/data", "-e", "POSTGRES_PASSWORD=synthetic-editor-test-only", "-e", "POSTGRES_DB=editor_seo_ci", "postgres:16-alpine")
     started = True
     for _ in range(30):
-        try: docker("exec", name, "pg_isready", "-U", "postgres"); break
+        # The entrypoint briefly accepts Unix-socket connections before creating
+        # the requested database and restarting. TCP is enabled only afterwards.
+        try: docker("exec", name, "pg_isready", "-h", "127.0.0.1", "-U", "postgres", "-d", "editor_seo_ci"); break
         except subprocess.CalledProcessError: time.sleep(1)
+    else: raise RuntimeError("Disposable PostgreSQL did not finish initialization")
     def query(statement):
         return docker("exec", "-i", name, "psql", "-U", "postgres", "-d", "editor_seo_ci", "-v", "ON_ERROR_STOP=1", "-At", stdin=statement)
     query("CREATE TABLE media(id integer PRIMARY KEY); CREATE TABLE posts(id serial PRIMARY KEY,title text); CREATE TABLE storage_insights(id serial PRIMARY KEY,title text); CREATE TABLE payload_locked_documents_rels(id serial PRIMARY KEY,posts_id integer); INSERT INTO media VALUES(1); INSERT INTO posts(title) VALUES('existing article'); INSERT INTO storage_insights(title) VALUES('existing guide'); INSERT INTO payload_locked_documents_rels(posts_id) VALUES(1);")
