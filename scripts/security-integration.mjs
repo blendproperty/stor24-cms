@@ -100,6 +100,14 @@ try {
     expect(direct.response.status === 404, `${collection} anonymous by-ID denies draft`);
     const visible = await api(`/api/${collection}/${published.id}`);
     expect(visible.response.ok && visible.body.id === published.id, `${collection} published document stays public`);
+    const anonymousIndexEdit = await api(`/api/${collection}/${published.id}`, { method: 'PATCH', body: JSON.stringify({ noIndex: true }) });
+    expect([401, 403].includes(anonymousIndexEdit.response.status), `${collection} anonymous visitors cannot edit search eligibility`);
+    const excluded = await api(`/api/${collection}/${published.id}`, { method: 'PATCH', headers: { authorization: `JWT ${token}` }, body: JSON.stringify({ noIndex: true }) });
+    expect(excluded.response.ok && excluded.body.doc.noIndex === true, `${collection} editor can save search exclusion`);
+    const excludedRead = await api(`/api/${collection}/${published.id}`);
+    expect(excludedRead.response.ok && excludedRead.body.noIndex === true, `${collection} excluded published content remains public by link`);
+    const restoredIndex = await api(`/api/${collection}/${published.id}`, { method: 'PATCH', headers: { authorization: `JWT ${token}` }, body: JSON.stringify({ noIndex: false }) });
+    expect(restoredIndex.response.ok && restoredIndex.body.doc.noIndex === false, `${collection} editor can restore search eligibility`);
     const privateView = await api(`/api/${collection}/${draft.id}`, { headers: { authorization: `JWT ${token}` } });
     expect(privateView.response.ok && privateView.body.title === draft.title, `${collection} editor retains draft access`);
     if (related) {
