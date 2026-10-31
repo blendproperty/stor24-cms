@@ -851,3 +851,12 @@ CRM PR #674's hosted CodeQL flagged the test router's user-controlled URL branch
 ### 2026-10-30 — CRM customer portal RLS rehearsal merged
 
 CRM PR #674 final head `71b13d4ce18b52663135ee9ce0c1f2c2ba6c100f` passed hosted real-customer staging, CodeQL, static, transactions and application checks, then merged as `9e8866b451b845d4e23ff6deff5645f658210be8`. This was a test and documentation merge with `[skip ci]`; no production app, routing, database role, credential or RLS policy was deployed. The synthetic three-table role-bound policies and separate staff/customer routers cover the scenarios recorded above, not full production security. Trusted production routing, all related tables and writes, worker access, FORCE RLS, migration/backup and recovery, and real staff/customer/editor/provider acceptance remain outstanding.
+
+
+### 2026-10-31 — migration identity guard hardening
+
+Implementation: both CRM and CMS opt-in migration launchers reject connection query parameters that override URL user/password, and inherited `PGOPTIONS` that can change an effective role. Production release scripts do not currently invoke those launchers.
+
+Testing: before the fix both launchers accepted a synthetic migration URL declaring one login while `?user=` overrode it; a local `pg` client parameter check confirmed the actual override and inherited `PGOPTIONS`. Both repository tests pass for plain, encoded and case-varied overrides, password/options, wrong target and identical roles, and accept a normal distinct-role URL with SSL mode. Independent review found that equivalent hostname case or encoded database names can be rejected conservatively; URL comparison does not prove effective database privileges. No production database was used.
+
+Commit/push, merge, deployment/configuration and live verification: pending for this candidate. No production role, credential, grant or policy changed. Complete credential and migration separation, real-user routing, RLS, FORCE RLS/backup recovery, consumers and staff/customer/editor/provider acceptance remain outstanding; preserve all prior data, privacy, training and approval gates.
