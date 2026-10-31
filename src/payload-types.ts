@@ -68,6 +68,8 @@ export interface Config {
   blocks: {};
   collections: {
     'content-ideas': ContentIdea;
+    'page-seo': PageSeo;
+    redirects: Redirect;
     'storage-insights': StorageInsight;
     users: User;
     media: Media;
@@ -82,6 +84,8 @@ export interface Config {
   collectionsJoins: {};
   collectionsSelect: {
     'content-ideas': ContentIdeasSelect<false> | ContentIdeasSelect<true>;
+    'page-seo': PageSeoSelect<false> | PageSeoSelect<true>;
+    redirects: RedirectsSelect<false> | RedirectsSelect<true>;
     'storage-insights': StorageInsightsSelect<false> | StorageInsightsSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
@@ -169,6 +173,128 @@ export interface ContentIdea {
   format: 'guide' | 'article' | 'faq' | 'location';
   priority: 'high' | 'normal' | 'low';
   targetDate?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Manage search and social previews for existing public pages. Drafts do not affect the website. Blank fields retain the current website defaults. Published changes can take up to one minute.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "page-seo".
+ */
+export interface PageSeo {
+  id: number;
+  /**
+   * These are existing, verified public routes. This does not create or change a page address.
+   */
+  path:
+    | '/'
+    | '/micro-warehousing'
+    | '/personal-storage'
+    | '/business-storage'
+    | '/student-storage'
+    | '/moving-storage'
+    | '/storage-unit-sizes'
+    | '/space-guide'
+    | '/storage/midpoint'
+    | '/storage/melrose'
+    | '/contact'
+    | '/faq'
+    | '/blog'
+    | '/storage-insights'
+    | '/terms'
+    | '/privacy'
+    | '/paia'
+    | '/micro-warehousing/midpoint';
+  seoTitle?: string | null;
+  metaDescription?: string | null;
+  /**
+   * Leave empty to use this page. Choose another page only for equivalent content. Excluded targets and canonical chains cannot be published.
+   */
+  canonicalPath?:
+    | (
+        | '/'
+        | '/micro-warehousing'
+        | '/personal-storage'
+        | '/business-storage'
+        | '/student-storage'
+        | '/moving-storage'
+        | '/storage-unit-sizes'
+        | '/space-guide'
+        | '/storage/midpoint'
+        | '/storage/melrose'
+        | '/contact'
+        | '/faq'
+        | '/blog'
+        | '/storage-insights'
+        | '/terms'
+        | '/privacy'
+        | '/paia'
+        | '/micro-warehousing/midpoint'
+      )
+    | null;
+  /**
+   * The published page stays public by its link, but is removed from the sitemap and asks search engines not to index it. This is not privacy protection. Clear an alternate canonical choice before selecting exclusion.
+   */
+  noIndex?: boolean | null;
+  /**
+   * Optional; otherwise uses the search title.
+   */
+  ogTitle?: string | null;
+  /**
+   * Optional; otherwise uses the search description.
+   */
+  ogDescription?: string | null;
+  /**
+   * Optional; choose approved artwork from the media library.
+   */
+  socialImage?: (number | null) | Media;
+  /**
+   * Review before publishing. Unpublish or remove the record to restore website defaults.
+   */
+  status: 'draft' | 'published';
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Your website photography and artwork. Upload a clear, high-quality image and add a short description for accessibility.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "media".
+ */
+export interface Media {
+  id: number;
+  /**
+   * Describe what is in the image. This helps people using screen readers and makes your library easier to understand.
+   */
+  alt?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  url?: string | null;
+  thumbnailURL?: string | null;
+  filename?: string | null;
+  mimeType?: string | null;
+  filesize?: number | null;
+  width?: number | null;
+  height?: number | null;
+  focalX?: number | null;
+  focalY?: number | null;
+}
+/**
+ * Send an old public address to its replacement. Review the destination before publishing. Drafts do not redirect. Existing booking, payment and required legacy routes are protected. Incoming campaign queries are preserved.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "redirects".
+ */
+export interface Redirect {
+  id: number;
+  source: string;
+  destination: string;
+  /**
+   * 308 is the recommended permanent redirect. Only public GET/HEAD requests are redirected.
+   */
+  statusCode: number;
+  status: 'draft' | 'published';
   updatedAt: string;
   createdAt: string;
 }
@@ -262,30 +388,6 @@ export interface StorageInsight {
   schemaTypes?: ('Article' | 'FAQPage' | 'BreadcrumbList' | 'LocalBusiness' | 'Service')[] | null;
   updatedAt: string;
   createdAt: string;
-}
-/**
- * Your website photography and artwork. Upload a clear, high-quality image and add a short description for accessibility.
- *
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "media".
- */
-export interface Media {
-  id: number;
-  /**
-   * Describe what is in the image. This helps people using screen readers and makes your library easier to understand.
-   */
-  alt?: string | null;
-  updatedAt: string;
-  createdAt: string;
-  url?: string | null;
-  thumbnailURL?: string | null;
-  filename?: string | null;
-  mimeType?: string | null;
-  filesize?: number | null;
-  width?: number | null;
-  height?: number | null;
-  focalX?: number | null;
-  focalY?: number | null;
 }
 /**
  * People with access to this content studio. Website customers and staff operations are managed in the CRM.
@@ -451,6 +553,14 @@ export interface PayloadLockedDocument {
         value: number | ContentIdea;
       } | null)
     | ({
+        relationTo: 'page-seo';
+        value: number | PageSeo;
+      } | null)
+    | ({
+        relationTo: 'redirects';
+        value: number | Redirect;
+      } | null)
+    | ({
         relationTo: 'storage-insights';
         value: number | StorageInsight;
       } | null)
@@ -531,6 +641,35 @@ export interface ContentIdeasSelect<T extends boolean = true> {
   format?: T;
   priority?: T;
   targetDate?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "page-seo_select".
+ */
+export interface PageSeoSelect<T extends boolean = true> {
+  path?: T;
+  seoTitle?: T;
+  metaDescription?: T;
+  canonicalPath?: T;
+  noIndex?: T;
+  ogTitle?: T;
+  ogDescription?: T;
+  socialImage?: T;
+  status?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "redirects_select".
+ */
+export interface RedirectsSelect<T extends boolean = true> {
+  source?: T;
+  destination?: T;
+  statusCode?: T;
+  status?: T;
   updatedAt?: T;
   createdAt?: T;
 }

@@ -1,0 +1,6 @@
+.root { overflow-wrap: anywhere; }
+.kind { margin-bottom: 24px; }
+.kind label { display: block; margin-bottom: 6px; }
+.kind select { width: 100%; min-height: 44px; border: 1px solid #cdd9cf; border-radius: 8px; padding: 10px; font: inherit; color: #173b2b; background: #fff; }
+.kind select:focus { outline: 2px solid #ff6a00; outline-offset: 2px; }
+.kind p { font-size: 12px; line-height: 1.6; }

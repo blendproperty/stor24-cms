@@ -94,6 +94,7 @@ jobs:
       - run: npm ci
       - run: npm test
       - run: python3 scripts/test-search-indexing-migration.py
+      - run: python3 scripts/test-editor-seo-migration.py
       - run: node --test tests/migration-connection.test.mjs tests/baseline-guard.test.mjs
       - run: npm run typecheck
       - run: npx playwright install --with-deps chromium
@@ -200,6 +201,13 @@ jobs:
           DATABASE_URI: postgresql://stage_runtime:synthetic-runtime-only@localhost:55481/cms_rls_restore_ci
           MIGRATION_DATABASE_URL: postgresql://stage_owner:synthetic-owner-only@localhost:55481/cms_rls_restore_ci
         run: node scripts/migrate-with-owner.mjs
+      - name: Retain synthetic editor screenshots
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: cms-editor-seo-ui
+          path: output/editor-seo/
+          if-no-files-found: ignore
   dependencies:
     runs-on: ubuntu-latest
     timeout-minutes: 10
