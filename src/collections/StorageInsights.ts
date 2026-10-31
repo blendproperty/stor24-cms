@@ -1,5 +1,6 @@
 import type { CollectionConfig } from 'payload'
 import { authenticated, published } from '../access'
+import { searchIndexing } from '../fields/search-indexing'
 
 export const StorageInsights: CollectionConfig = {
   slug: 'storage-insights',
@@ -17,6 +18,7 @@ export const StorageInsights: CollectionConfig = {
     delete: authenticated,
   },
   fields: [
+    searchIndexing,
     // ---------- Core ----------
     {
       name: 'title',

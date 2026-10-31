@@ -7,6 +7,7 @@ export function SeoReview({ guide = false }: { guide?: boolean }) {
   const doc: SeoDocument = {
     title: fields.title?.value as string, slug: fields.slug?.value as string,
     excerpt: fields.excerpt?.value as string, content: fields.content?.value,
+    noIndex: fields.noIndex?.value === true,
     seoTitle: fields.seoTitle?.value as string, metaDescription: fields.metaDescription?.value as string,
     primaryKeyword: fields.primaryKeyword?.value as string,
     meta: { title: fields['meta.title']?.value as string, description: fields['meta.description']?.value as string },
