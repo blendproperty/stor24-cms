@@ -6,6 +6,8 @@ import { writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { verifyCmsXss } from './xss-browser.mjs';
+import { verifyEditorSeoHttp } from './editor-seo-http.mjs';
+import { verifyEditorSeoUi } from './editor-seo-ui.mjs';
 
 assert.equal(process.env.CMS_SECURITY_DB_TEST, 'isolated-ci');
 const uri = new URL(process.env.DATABASE_URI);
@@ -68,6 +70,8 @@ try {
   const cookie = login.response.headers.get('set-cookie') || '';
   expect(/;\s*Secure/i.test(cookie) && /;\s*HttpOnly/i.test(cookie) && /;\s*SameSite=Lax/i.test(cookie), 'Production authentication cookie is Secure, HttpOnly and SameSite=Lax');
   const token = login.body.token;
+  const editorSeo = await verifyEditorSeoHttp({ api, token, expect, publishedPostSlug: fixtures[0].published.slug });
+  checks += await verifyEditorSeoUi({origin,token,cookieName:'payload-token',pageSeoId:editorSeo.id});
   for (const [method, path] of [['POST', '/api/media'], ['PATCH', '/api/media/1']]) {
     const anonymousFile = new FormData();
     anonymousFile.set('file', new Blob(['not a raster image'], { type: 'image/png' }), 'synthetic-invalid.png');

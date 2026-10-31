@@ -1,6 +1,10 @@
+import { PageSeoPreview as PageSeoPreview_e414fcf530d4f617034f46ffdea31870 } from '@/components/PublicSeoPreview'
+import { RedirectPreview as RedirectPreview_e414fcf530d4f617034f46ffdea31870 } from '@/components/PublicSeoPreview'
+import { RedirectTypeField as RedirectTypeField_e414fcf530d4f617034f46ffdea31870 } from '@/components/PublicSeoPreview'
 import { SeoReview as SeoReview_be1410066f346954793b8d4c14bc5d82 } from '@/components/SeoReview'
 import { RscEntryLexicalCell as RscEntryLexicalCell_44fe37237e0ebf4470c9990d8cb7b07e } from '@payloadcms/richtext-lexical/rsc'
 import { RscEntryLexicalField as RscEntryLexicalField_44fe37237e0ebf4470c9990d8cb7b07e } from '@payloadcms/richtext-lexical/rsc'
+import { LexicalDiffComponent as LexicalDiffComponent_44fe37237e0ebf4470c9990d8cb7b07e } from '@payloadcms/richtext-lexical/rsc'
 import { InlineToolbarFeatureClient as InlineToolbarFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
 import { HorizontalRuleFeatureClient as HorizontalRuleFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
 import { UploadFeatureClient as UploadFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
@@ -35,11 +39,17 @@ import { NavFooter as NavFooter_c67f77f7520ceb580da4334938604056 } from '@/compo
 import { LoginIntro as LoginIntro_c67f77f7520ceb580da4334938604056 } from '@/components/Workspace'
 import { NavIntro as NavIntro_c67f77f7520ceb580da4334938604056 } from '@/components/Workspace'
 import { Workspace as Workspace_c67f77f7520ceb580da4334938604056 } from '@/components/Workspace'
+import { CollectionCards as CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1 } from '@payloadcms/next/rsc'
 
+/** @type import('payload').ImportMap */
 export const importMap = {
+  "@/components/PublicSeoPreview#PageSeoPreview": PageSeoPreview_e414fcf530d4f617034f46ffdea31870,
+  "@/components/PublicSeoPreview#RedirectPreview": RedirectPreview_e414fcf530d4f617034f46ffdea31870,
+  "@/components/PublicSeoPreview#RedirectTypeField": RedirectTypeField_e414fcf530d4f617034f46ffdea31870,
   "@/components/SeoReview#SeoReview": SeoReview_be1410066f346954793b8d4c14bc5d82,
   "@payloadcms/richtext-lexical/rsc#RscEntryLexicalCell": RscEntryLexicalCell_44fe37237e0ebf4470c9990d8cb7b07e,
   "@payloadcms/richtext-lexical/rsc#RscEntryLexicalField": RscEntryLexicalField_44fe37237e0ebf4470c9990d8cb7b07e,
+  "@payloadcms/richtext-lexical/rsc#LexicalDiffComponent": LexicalDiffComponent_44fe37237e0ebf4470c9990d8cb7b07e,
   "@payloadcms/richtext-lexical/client#InlineToolbarFeatureClient": InlineToolbarFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "@payloadcms/richtext-lexical/client#HorizontalRuleFeatureClient": HorizontalRuleFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "@payloadcms/richtext-lexical/client#UploadFeatureClient": UploadFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
@@ -73,5 +83,6 @@ export const importMap = {
   "@/components/Workspace#NavFooter": NavFooter_c67f77f7520ceb580da4334938604056,
   "@/components/Workspace#LoginIntro": LoginIntro_c67f77f7520ceb580da4334938604056,
   "@/components/Workspace#NavIntro": NavIntro_c67f77f7520ceb580da4334938604056,
-  "@/components/Workspace#Workspace": Workspace_c67f77f7520ceb580da4334938604056
+  "@/components/Workspace#Workspace": Workspace_c67f77f7520ceb580da4334938604056,
+  "@payloadcms/next/rsc#CollectionCards": CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1
 }

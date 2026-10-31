@@ -3,6 +3,8 @@ import { searchIndexing } from "./fields/search-indexing";
 import { cmsEmail } from "./email";
 import { buildConfig } from "payload";
 import { ContentIdeas } from './collections/ContentIdeas';
+import { PageSeo } from './collections/PageSeo';
+import { Redirects } from './collections/Redirects';
 import { postgresAdapter } from "@payloadcms/db-postgres";
 import { lexicalEditor } from "@payloadcms/richtext-lexical";
 import { seoPlugin } from "@payloadcms/plugin-seo";
@@ -59,6 +61,8 @@ export default buildConfig({
   ],
   collections: ([
     ContentIdeas,
+    PageSeo,
+    Redirects,
     StorageInsights,
     {
       slug: "users",
