@@ -862,3 +862,12 @@ Testing: before the fix both launchers accepted a synthetic migration URL declar
 Commit/push, merge, deployment/configuration and live verification: pending for this candidate. No production role, credential, grant or policy changed. Complete credential and migration separation, real-user routing, RLS, FORCE RLS/backup recovery, consumers and staff/customer/editor/provider acceptance remain outstanding; preserve all prior data, privacy, training and approval gates.
 
 - Hosted CI on 2026-10-31: dependency audit failed on the newly listed minimatch advisory GHSA-g3hv-75wg-m249 (CVE-2026-118764), covering versions below 11.0.1. Existing consumers include older CommonJS APIs; an untested global major upgrade is not established safe. The source guard is pushed as PR #66 but cannot be merged while required checks fail; no scan or protection has been waived. Assess upstream-compatible fixes and test consumers before promotion.
+
+
+### 2026-10-31 — isolated migration credential file candidate
+
+Implementation: the opt-in migration launcher can read a migration-only URL from the fixed /run/secrets/stor24_migration_url path, with POSIX file ownership, permissions, type and content checks; it rejects mixed credential sources. The CRM opt-in runtime credential preflight also rejects the migration-file environment variable. This does not itself configure a secret mount or prevent a runtime container from receiving one.
+
+Testing: focused migration-connection tests passed on Windows, with POSIX-only cases skipped, and in isolated networkless Linux Node 24.22.1 containers (CRM 6/6 including runtime preflight; CMS 5/5). Independent review identified trusted parent-directory and mount isolation as necessary deployment assumptions. Tests use synthetic credentials and do not demonstrate production credential isolation or actual migration and backup roles.
+
+Commit/push, merge, deployment/configuration and live production verification: pending for this candidate. Hosted dependency auditing for the preceding migration guard pull requests fails on the newly published minimatch advisory GHSA-g3hv-75wg-m249; no audit bypass was applied. Actual one-off mount wiring, secret custody, production runtime exclusion, full migration and backup recovery, real-user routing, complete RLS and role grants, and staff/customer/editor/provider acceptance remain outstanding. No production database role, policy, credential or data was changed. Preserve all prior data, privacy, training and approval gates.
