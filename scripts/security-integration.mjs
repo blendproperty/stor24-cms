@@ -61,6 +61,8 @@ try {
   // Loopback-only health read on the isolated test server.
   // nosemgrep: typescript.react.security.react-insecure-request.react-insecure-request
   expect((await fetch(origin + '/admin/login')).ok, 'CMS login is healthy');
+  const adminTranslation = await api('/admin/translation-schema.json');
+  expect(adminTranslation.response.ok && adminTranslation.response.headers.get('x-robots-tag') === 'noindex, nofollow', 'CMS admin JSON remains usable and is excluded from search');
   const login = await api('/api/users/login', { method: 'POST', body: JSON.stringify({ email, password }) });
   expect(login.response.ok && login.body.token, 'Legacy password authenticates and creates a current session');
   const cookie = login.response.headers.get('set-cookie') || '';
