@@ -1113,3 +1113,13 @@ The website canonical context entry dated 24 October records earlier remediation
 
 
 2026-11-02 test follow-up: candidate e963184a6ce7033c77dfca29138dd91c42478bf8 passed CMS Security workflow 41450453283, including reconstructed-baseline restricted-runtime validation, public/editor HTTP isolation with the narrowed public SELECT grant set, and full synthetic schema backup/restore with forced RLS. The candidate remains staging-only; these results do not establish production routing, complete public-content coverage, live backup/recovery or role separation. The evidence-only follow-up and final promotion remain subject to their exact-head checks. No production configuration, credentials, policies or data were changed.
+
+
+### 2026-11-02 — CMS staging-grant release receipt
+
+- Implementation: CMS PR 88 limits the synthetic public-role rehearsal to an explicit set of publication tables and asserts no other public-schema tables are readable. This changes staging test code only; it does not apply production grants, role routing or RLS policies.
+- Testing: exact PR head ff96e5fb087ab8a40840ae5b72d05ffdbb7d441e passed Security 41450940766, including CMS public/editor HTTP isolation and synthetic full-schema RLS backup/restore. Exact merged main 0a86976859bbc7554dec8fc82a19773b674749b2 passed Security 41451371505. These results cover synthetic test scope, not full production access or recovery.
+- Commit/push/merge: PR 88 squash-merged as 0a86976859bbc7554dec8fc82a19773b674749b2. This documentation receipt requires its own normal review and checks.
+- Deployment/configuration: automatic CMS Deploy 41451847591 reported successful deployment of the exact revision at 13:21:57 UTC. This release did not create or change production database roles, RLS policies or migration credentials.
+- Live production verification: shortly after deployment, CMS /admin/login and website /api/health each returned HTTP 200. These are availability checks, not editor/customer acceptance, production RLS validation or backup proof.
+- Outstanding: complete CRM and CMS production role separation, real-user and worker routing, full policy and related-table coverage, protected migration/backup credentials and full recovery verification. Preserve all previous privacy, data, provider, editor/staff/customer, training and acceptance gates.
