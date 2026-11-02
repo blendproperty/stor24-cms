@@ -1061,3 +1061,18 @@ Commit/push and merge: the mount candidate remains a draft; this evidence-only r
 
 
 2026-11-02 SSH follow-up: local inspection confirmed the existing named administrator private key is passphrase-protected and the Windows OpenSSH agent was disabled and stopped. The earlier non-interactive public-key rejection does not establish that the previously verified server account or authorized key is broken. The user was asked to unlock the existing key privately; no passphrase was requested in chat, no server credential or access policy was changed, and no alternate identity was used. Fresh authorised host preflight, role separation, trusted routing, RLS and recovery remain outstanding. This documentation receipt requires normal checks and promotion.
+
+
+### 2026-11-02 — CMS migration-only mount candidate
+
+Implementation: added an opt-in Compose overlay for a separately mounted migration secret; ordinary application services are unchanged in the synthetic configuration test. This is not wired into the production release and does not change database roles or RLS.
+Testing: focused Compose configuration tests pass locally, including absent-path rejection; a CRM Windows-hosted mounted-file probe exposed mode 0777 and was correctly rejected by the existing strict launcher. The Linux-only container probe, real migration using this overlay, full release/rollback and production file custody remain unverified pending hosted and staging checks. See docs/database-migration-mount-stage.md.
+Commit/push, merge, deployment/configuration and live production verification: pending. Production role and grant review, trusted user routing, RLS, full backup and restore, and all provider, data, privacy, training and staff/customer/editor acceptance gates remain open.
+
+2026-11-02: added a hosted end-to-end synthetic PostgreSQL rehearsal using the real migration image with the proposed Compose secret mount. This new test is pending; it does not change or verify production release integration, credential custody, roles or RLS.
+
+2026-11-02 test update: source 2ade8ae86b30ca5084e67d911e583f53bac590ee, hosted Security 41406040527, passed the synthetic Linux Compose secret mount probe and the actual migration image/launcher against an already-migrated disposable PostgreSQL database. This does not prove applying a pending migration, production mounts, runtime credential exclusion or a deployed role/RLS boundary. A read-only credential preflight using the named administrator account was rejected at SSH public-key authentication; no alternate identity was used. Production host preflight, real-user routing, grants, RLS and recovery remain outstanding.
+
+2026-11-02: refreshed the mount candidate after documentation receipt PR 82. Fresh exact-head checks are required; host preflight, production integration and role/RLS rollout remain outstanding.
+
+2026-11-02: refreshed the CMS mount candidate after the administrator-key clarification receipt. Fresh checks, host preflight, release integration and production role/RLS rollout remain outstanding.

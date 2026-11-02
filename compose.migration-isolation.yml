@@ -1,0 +1,18 @@
+services:
+  migrate-isolated:
+    image: stor24-cms:${IMAGE_TAG:-latest}
+    profiles: ["tools"]
+    command: ["node", "scripts/migrate-with-owner.mjs"]
+    environment:
+      NODE_ENV: production
+      DATABASE_URI: ${DATABASE_URI:?runtime database URI is required}
+      PAYLOAD_SECRET: ${PAYLOAD_SECRET:?Payload secret is required}
+      MIGRATION_DATABASE_URL_FILE: /run/secrets/stor24_migration_url
+    secrets:
+      - source: stor24_migration_url
+        target: stor24_migration_url
+    networks:
+      - root_default
+secrets:
+  stor24_migration_url:
+    file: ${STOR24_MIGRATION_SECRET_FILE:?migration-only secret file is required}
