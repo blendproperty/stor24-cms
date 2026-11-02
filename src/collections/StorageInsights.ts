@@ -1,6 +1,7 @@
 import type { CollectionConfig } from 'payload'
 import { authenticated, published } from '../access'
 import { searchIndexing } from '../fields/search-indexing'
+import { validateContentSlug } from '../lib/public-seo-rules'
 
 export const StorageInsights: CollectionConfig = {
   slug: 'storage-insights',
@@ -29,6 +30,7 @@ export const StorageInsights: CollectionConfig = {
     {
       name: 'slug',
       type: 'text',
+      validate: validateContentSlug,
       required: true,
       unique: true,
       index: true,
