@@ -1,6 +1,11 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { normalizeRedirectPath, redirectPathIssue, redirectGraphIssue, pageSeoIssue } from '../src/lib/public-seo-rules'
+import { normalizeRedirectPath, redirectPathIssue, redirectGraphIssue, pageSeoIssue, validateContentSlug } from '../src/lib/public-seo-rules'
+
+test('CMS article and guide slugs stay compatible with the website schema routes', () => {
+  for (const slug of ['self-storage-johannesburg-guide', '5-tips-storing-johannesburg', 'guide-2026']) assert.equal(validateContentSlug(slug), true)
+  for (const slug of ['', undefined, null, 123, 'Storage', 'storage guide', 'guide/path', 'guide?utm_source=x', 'guide#faq', '%2fprivate', '../book']) assert.equal(typeof validateContentSlug(slug), 'string')
+})
 
 test('public redirect paths cannot escape the canonical host or protected flows', () => {
   assert.equal(normalizeRedirectPath('https://stor24.co.za/retired-page'), '/retired-page')

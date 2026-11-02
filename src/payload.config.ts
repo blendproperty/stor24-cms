@@ -13,6 +13,7 @@ import { MicroWarehousing } from "./globals/MicroWarehousing";
 import { HomepageHero } from "./globals/HomepageHero";
 import { editorialCollection } from "./admin/editorial";
 import { protectMediaUpload } from './media-security';
+import { validateContentSlug } from './lib/public-seo-rules';
 import sharp from 'sharp';
 import path from "path";
 import { fileURLToPath } from "url";
@@ -104,7 +105,7 @@ export default buildConfig({
       fields: [
         searchIndexing,
         { name: "title", type: "text", required: true },
-        { name: "slug", label: 'Page address', type: "text", required: true, unique: true, admin: { description: 'Use lowercase words separated by hyphens. Changing a published address can break existing links.' } },
+        { name: "slug", label: 'Page address', type: "text", required: true, unique: true, validate: validateContentSlug, admin: { description: 'Use lowercase words separated by hyphens. Changing a published address can break existing links.' } },
         { name: "status", type: "select", options: [{ label: 'Draft', value: 'draft' }, { label: 'Published', value: 'published' }], defaultValue: "draft", required: true, admin: { description: 'Check the article before setting it to Published.', components: { Cell: '@/components/Workspace#StatusCell' } } },
         { name: "publishedAt", type: "date" },
         { name: "excerpt", type: "textarea" },
