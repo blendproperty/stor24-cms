@@ -1041,3 +1041,13 @@ Commit/push, merge, deployment/configuration and live production verification: p
 2026-11-02: added a hosted synthetic PostgreSQL rehearsal of the actual migration CLI using the protected migration-only secret file. Local networkless Linux file-security tests passed; the new real-migration CI step, merge, deployment and live verification remain pending. It does not prove production mount isolation, secret custody, role routing or full recovery.
 
 2026-11-02: rebased the CMS credential-file candidate by merging main after PR 66; original main history and draft evidence remain. New exact-head checks and production integration remain pending.
+
+
+## 2026-11-02 - CMS migration credential hardening release evidence
+
+Implementation: migration identity guard rejects connection parameters and PGOPTIONS that can change the effective database login; the follow-up adds an optional protected migration-only file source. These controls are opt-in and do not configure separate production database identities or enable RLS.
+Testing: PR 66 final bba7e907037d98a90746bda739080ea67c439692 passed Security 41388655490; PR 67 final bc0d30d238514c7bf8cc7100817b1c244f2edd2f passed Security 41388924859, including a real migration command using a synthetic PostgreSQL database and protected file. Networkless Linux file tests passed 5/5. These do not prove production mount isolation or actual-user routing.
+Commit/push and merge: PR 66 squash-merged as 7487a7aa7c7ee341bd90bf846eb31013a5a5acea; PR 67 squash-merged as 752dbdae46910666502f256d43488112d45be824. Exact-main Security 41388875082 passed for the first release; the second exact-main Security 41389513131 passed all eight jobs.
+Deployment and configuration: CMS deployment 41389152743 reports the first release deployed as 7487a7aa at 04:36:43 UTC. The second restricted deployment 41389703553 reported the exact 752dbdae46910666502f256d43488112d45be824 release deployed at 04:43:09 UTC. No production DB roles, privileges, policies, secret mounts or credentials were changed by these candidates.
+Live production verification: the first restricted deployment reports its exact release SHA; separate public/editor live acceptance has not been established by this receipt. The second restricted deployment reported its exact release SHA; independent public/editor live acceptance remains unverified.
+Outstanding: production runtime/migrator/backup identities and trusted credential custody, access inventory, real-user routing, RLS policy coverage, backup/restore with RLS, CMS original migration baseline, provider/editor/staff/customer and all earlier privacy, data, training and recovery gates.
