@@ -29,7 +29,9 @@ export async function verifyEditorSeoUi({origin,token,cookieName,pageSeoId}) {
       await page.goto(origin+'/admin/collections/storage-insights/create');
       await expect(page.getByRole('heading',{name:'Search readiness',exact:true})).toBeVisible();
       await expect(page.getByText('Search data updates automatically', {exact:false})).toContainText('Google no longer offers FAQ rich results');
-      await expect(page.locator('#field-schemaTypes')).toHaveCount(0);
+      // Payload retains hidden values in a hidden input rather than removing the DOM field.
+      await expect(page.locator('#field-schemaTypes')).toHaveAttribute('type','hidden');
+      await expect(page.locator('#field-schemaTypes')).not.toBeVisible();
       await page.locator('#field-title').fill('Synthetic guide title');
       await expect(page.locator('.s24-search-preview strong')).toHaveText('Synthetic guide title');
       assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
