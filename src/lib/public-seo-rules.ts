@@ -4,6 +4,12 @@ export const MANAGED_PAGE_PATHS = [...STATIC_PAGE_PATHS, '/micro-warehousing/mid
 export type PageSeoRule = { path: string; canonicalPath?: string | null; noIndex?: boolean | null }
 export type RedirectRule = { source: string; destination: string; statusCode: number }
 
+// Keep CMS addresses inside the public website's dynamic-route/schema contract.
+export function validateContentSlug(value: unknown): true | string {
+  return typeof value === 'string' && /^[a-z0-9-]+$/.test(value)
+    ? true : 'Use lowercase letters, numbers and hyphens only, for example storage-size-guide.'
+}
+
 export function pageSeoIssue(rows: PageSeoRule[]): string | null {
   const pages = new Map(rows.map(row => [row.path, row]))
   if (pages.size !== rows.length) return 'Each page can have only one search settings record.'
