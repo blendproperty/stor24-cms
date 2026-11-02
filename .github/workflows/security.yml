@@ -123,6 +123,20 @@ jobs:
           node scripts/bootstrap-reconstructed-baseline.mjs
           if node scripts/bootstrap-reconstructed-baseline.mjs; then echo 'Repeated bootstrap must fail'; exit 1; fi
           node scripts/migrate-with-owner.mjs
+      - name: Exercise migration-only secret file with the real database
+        env:
+          DATABASE_URI: postgresql://stage_runtime:synthetic-runtime-only@localhost:55481/cms_baseline_replay_ci
+          NODE_ENV: production
+          PAYLOAD_SECRET: synthetic-ci-security-secret-at-least-32-characters
+        run: |
+          set -eu
+          if [ -e /run/secrets ]; then echo 'Unexpected secret directory'; exit 1; fi
+          sudo mkdir -m 700 /run/secrets
+          sudo chown "$(id -u):$(id -g)" /run/secrets
+          trap 'rm -f /run/secrets/stor24_migration_url; sudo rmdir /run/secrets' EXIT
+          umask 077
+          printf '%s' 'postgresql://stage_owner:synthetic-owner-only@localhost:55481/cms_baseline_replay_ci' > /run/secrets/stor24_migration_url
+          MIGRATION_DATABASE_URL_FILE=/run/secrets/stor24_migration_url node scripts/migrate-with-owner.mjs
       - name: Grant restricted runtime privileges in disposable staging only
         env:
           PGPASSWORD: synthetic-ci
