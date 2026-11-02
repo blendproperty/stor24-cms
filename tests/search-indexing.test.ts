@@ -23,3 +23,12 @@ test('SEO review makes a saved editor search exclusion visible', () => {
   assert.ok(auditDocument({noIndex:true}).issues.some(issue => issue.startsWith('Excluded from search results')))
   assert.ok(!auditDocument({noIndex:false}).issues.some(issue => issue.startsWith('Excluded from search results')))
 })
+
+test('guide layout retains legacy schema data without offering an ignored schema switch', () => {
+  const guide = editorialCollection({...StorageInsights, fields:[...StorageInsights.fields]})
+  const fields = flatten(guide.fields).filter(field => 'name' in field && field.name === 'schemaTypes')
+  assert.equal(fields.length, 1)
+  assert.equal(fields[0].type, 'select')
+  assert.equal(fields[0].admin?.hidden, true)
+  assert.ok(flatten(guide.fields).some(field => 'name' in field && field.name === 'seoReview'))
+})
