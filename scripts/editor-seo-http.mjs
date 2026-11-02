@@ -34,6 +34,18 @@ export async function verifyEditorSeoHttp({ api, token, expect, publishedPostSlu
   expect(legacyGuide.response.ok,'Editor can retain existing guide schema reference data');
   const editedGuide=await save(`/api/storage-insights/${legacyGuide.body.doc.id}`,{excerpt:'Synthetic revised guide summary.'},'PATCH');
   expect(editedGuide.response.ok && JSON.stringify(editedGuide.body.doc.schemaTypes)===JSON.stringify(['Article']),'Editing normal content preserves the hidden legacy schema reference');
+  for(const [collection,docId] of [['posts',reclaimedPost.body.doc.id],['storage-insights',legacyGuide.body.doc.id]]) {
+    for(const slug of ['Uppercase-guide','storage guide','nested/guide','guide?source=x','encoded%2fguide']) expect((await save(`/api/${collection}/${docId}`,{slug},'PATCH')).response.status===400,'CMS rejects an address that would lose public schema');
+    const retained=await api(`/api/${collection}/${docId}`,{headers:auth});expect(retained.response.ok && /^[a-z0-9-]+$/.test(retained.body.slug),'Rejected address edits preserve the existing document');
+  }
   assert.ok(id);
+  const microBefore=await api('/api/globals/micro-warehousing?depth=0',{headers:auth});
+  for(const content of [[], 'FAQ text', {faqs:'invalid'}, {faqs:[null]}, {faqs:[{question:'Question',answer:''}]}, {facilities:[]}, {facilities:{midpoint:{text:'Invalid object'}}}]) expect((await save('/api/globals/micro-warehousing',{content})).response.status===400,'Micro JSON that breaks rendered/schema content is rejected');
+  const microAfter=await api('/api/globals/micro-warehousing?depth=0',{headers:auth});expect(JSON.stringify(microAfter.body.content)===JSON.stringify(microBefore.body.content),'Rejected Micro content retains the saved data');
+  const supported={faqs:[{question:'Synthetic question?',answer:'Synthetic answer.'}],facilities:{midpoint:'Synthetic introduction.'}};
+  expect((await save('/api/globals/micro-warehousing',{content:supported})).response.ok,'Supported Micro FAQ/introduction edits save normally');
+  const microSaved=await api('/api/globals/micro-warehousing?depth=0',{headers:auth});expect(microSaved.body.content?.faqs?.[0]?.answer==='Synthetic answer.','Supported Micro content is retained by the actual CMS API');
+  expect((await save('/api/globals/micro-warehousing',{content:null})).response.ok,'Optional Micro content can be cleared');
+  expect((await save('/api/globals/micro-warehousing',{content:microBefore.body.content??null})).response.ok,'Isolated Micro fixture content is restored');
   return { id, guideId:legacyGuide.body.doc.id };
 }
