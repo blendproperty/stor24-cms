@@ -19,6 +19,7 @@ export function SeoReview({ guide = false }: { guide?: boolean }) {
     <div className="s24-search-preview"><small>stor24.co.za / {guide ? 'storage-insights' : 'blog'} / {doc.slug || 'page-address'}</small><strong>{audit.title}</strong><p>{audit.description || 'Add a useful description of what the reader will find.'}</p></div>
     {audit.issues.length > 0 && <ul>{audit.issues.map(issue => <li key={issue}>{issue}</li>)}</ul>}
     <p className="s24-seo-note">These are writing checks, not a Google ranking score. Google may choose different search text. Review accuracy, originality and customer usefulness before publishing.</p>
+    <p className="s24-seo-note">Search data updates automatically from your published title, summary, image, dates and questions. Guides use Article markup; blog posts use BlogPosting. Breadcrumbs are automatic. FAQ markup describes visible answers, but Google no longer offers FAQ rich results. Publishing does not guarantee a rich result.</p>
     <a href={SEARCH_CONSOLE} target="_blank" rel="noopener noreferrer">Check indexing and search performance in Google ↗</a>
   </section>
 }

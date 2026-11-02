@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { randomBytes } from 'node:crypto';
 
-export async function verifyEditorSeoHttp({ api, token, expect, publishedPostSlug }) {
+export async function verifyEditorSeoHttp({ api, token, expect, publishedPostSlug, content }) {
   const auth = { authorization: `JWT ${token}` };
   const save = (path, data, method = 'POST', headers = auth) => api(path, { method, headers, body: JSON.stringify(data) });
   expect((await save('/api/page-seo', {path:'/personal-storage'}, 'POST', {})).response.status === 403, 'Anonymous visitors cannot create fixed-page SEO settings');
@@ -30,6 +30,10 @@ export async function verifyEditorSeoHttp({ api, token, expect, publishedPostSlu
   const reclaimedPost=await save('/api/posts',{title:'Synthetic reclaimed article',slug:contentSlug,status:'published'});expect(reclaimedPost.response.ok,'Existing article publication remains intact; the public website gives published content priority');
   expect((await save(`/api/redirects/${contentPath.body.doc.id}`,{status:'draft'},'PATCH')).response.ok,'Editor can retire a redirect');
   const restoredPost=await save(`/api/posts/${reclaimedPost.body.doc.id}`,{title:'Synthetic restored article'},'PATCH');expect(restoredPost.response.ok,'Retiring a redirect preserves normal article editing');
+  const legacyGuide=await save('/api/storage-insights',{title:'Synthetic retained guide',slug:`synthetic-schema-${suffix}`,pageType:'pillar',status:'draft',seoTitle:'Synthetic retained guide',metaDescription:'Synthetic retained guide only.',primaryKeyword:'synthetic',excerpt:'Synthetic retained guide only.',content,schemaTypes:['Article']});
+  expect(legacyGuide.response.ok,'Editor can retain existing guide schema reference data');
+  const editedGuide=await save(`/api/storage-insights/${legacyGuide.body.doc.id}`,{excerpt:'Synthetic revised guide summary.'},'PATCH');
+  expect(editedGuide.response.ok && JSON.stringify(editedGuide.body.doc.schemaTypes)===JSON.stringify(['Article']),'Editing normal content preserves the hidden legacy schema reference');
   assert.ok(id);
-  return { id };
+  return { id, guideId:legacyGuide.body.doc.id };
 }
