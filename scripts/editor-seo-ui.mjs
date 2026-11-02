@@ -26,6 +26,14 @@ export async function verifyEditorSeoUi({origin,token,cookieName,pageSeoId}) {
       await expect(page.getByRole('link',{name:'Review https://stor24.co.za/storage/midpoint',exact:true})).toHaveAttribute('href','https://stor24.co.za/storage/midpoint');
       assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
       await page.screenshot({path:`output/editor-seo/redirect-${width}.png`,fullPage:true});checks++;
+      await page.goto(origin+'/admin/collections/storage-insights/create');
+      await expect(page.getByRole('heading',{name:'Search readiness',exact:true})).toBeVisible();
+      await expect(page.getByText('Search data updates automatically', {exact:false})).toContainText('Google no longer offers FAQ rich results');
+      await expect(page.locator('#field-schemaTypes')).toHaveCount(0);
+      await page.locator('#field-title').fill('Synthetic guide title');
+      await expect(page.locator('.s24-search-preview strong')).toHaveText('Synthetic guide title');
+      assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
+      await page.screenshot({path:`output/editor-seo/guide-schema-${width}.png`,fullPage:true});checks++;
       await context.close();
     }
     console.log(JSON.stringify({editorSeoUiChecks:checks,widths:[1440,390],scope:'isolated CMS fixtures, no public-site navigation'}));
