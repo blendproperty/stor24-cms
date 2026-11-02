@@ -70,7 +70,7 @@ try {
   const cookie = login.response.headers.get('set-cookie') || '';
   expect(/;\s*Secure/i.test(cookie) && /;\s*HttpOnly/i.test(cookie) && /;\s*SameSite=Lax/i.test(cookie), 'Production authentication cookie is Secure, HttpOnly and SameSite=Lax');
   const token = login.body.token;
-  const editorSeo = await verifyEditorSeoHttp({ api, token, expect, publishedPostSlug: fixtures[0].published.slug });
+  const editorSeo = await verifyEditorSeoHttp({ api, token, expect, publishedPostSlug: fixtures[0].published.slug, content });
   checks += await verifyEditorSeoUi({origin,token,cookieName:'payload-token',pageSeoId:editorSeo.id,guideId:editorSeo.guideId});
   for (const [method, path] of [['POST', '/api/media'], ['PATCH', '/api/media/1']]) {
     const anonymousFile = new FormData();
