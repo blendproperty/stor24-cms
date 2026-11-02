@@ -1051,3 +1051,10 @@ Commit/push and merge: PR 66 squash-merged as 7487a7aa7c7ee341bd90bf846eb31013a5
 Deployment and configuration: CMS deployment 41389152743 reports the first release deployed as 7487a7aa at 04:36:43 UTC. The second restricted deployment 41389703553 reported the exact 752dbdae46910666502f256d43488112d45be824 release deployed at 04:43:09 UTC. No production DB roles, privileges, policies, secret mounts or credentials were changed by these candidates.
 Live production verification: the first restricted deployment reports its exact release SHA; separate public/editor live acceptance has not been established by this receipt. The second restricted deployment reported its exact release SHA; independent public/editor live acceptance remains unverified.
 Outstanding: production runtime/migrator/backup identities and trusted credential custody, access inventory, real-user routing, RLS policy coverage, backup/restore with RLS, CMS original migration baseline, provider/editor/staff/customer and all earlier privacy, data, training and recovery gates.
+
+
+### 2026-11-02 — CMS migration-only mount candidate
+
+Implementation: added an opt-in Compose overlay for a separately mounted migration secret; ordinary application services are unchanged in the synthetic configuration test. This is not wired into the production release and does not change database roles or RLS.
+Testing: focused Compose configuration tests pass locally, including absent-path rejection; a CRM Windows-hosted mounted-file probe exposed mode 0777 and was correctly rejected by the existing strict launcher. The Linux-only container probe, real migration using this overlay, full release/rollback and production file custody remain unverified pending hosted and staging checks. See docs/database-migration-mount-stage.md.
+Commit/push, merge, deployment/configuration and live production verification: pending. Production role and grant review, trusted user routing, RLS, full backup and restore, and all provider, data, privacy, training and staff/customer/editor acceptance gates remain open.
