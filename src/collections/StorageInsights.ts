@@ -228,7 +228,8 @@ export const StorageInsights: CollectionConfig = {
       ],
       admin: {
         position: 'sidebar',
-        description: 'Which JSON-LD schema blocks to render for this page.',
+        hidden: true,
+        description: 'Legacy reference only. The website generates structured data automatically from the published content.',
       },
     },
   ],

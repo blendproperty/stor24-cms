@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { mkdir } from 'node:fs/promises';
 import { chromium, expect } from '@playwright/test';
 
-export async function verifyEditorSeoUi({origin,token,cookieName,pageSeoId}) {
+export async function verifyEditorSeoUi({origin,token,cookieName,pageSeoId,guideId}) {
   await mkdir('output/editor-seo',{recursive:true});
   const browser=await chromium.launch();let checks=0;
   try {
@@ -26,6 +26,18 @@ export async function verifyEditorSeoUi({origin,token,cookieName,pageSeoId}) {
       await expect(page.getByRole('link',{name:'Review https://stor24.co.za/storage/midpoint',exact:true})).toHaveAttribute('href','https://stor24.co.za/storage/midpoint');
       assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
       await page.screenshot({path:`output/editor-seo/redirect-${width}.png`,fullPage:true});checks++;
+      await page.goto(`${origin}/admin/collections/storage-insights/${guideId}`);
+      await expect(page.getByRole('heading',{name:'Search readiness',exact:true})).toBeVisible();
+      await expect(page.getByText('Search data updates automatically', {exact:false})).toContainText('Google no longer offers FAQ rich results');
+      // Payload retains hidden values in a hidden input rather than removing the DOM field.
+      await expect(page.locator('#field-schemaTypes')).toHaveAttribute('type','hidden');
+      await expect(page.locator('#field-schemaTypes')).not.toBeVisible();
+      await expect(page.locator('#field-schemaTypes')).toHaveValue('Article');
+      await page.locator('#field-title').fill('Synthetic guide title');
+      await page.locator('#field-seoTitle').fill('Synthetic guide title');
+      await expect(page.locator('.s24-search-preview strong')).toHaveText('Synthetic guide title');
+      assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
+      await page.screenshot({path:`output/editor-seo/guide-schema-${width}.png`,fullPage:true});checks++;
       await context.close();
     }
     console.log(JSON.stringify({editorSeoUiChecks:checks,widths:[1440,390],scope:'isolated CMS fixtures, no public-site navigation'}));

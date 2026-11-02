@@ -383,7 +383,7 @@ export interface StorageInsight {
   status: 'draft' | 'published';
   publishedDate?: string | null;
   /**
-   * Which JSON-LD schema blocks to render for this page.
+   * Legacy reference only. The website generates structured data automatically from the published content.
    */
   schemaTypes?: ('Article' | 'FAQPage' | 'BreadcrumbList' | 'LocalBusiness' | 'Service')[] | null;
   updatedAt: string;
