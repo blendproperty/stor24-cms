@@ -1053,6 +1053,13 @@ Live production verification: the first restricted deployment reports its exact 
 Outstanding: production runtime/migrator/backup identities and trusted credential custody, access inventory, real-user routing, RLS policy coverage, backup/restore with RLS, CMS original migration baseline, provider/editor/staff/customer and all earlier privacy, data, training and recovery gates.
 
 
+### 2026-11-02 — migration mount staging evidence and production preflight
+
+Implementation: opt-in migration-only Compose mount prepared in PR #81; the existing production release path and database configuration are unchanged. Testing: candidate 2ade8ae86b30ca5084e67d911e583f53bac590ee, hosted Security run 41406040527, passed the Linux synthetic secret mount and real migration image against an already-migrated disposable PostgreSQL database. A Windows-hosted synthetic secret appeared mode 0777 and the existing launcher correctly rejected it. This does not prove a pending migration or production mount behavior.
+
+Commit/push and merge: the mount candidate remains a draft; this evidence-only receipt requires normal checks and promotion. Deployment/configuration: no production role, grant, policy, migration mount or credential was changed. Live production verification: a read-only credential preflight via the named administrator account was rejected at SSH public-key authentication; no alternate identity was used. Production host preflight and custody, runtime/migration/backup role separation, trusted user routing, comprehensive RLS, backup/restore with RLS, and existing staff/customer/editor/provider/privacy/data/training/recovery gates remain outstanding.
+
+
 ### 2026-11-02 — CMS migration-only mount candidate
 
 Implementation: added an opt-in Compose overlay for a separately mounted migration secret; ordinary application services are unchanged in the synthetic configuration test. This is not wired into the production release and does not change database roles or RLS.
@@ -1062,3 +1069,5 @@ Commit/push, merge, deployment/configuration and live production verification: p
 2026-11-02: added a hosted end-to-end synthetic PostgreSQL rehearsal using the real migration image with the proposed Compose secret mount. This new test is pending; it does not change or verify production release integration, credential custody, roles or RLS.
 
 2026-11-02 test update: source 2ade8ae86b30ca5084e67d911e583f53bac590ee, hosted Security 41406040527, passed the synthetic Linux Compose secret mount probe and the actual migration image/launcher against an already-migrated disposable PostgreSQL database. This does not prove applying a pending migration, production mounts, runtime credential exclusion or a deployed role/RLS boundary. A read-only credential preflight using the named administrator account was rejected at SSH public-key authentication; no alternate identity was used. Production host preflight, real-user routing, grants, RLS and recovery remain outstanding.
+
+2026-11-02: refreshed the mount candidate after documentation receipt PR 82. Fresh exact-head checks are required; host preflight, production integration and role/RLS rollout remain outstanding.
