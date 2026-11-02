@@ -68,12 +68,14 @@ try {
   await owner.query('INSERT INTO storage_insights_schema_types ("order",parent_id) VALUES (1,$1),(1,$2)',insightIds);
   microIds=(await owner.query('INSERT INTO micro_warehousing (published,headline) VALUES (true,$1),(false,$2) RETURNING id',[`public-${suffix}`,`draft-${suffix}`])).rows.map(row=>row.id);
   await owner.query('GRANT USAGE ON SCHEMA public TO stage_tenant_a, stage_tenant_b');
-  await owner.query('GRANT SELECT ON ALL TABLES IN SCHEMA public TO stage_tenant_a');
-  await owner.query('REVOKE SELECT ON users, users_sessions, content_ideas, payload_kv, payload_preferences, payload_preferences_rels, payload_locked_documents, payload_locked_documents_rels FROM stage_tenant_a');
+  const publicTables = ['posts', ...protectedRelations.map(([table]) => table)];
+  await owner.query(`GRANT SELECT ON ${publicTables.map(table => `"${table}"`).join(', ')} TO stage_tenant_a`);
   await owner.query('GRANT SELECT,INSERT,UPDATE,DELETE ON ALL TABLES IN SCHEMA public TO stage_tenant_b');
   await owner.query('GRANT USAGE,SELECT ON ALL SEQUENCES IN SCHEMA public TO stage_tenant_b');
   await owner.query('REVOKE ALL ON payload_migrations FROM stage_tenant_a, stage_tenant_b');
   await publicDb.connect(); await editorDb.connect();
+  const visibleTables = await owner.query(`SELECT c.relname FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='public' AND c.relkind IN ('r','p','v','m','f') AND has_table_privilege('stage_tenant_a',c.oid,'SELECT') ORDER BY c.relname`);
+  assert.deepEqual(visibleTables.rows.map(row => row.relname), [...publicTables].sort(), 'public role must not read unrelated tables');
   for (const db of [publicDb, editorDb]) {
     const role=(await db.query("SELECT rolsuper,rolbypassrls,rolcreatedb,rolcreaterole,has_schema_privilege(current_user,'public','CREATE') AS schema_create FROM pg_roles WHERE rolname=current_user")).rows[0];
     assert.deepEqual(Object.values(role),[false,false,false,false,false]);
