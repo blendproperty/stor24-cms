@@ -1123,3 +1123,13 @@ The website canonical context entry dated 24 October records earlier remediation
 - Deployment/configuration: automatic CMS Deploy 41451847591 reported successful deployment of the exact revision at 13:21:57 UTC. This release did not create or change production database roles, RLS policies or migration credentials.
 - Live production verification: shortly after deployment, CMS /admin/login and website /api/health each returned HTTP 200. These are availability checks, not editor/customer acceptance, production RLS validation or backup proof.
 - Outstanding: complete CRM and CMS production role separation, real-user and worker routing, full policy and related-table coverage, protected migration/backup credentials and full recovery verification. Preserve all previous privacy, data, provider, editor/staff/customer, training and acceptance gates.
+
+
+## 2026-11-17 — STOR24 whole-system integration map for Mark
+
+- Implementation: documentation only; mapped Payload editorial content/media and SEO, website consumption and data/recovery boundary alongside CRM, public website, CMS and BlendSign. [CRM cross-repository inventory review branch](https://github.com/blendproperty/stor24-portal/tree/codex/stor24-system-map-20261117/docs).
+- Testing: cross-checked canonical source and dated release evidence; the 24-item map passed content/layout assertions and visual review. No application tests or vendor actions were run for this documentation change.
+- Commit and push: prepared on `codex/stor24-system-map-20261117`; the branch commit and remote readback identify this record. Merge: not promoted to the production branch.
+- Deployment and configuration: no application deployment, provider settings, billing, consent or access change.
+- Live production verification: on 17 November at 14:32 SAST, public website health returned HTTP 200 with CMS/CRM dependency checks passing; CRM health returned HTTP 200 with app, database and merchandise expiry healthy. No fresh integrated provider, finance, customer or staff acceptance test was performed.
+- Outstanding: WhatChimp live social routing/post-cutover retest, Netcash onboarding/live collection and settlement, MRI posting/mapping, HikCentral reader and MEL approval, policy/legal, data, recovery, staff/device UAT, training and business sign-off remain open as applicable. No tracker work in scope.
